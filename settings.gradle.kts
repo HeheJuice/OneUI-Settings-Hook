@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PropSpoofer"
+rootProject.name = "AboutUIModify"
 include(":app")

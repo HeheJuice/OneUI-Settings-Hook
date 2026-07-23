@@ -24,6 +24,7 @@ import de.robv.android.xposed.XposedHelpers
 object SoftwareInfoBannerPatch {
     private const val TAG = "SoftwareInfoBannerPatch"
     private var isHookInitialized = false
+    private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsUIPatch"
 
     fun injectBanner(preferenceScreen: Any, context: Context, classLoader: ClassLoader) {
         try {
@@ -71,6 +72,13 @@ object SoftwareInfoBannerPatch {
                             val holder = param.args[0]
                             val itemView = XposedHelpers.getObjectField(holder, "itemView") as? ViewGroup ?: return
                             val ctx = itemView.context
+
+                            // Obtain module context for assets and localized strings using the new package name
+                            val modContext = try {
+                                ctx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
+                            } catch (e: Throwable) {
+                                null
+                            }
 
                             // Strip native OneUI preference decorations
                             itemView.removeAllViews()
@@ -140,7 +148,7 @@ object SoftwareInfoBannerPatch {
                                 )
                             }
 
-                            // 3. Dynamic Text Overlay based on ro.build.version.oneui
+                            // 3. Dynamic Text Overlay with multi-language support
                             val textView = TextView(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -148,12 +156,11 @@ object SoftwareInfoBannerPatch {
                                 ).apply {
                                     gravity = Gravity.CENTER
                                 }
-                                text = getOneUiVersionDisplay()
+                                text = getOneUiVersionDisplay(modContext)
                                 textSize = 38f
                                 
                                 typeface = try {
-                                    val modContext = ctx.createPackageContext("com.HeheJuice.OneUISettingsUIPatch", Context.CONTEXT_IGNORE_SECURITY)
-                                    Typeface.createFromAsset(modContext.assets, "SamsungSharpSans-Bold.ttf")
+                                    Typeface.createFromAsset(modContext?.assets, "SamsungSharpSans-Bold.ttf")
                                 } catch (e: Throwable) {
                                     Typeface.DEFAULT_BOLD
                                 }
@@ -179,23 +186,35 @@ object SoftwareInfoBannerPatch {
         }
     }
 
-    private fun getOneUiVersionDisplay(): String {
+    private fun getOneUiVersionDisplay(modContext: Context?): String {
         try {
             val c = Class.forName("android.os.SystemProperties")
             val rawValue = c.getMethod("get", String::class.java, String::class.java).invoke(null, "ro.build.version.oneui", "") as? String ?: ""
             
             val intVal = rawValue.toIntOrNull()
-            if (intVal != null) {
+            val versionStr = if (intVal != null) {
                 val major = intVal / 10000
                 val minor = (intVal % 10000) / 100
-                return if (minor > 0) {
-                    "OneUI $major.$minor"
-                } else {
-                    "OneUI $major"
-                }
+                if (minor > 0) "$major.$minor" else "$major"
             } else if (rawValue.isNotBlank()) {
-                return "OneUI $rawValue"
+                rawValue
+            } else {
+                ""
             }
+
+            if (modContext != null && versionStr.isNotEmpty()) {
+                val resId = modContext.resources.getIdentifier("oneui_version_format", "string", MODULE_PACKAGE_NAME)
+                if (resId != 0) {
+                    return String.format(modContext.getString(resId), versionStr)
+                }
+            } else if (modContext != null) {
+                val resId = modContext.resources.getIdentifier("oneui_default", "string", MODULE_PACKAGE_NAME)
+                if (resId != 0) {
+                    return modContext.getString(resId)
+                }
+            }
+
+            return if (versionStr.isNotEmpty()) "OneUI $versionStr" else "OneUI"
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to read ro.build.version.oneui property", e)
         }

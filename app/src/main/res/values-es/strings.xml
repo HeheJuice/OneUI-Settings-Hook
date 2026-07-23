@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Parche de Interfaz de Configuración OneUI</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">Acerca de tu Galaxy</string>
+    <string name="software_details">Detalles de software</string>
+</resources>

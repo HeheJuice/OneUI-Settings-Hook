@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">OneUI 設定 UI パッチ</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">Galaxy について</string>
+    <string name="software_details">ソフトウェア詳細</string>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">OneUI 設定介面修補程式</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">關於你的 Galaxy</string>
+    <string name="software_details">軟件詳細資料</string>
+</resources>

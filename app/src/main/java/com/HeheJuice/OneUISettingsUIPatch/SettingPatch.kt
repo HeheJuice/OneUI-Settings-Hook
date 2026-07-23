@@ -11,6 +11,7 @@ class SettingPatch : IXposedHookLoadPackage {
     
     companion object {
         private const val TAG = "OneUISettingsUIPatch"
+        private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsUIPatch"
         // Track unique fragment instances to ensure the patch runs strictly once per page open
         private val processedFragments = mutableSetOf<Int>()
     }
@@ -48,14 +49,21 @@ class SettingPatch : IXposedHookLoadPackage {
 
                             Log.d(TAG, "Software Info screen detected! Restructuring layout & injecting banner...")
 
-                            // Inject the custom wallpaper banner with the "OneUI" text overlay at the top
+                            // Obtain module context for localized strings
+                            val modContext = try {
+                                context.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
+                            } catch (e: Throwable) {
+                                null
+                            }
+
+                            // Inject the custom wallpaper banner with the dynamic text overlay at the top
                             SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
 
                             val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
 
                             // 1. Create Category: "About Your Galaxy" (Key: GalaxyInfo)
                             val galaxyCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
-                            XposedHelpers.callMethod(galaxyCategory, "setTitle", "About Your Galaxy")
+                            XposedHelpers.callMethod(galaxyCategory, "setTitle", getLocalizedString(modContext, "about_your_galaxy", "About Your Galaxy"))
                             XposedHelpers.callMethod(galaxyCategory, "setKey", "GalaxyInfo")
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", galaxyCategory)
 
@@ -71,7 +79,7 @@ class SettingPatch : IXposedHookLoadPackage {
 
                             // 2. Create Category: "Software Details" (Key: extra_info)
                             val softwareCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
-                            XposedHelpers.callMethod(softwareCategory, "setTitle", "Software Details")
+                            XposedHelpers.callMethod(softwareCategory, "setTitle", getLocalizedString(modContext, "software_details", "Software Details"))
                             XposedHelpers.callMethod(softwareCategory, "setKey", "extra_info")
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", softwareCategory)
 
@@ -100,5 +108,19 @@ class SettingPatch : IXposedHookLoadPackage {
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to hook $targetFragmentClass", e)
         }
+    }
+
+    private fun getLocalizedString(modContext: Context?, key: String, fallback: String): String {
+        if (modContext != null) {
+            try {
+                val resId = modContext.resources.getIdentifier(key, "string", MODULE_PACKAGE_NAME)
+                if (resId != 0) {
+                    return modContext.getString(resId)
+                }
+            } catch (e: Throwable) {
+                Log.e(TAG, "Failed to load localized string for $key", e)
+            }
+        }
+        return fallback
     }
 }

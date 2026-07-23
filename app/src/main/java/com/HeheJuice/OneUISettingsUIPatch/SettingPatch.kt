@@ -44,7 +44,7 @@ class SettingPatch : IXposedHookLoadPackage {
                             if (oneUiPref == null && firmwarePref == null) return
 
                             processedFragments.add(fragmentHash)
-                            Log.d(TAG, "Software Info screen detected! Restructuring layout & injecting banner...")
+                            Log.d(TAG, "Software Info screen detected! Restructuring layout & injecting banner at top...")
 
                             val modContext = try {
                                 context.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
@@ -52,17 +52,29 @@ class SettingPatch : IXposedHookLoadPackage {
                                 null
                             }
 
-                            // Inject custom wallpaper banner at the absolute top
-                            SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
-
                             val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
                             val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", lpparam.classLoader)
 
-                            // 1. Category: "About Your Galaxy" (Order: -10)
+                            // 0. Initialize the banner hook binder
+                            SoftwareInfoBannerPatch.initBannerHookIfNeeded(lpparam.classLoader)
+
+                            // 1. Add the banner preference FIRST so it takes the top slot in insertion order
+                            val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
+                            if (existingBanner == null) {
+                                val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
+                                XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
+                                XposedHelpers.callMethod(bannerPref, "setSelectable", false)
+                                try {
+                                    XposedHelpers.callMethod(bannerPref, "setDividerAllowedAbove", false)
+                                    XposedHelpers.callMethod(bannerPref, "setDividerAllowedBelow", false)
+                                } catch (ignored: Throwable) {}
+                                XposedHelpers.callMethod(preferenceScreen, "addPreference", bannerPref)
+                            }
+
+                            // 2. Category: "About Your Galaxy"
                             val galaxyCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
                             XposedHelpers.callMethod(galaxyCategory, "setTitle", getLocalizedString(modContext, "about_your_galaxy", "About Your Galaxy"))
                             XposedHelpers.callMethod(galaxyCategory, "setKey", "GalaxyInfo")
-                            XposedHelpers.callMethod(galaxyCategory, "setOrder", -10)
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", galaxyCategory)
 
                             val galaxyKeys = listOf("one_ui_version", "android_firmware_version", "kernel_version", "build_number")
@@ -74,11 +86,10 @@ class SettingPatch : IXposedHookLoadPackage {
                                 }
                             }
 
-                            // 2. Category: "Module Information" (Order: -5)
+                            // 3. Category: "Module Information"
                             val moduleCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
                             XposedHelpers.callMethod(moduleCategory, "setTitle", getLocalizedString(modContext, "module_info_category", "Module Information"))
                             XposedHelpers.callMethod(moduleCategory, "setKey", "module_info_category")
-                            XposedHelpers.callMethod(moduleCategory, "setOrder", -5)
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", moduleCategory)
 
                             val namePref = XposedHelpers.newInstance(preferenceClass, context)
@@ -100,11 +111,10 @@ class SettingPatch : IXposedHookLoadPackage {
                             XposedHelpers.callMethod(githubPref, "setIntent", viewIntent)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", githubPref)
 
-                            // 3. Category: "Software Details" (Order: 0)
+                            // 4. Category: "Software Details"
                             val softwareCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
                             XposedHelpers.callMethod(softwareCategory, "setTitle", getLocalizedString(modContext, "software_details", "Software Details"))
                             XposedHelpers.callMethod(softwareCategory, "setKey", "extra_info")
-                            XposedHelpers.callMethod(softwareCategory, "setOrder", 0)
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", softwareCategory)
 
                             val softwareKeys = listOf(
@@ -120,7 +130,7 @@ class SettingPatch : IXposedHookLoadPackage {
                                 }
                             }
 
-                            Log.d(TAG, "Successfully restructured Software Info layout with forced orders.")
+                            Log.d(TAG, "Successfully restructured Software Info layout with banner at the top.")
                         } catch (e: Throwable) {
                             Log.e(TAG, "Error restructuring software info layout", e)
                         }

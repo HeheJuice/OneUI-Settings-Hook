@@ -7,5 +7,5 @@
     <string name="module_info_category">Module Information</string>
     <string name="module_maker_title">Module Maker</string>
     <string name="module_github_title">GitHub Repository</string>
-    <string name="module_summary">Modifying OneUI Settings UI</string>
+    <string name="module_summary">Modifying OneUI Settings</string>
 </resources>

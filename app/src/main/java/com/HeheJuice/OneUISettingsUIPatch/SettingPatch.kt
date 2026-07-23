@@ -55,21 +55,8 @@ class SettingPatch : IXposedHookLoadPackage {
                             val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
                             val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", lpparam.classLoader)
 
-                            // 0. Initialize the banner hook binder
-                            SoftwareInfoBannerPatch.initBannerHookIfNeeded(lpparam.classLoader)
-
-                            // 1. Add the banner preference FIRST so it takes the top slot in insertion order
-                            val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
-                            if (existingBanner == null) {
-                                val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
-                                XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
-                                XposedHelpers.callMethod(bannerPref, "setSelectable", false)
-                                try {
-                                    XposedHelpers.callMethod(bannerPref, "setDividerAllowedAbove", false)
-                                    XposedHelpers.callMethod(bannerPref, "setDividerAllowedBelow", false)
-                                } catch (ignored: Throwable) {}
-                                XposedHelpers.callMethod(preferenceScreen, "addPreference", bannerPref)
-                            }
+                            // 1. Inject the custom wallpaper banner FIRST so it takes the absolute top slot
+                            SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
 
                             // 2. Category: "About Your Galaxy"
                             val galaxyCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)

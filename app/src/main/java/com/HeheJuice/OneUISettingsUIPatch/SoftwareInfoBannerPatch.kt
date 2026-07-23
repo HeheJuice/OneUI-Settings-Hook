@@ -1,11 +1,17 @@
 package com.HeheJuice.OneUISettingsUIPatch
 
+import android.animation.ValueAnimator
 import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Matrix
 import android.graphics.Outline
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -39,8 +45,8 @@ object SoftwareInfoBannerPatch {
             XposedHelpers.callMethod(bannerPref, "setOrder", -999)
             XposedHelpers.callMethod(bannerPref, "setSelectable", false)
             
-            // Assign a unique public layout so RecyclerView gives it a unique ViewType
-            // This prevents it from being mixed up or recycled into normal text preferences.
+            // Assign a unique public layout so RecyclerView gives it an exclusive ViewType.
+            // This prevents view recycling conflicts with normal preferences.
             XposedHelpers.callMethod(bannerPref, "setLayoutResource", android.R.layout.two_line_list_item)
 
             try {
@@ -73,7 +79,7 @@ object SoftwareInfoBannerPatch {
                             val itemView = XposedHelpers.getObjectField(holder, "itemView") as? ViewGroup ?: return
                             val ctx = itemView.context
 
-                            // If we already built the banner inside this recycled view, skip building it again
+                            // Skip rebuilding if already initialized inside this view
                             if (itemView.findViewById<View>(android.R.id.custom) != null) {
                                 return
                             }
@@ -88,7 +94,7 @@ object SoftwareInfoBannerPatch {
                             itemView.setPadding(0, 0, 0, 0)
                             itemView.background = null
 
-                            // Safely update LayoutParams without causing RecyclerView ClassCastExceptions
+                            // Update LayoutParams safely without breaking RecyclerView layout managers
                             val bannerHeightPx = dpToPx(ctx, 160f)
                             val lp = itemView.layoutParams
                             if (lp != null) {
@@ -98,7 +104,7 @@ object SoftwareInfoBannerPatch {
                             }
 
                             val rootLayout = FrameLayout(ctx).apply {
-                                id = android.R.id.custom // Tag it so we know it's our initialized layout
+                                id = android.R.id.custom
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
                                     bannerHeightPx
@@ -151,7 +157,6 @@ object SoftwareInfoBannerPatch {
                                 ).apply {
                                     gravity = Gravity.CENTER
                                 }
-                                text = getOneUiVersionDisplay(modContext)
                                 textSize = 38f
                                 
                                 typeface = try {
@@ -169,6 +174,11 @@ object SoftwareInfoBannerPatch {
                             rootLayout.addView(textView)
 
                             itemView.addView(rootLayout)
+
+                            // Run Typewriter reveal and activate continuous shimmer sweep
+                            val targetText = getOneUiVersionDisplay(modContext)
+                            applyTypewriterWithShimmer(textView, targetText)
+
                         } catch (e: Throwable) {
                             Log.e(TAG, "Error binding custom wallpaper banner view", e)
                         }
@@ -179,6 +189,57 @@ object SoftwareInfoBannerPatch {
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to initialize global banner hook", e)
         }
+    }
+
+    private fun applyTypewriterWithShimmer(textView: TextView, fullText: String, charDelayMs: Long = 65L) {
+        val handler = Handler(Looper.getMainLooper())
+        var index = 0
+        textView.text = ""
+
+        val typewriterRunnable = object : Runnable {
+            override fun run() {
+                if (index <= fullText.length) {
+                    textView.text = fullText.substring(0, index++)
+                    handler.postDelayed(this, charDelayMs)
+                } else {
+                    startShimmerSweep(textView)
+                }
+            }
+        }
+        handler.post(typewriterRunnable)
+    }
+
+    private fun startShimmerSweep(textView: TextView) {
+        val text = textView.text.toString()
+        if (text.isEmpty()) return
+
+        val textWidth = textView.paint.measureText(text)
+        if (textWidth <= 0f) return
+
+        val baseColor = textView.currentTextColor
+
+        val shimmerShader = LinearGradient(
+            0f, 0f, textWidth, 0f,
+            intArrayOf(baseColor, Color.WHITE, baseColor),
+            floatArrayOf(0f, 0.5f, 1f),
+            Shader.TileMode.CLAMP
+        )
+
+        textView.paint.shader = shimmerShader
+        val matrix = Matrix()
+
+        val animator = ValueAnimator.ofFloat(-textWidth, textWidth * 2f).apply {
+            duration = 2200
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            addUpdateListener { animation ->
+                val translate = animation.animatedValue as Float
+                matrix.setTranslate(translate, 0f)
+                shimmerShader.setLocalMatrix(matrix)
+                textView.invalidate()
+            }
+        }
+        animator.start()
     }
 
     private fun getOneUiVersionDisplay(modContext: Context?): String {

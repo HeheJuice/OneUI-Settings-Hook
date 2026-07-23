@@ -1,10 +1,11 @@
 <resources>
-    <string name="app_name">Parche de Interfaz de Configuración OneUI</string>
+    <string name="app_name">OneUI Settings UI Patch</string>
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">Acerca de tu Galaxy</string>
-    <string name="software_details">Detalles de software</string>
+    <string name="software_details">Detalles del software</string>
     <string name="module_info_category">Información del módulo</string>
     <string name="module_maker_title">Creador del módulo</string>
     <string name="module_github_title">Repositorio de GitHub</string>
+    <string name="module_summary">Modificando la interfaz de Ajustes de OneUI</string>
 </resources>

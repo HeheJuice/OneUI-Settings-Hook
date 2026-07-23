@@ -10,6 +10,9 @@ object SensitiveInfoPatch {
     private const val TAG = "SensitiveInfoPatch"
     private var isHooked = false
 
+    // Adjust your mask string length/style here (8 characters fits perfectly on 1 line)
+    private const val MASK_TEXT = "********" 
+
     // Custom View Tag keys to store real text and toggle state per TextView
     private const val TAG_REAL_TEXT = 0x7f099991
     private const val TAG_IS_UNMASKED = 0x7f099992
@@ -19,7 +22,6 @@ object SensitiveInfoPatch {
         if (isHooked) return
         try {
             // Hook TextView.setText(CharSequence, BufferType) directly.
-            // This catches all dynamic updates, including Samsung's custom top card views.
             XposedHelpers.findAndHookMethod(
                 TextView::class.java,
                 "setText",
@@ -31,7 +33,7 @@ object SensitiveInfoPatch {
                             val tv = param.thisObject as? TextView ?: return
                             val rawInput = param.args[0]?.toString() ?: return
 
-                            if (rawInput.isBlank() || rawInput == "***") return
+                            if (rawInput.isBlank() || rawInput == MASK_TEXT) return
 
                             // Skip if we are manually toggling text via click listener
                             if (tv.getTag(TAG_HOOK_LOCK) == true) return
@@ -58,7 +60,7 @@ object SensitiveInfoPatch {
                                 val isUnmasked = tv.getTag(TAG_IS_UNMASKED) == true
 
                                 if (!isUnmasked) {
-                                    param.args[0] = "***"
+                                    param.args[0] = MASK_TEXT
                                 }
 
                                 // Attach tap listener to the TextView
@@ -71,7 +73,7 @@ object SensitiveInfoPatch {
                                     val nextState = !currentlyUnmasked
                                     targetTv.setTag(TAG_IS_UNMASKED, nextState)
                                     targetTv.setTag(TAG_HOOK_LOCK, true)
-                                    targetTv.text = if (nextState) realVal else "***"
+                                    targetTv.text = if (nextState) realVal else MASK_TEXT
                                     targetTv.setTag(TAG_HOOK_LOCK, false)
                                 }
 

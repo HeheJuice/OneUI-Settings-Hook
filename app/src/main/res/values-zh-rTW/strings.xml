@@ -7,5 +7,5 @@
     <string name="module_info_category">模組資訊</string>
     <string name="module_maker_title">模組製作</string>
     <string name="module_github_title">GitHub 儲存庫</string>
-    <string name="module_summary">修改 OneUI 設定介面</string>
+    <string name="module_summary">修改 OneUI 設定</string>
 </resources>

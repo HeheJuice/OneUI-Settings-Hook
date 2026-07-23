@@ -2,13 +2,9 @@ package com.HeheJuice.OneUISettingsUIPatch
 
 import android.app.WallpaperManager
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.Typeface
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import android.view.Gravity
@@ -40,8 +36,12 @@ object SoftwareInfoBannerPatch {
             val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
 
             XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
-            XposedHelpers.callMethod(bannerPref, "setOrder", -1)
+            XposedHelpers.callMethod(bannerPref, "setOrder", -999)
             XposedHelpers.callMethod(bannerPref, "setSelectable", false)
+            
+            // Assign a unique public layout so RecyclerView gives it a unique ViewType
+            // This prevents it from being mixed up or recycled into normal text preferences.
+            XposedHelpers.callMethod(bannerPref, "setLayoutResource", android.R.layout.two_line_list_item)
 
             try {
                 XposedHelpers.callMethod(bannerPref, "setDividerAllowedAbove", false)
@@ -49,7 +49,7 @@ object SoftwareInfoBannerPatch {
             } catch (ignored: Throwable) {}
 
             XposedHelpers.callMethod(preferenceScreen, "addPreference", bannerPref)
-            Log.d(TAG, "Successfully injected custom wallpaper banner preference.")
+            Log.d(TAG, "Successfully injected custom wallpaper banner preference at top.")
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to inject custom wallpaper banner", e)
         }
@@ -73,70 +73,66 @@ object SoftwareInfoBannerPatch {
                             val itemView = XposedHelpers.getObjectField(holder, "itemView") as? ViewGroup ?: return
                             val ctx = itemView.context
 
-                            // Obtain module context for assets and localized strings using the new package name
+                            // If we already built the banner inside this recycled view, skip building it again
+                            if (itemView.findViewById<View>(android.R.id.custom) != null) {
+                                return
+                            }
+
                             val modContext = try {
                                 ctx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
                             } catch (e: Throwable) {
                                 null
                             }
 
-                            // Strip native OneUI preference decorations
                             itemView.removeAllViews()
                             itemView.setPadding(0, 0, 0, 0)
                             itemView.background = null
 
-                            // Use FrameLayout with ZERO margins to perfectly cover the native background
-                            val rootLayout = FrameLayout(ctx).apply {
-                                layoutParams = ViewGroup.MarginLayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    dpToPx(ctx, 160f)
-                                ).apply {
-                                    setMargins(0, 0, 0, 0)
-                                }
+                            // Safely update LayoutParams without causing RecyclerView ClassCastExceptions
+                            val bannerHeightPx = dpToPx(ctx, 160f)
+                            val lp = itemView.layoutParams
+                            if (lp != null) {
+                                lp.height = bannerHeightPx
+                                lp.width = ViewGroup.LayoutParams.MATCH_PARENT
+                                itemView.layoutParams = lp
+                            }
 
-                                // Native hardware clipping for perfectly smooth corners without 1px strokes
+                            val rootLayout = FrameLayout(ctx).apply {
+                                id = android.R.id.custom // Tag it so we know it's our initialized layout
+                                layoutParams = FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                    bannerHeightPx
+                                )
                                 clipToOutline = true
                                 outlineProvider = object : ViewOutlineProvider() {
+                                    val radius = dpToPx(ctx, 26f).toFloat()
                                     override fun getOutline(view: View, outline: Outline) {
-                                        outline.setRoundRect(0, 0, view.width, view.height, dpToPx(ctx, 26f).toFloat())
+                                        outline.setRoundRect(0, 0, view.width, view.height, radius)
                                     }
                                 }
                             }
 
-                            // 1. Wallpaper Image View with Center-Crop Slicing
                             val imageView = ImageView(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
                                     FrameLayout.LayoutParams.MATCH_PARENT
                                 )
-                                scaleType = ImageView.ScaleType.FIT_XY
-
-                                post {
-                                    try {
-                                        val wallpaperManager = WallpaperManager.getInstance(ctx)
-                                        val wallpaperDrawable = wallpaperManager.drawable
-                                        val vWidth = width
-                                        val vHeight = height
-
-                                        if (wallpaperDrawable != null && vWidth > 0 && vHeight > 0) {
-                                            val rawBitmap = drawableToBitmap(wallpaperDrawable)
-                                            if (rawBitmap != null) {
-                                                val centerCroppedBitmap = centerCropBitmap(rawBitmap, vWidth, vHeight)
-                                                setImageBitmap(centerCroppedBitmap)
-                                            } else {
-                                                setImageDrawable(wallpaperDrawable)
-                                            }
-                                        } else {
-                                            setBackgroundColor(Color.parseColor("#333333"))
-                                        }
-                                    } catch (e: Throwable) {
-                                        Log.e(TAG, "Error applying center-cropped wallpaper bitmap", e)
-                                        setBackgroundColor(Color.parseColor("#333333"))
-                                    }
-                                }
+                                scaleType = ImageView.ScaleType.CENTER_CROP
                             }
 
-                            // 2. Dark gradient overlay for text readability
+                            try {
+                                val wallpaperManager = WallpaperManager.getInstance(ctx)
+                                val wallpaperDrawable = wallpaperManager.drawable
+                                if (wallpaperDrawable != null) {
+                                    imageView.setImageDrawable(wallpaperDrawable)
+                                } else {
+                                    imageView.setBackgroundColor(Color.parseColor("#222222"))
+                                }
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to load wallpaper drawable", e)
+                                imageView.setBackgroundColor(Color.parseColor("#222222"))
+                            }
+
                             val overlayView = View(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -148,7 +144,6 @@ object SoftwareInfoBannerPatch {
                                 )
                             }
 
-                            // 3. Dynamic Text Overlay with multi-language support
                             val textView = TextView(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -219,46 +214,6 @@ object SoftwareInfoBannerPatch {
             Log.e(TAG, "Failed to read ro.build.version.oneui property", e)
         }
         return "OneUI"
-    }
-
-    private fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        if (drawable is BitmapDrawable) {
-            return drawable.bitmap
-        }
-        val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 1080
-        val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 1920
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
-    }
-
-    private fun centerCropBitmap(bitmap: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
-        val bWidth = bitmap.width
-        val bHeight = bitmap.height
-
-        val targetRatio = targetWidth.toFloat() / targetHeight.toFloat()
-        val bitmapRatio = bWidth.toFloat() / bHeight.toFloat()
-
-        val cropWidth: Int
-        val cropHeight: Int
-        val cropX: Int
-        val cropY: Int
-
-        if (bitmapRatio > targetRatio) {
-            cropHeight = bHeight
-            cropWidth = (bHeight * targetRatio).toInt()
-            cropX = (bWidth - cropWidth) / 2
-            cropY = 0
-        } else {
-            cropWidth = bWidth
-            cropHeight = (bWidth / targetRatio).toInt()
-            cropX = 0
-            cropY = (bHeight - cropHeight) / 2
-        }
-
-        return Bitmap.createBitmap(bitmap, cropX, cropY, cropWidth, cropHeight)
     }
 
     private fun dpToPx(context: Context, dp: Float): Int {

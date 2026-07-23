@@ -4,4 +4,7 @@
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">Acerca de tu Galaxy</string>
     <string name="software_details">Detalles de software</string>
+    <string name="module_info_category">Información del módulo</string>
+    <string name="module_maker_title">Creador del módulo</string>
+    <string name="module_github_title">Repositorio de GitHub</string>
 </resources>

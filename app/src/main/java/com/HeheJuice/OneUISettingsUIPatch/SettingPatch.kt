@@ -86,16 +86,18 @@ class SettingPatch : IXposedHookLoadPackage {
                             XposedHelpers.callMethod(moduleCategory, "setKey", "module_info_category")
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", moduleCategory)
 
+                            // Dynamic Title from @string/app_name and dynamic Summary from @string/module_summary
                             val namePref = XposedHelpers.newInstance(preferenceClass, context)
-                            XposedHelpers.callMethod(namePref, "setTitle", "OneUI Settings UI Patch")
-                            XposedHelpers.callMethod(namePref, "setSummary", "Restructures Samsung OneUI Settings Software Info page with custom wallpaper banner and category groupings.")
+                            XposedHelpers.callMethod(namePref, "setTitle", getLocalizedString(modContext, "app_name", "OneUI Settings UI Patch"))
+                            XposedHelpers.callMethod(namePref, "setSummary", getLocalizedString(modContext, "module_summary", "Modifying OneUI Settings UI"))
                             XposedHelpers.callMethod(namePref, "setSelectable", false)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", namePref)
 
                             val makerPref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(makerPref, "setTitle", getLocalizedString(modContext, "module_maker_title", "Module Maker"))
                             XposedHelpers.callMethod(makerPref, "setSummary", "HeheJuice")
-                            XposedHelpers.callMethod(makerPref, "setSelectable", false)
+                            val makerIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice"))
+                            XposedHelpers.callMethod(makerPref, "setIntent", makerIntent)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", makerPref)
 
                             val githubPref = XposedHelpers.newInstance(preferenceClass, context)

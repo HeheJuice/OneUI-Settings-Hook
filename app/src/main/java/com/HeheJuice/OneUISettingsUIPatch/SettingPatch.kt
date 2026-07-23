@@ -38,9 +38,6 @@ class SettingPatch : IXposedHookLoadPackage {
                             val fragmentHash = fragment.hashCode()
                             
                             val preferenceScreen = XposedHelpers.callMethod(fragment, "getPreferenceScreen") ?: return
-                            
-                            // Remove sensitivity tiles completely from screens that load them (optional pass)
-                            SensitiveInfoPatch.removeSensitivePreferences(preferenceScreen)
 
                             if (processedFragments.contains(fragmentHash)) return
 
@@ -51,6 +48,7 @@ class SettingPatch : IXposedHookLoadPackage {
                             
                             if (oneUiPref == null && firmwarePref == null) return
 
+                            // Strict run-once check
                             val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
                             if (existingBanner != null) {
                                 processedFragments.add(fragmentHash)

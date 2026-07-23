@@ -43,6 +43,13 @@ class SettingPatch : IXposedHookLoadPackage {
                             
                             if (oneUiPref == null && firmwarePref == null) return
 
+                            // Strict run-once check: if banner already exists, mark processed and exit
+                            val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
+                            if (existingBanner != null) {
+                                processedFragments.add(fragmentHash)
+                                return
+                            }
+
                             processedFragments.add(fragmentHash)
                             Log.d(TAG, "Software Info screen detected! Restructuring layout & injecting banner at top...")
 
@@ -55,8 +62,16 @@ class SettingPatch : IXposedHookLoadPackage {
                             val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
                             val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", lpparam.classLoader)
 
-                            // 1. Inject the custom wallpaper banner FIRST so it takes the absolute top slot
-                            SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
+                            // 1. Create banner and assign order = -999 to force it to the absolute top of the screen
+                            val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
+                            XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
+                            XposedHelpers.callMethod(bannerPref, "setOrder", -999)
+                            XposedHelpers.callMethod(bannerPref, "setSelectable", false)
+                            try {
+                                XposedHelpers.callMethod(bannerPref, "setDividerAllowedAbove", false)
+                                XposedHelpers.callMethod(bannerPref, "setDividerAllowedBelow", false)
+                            } catch (ignored: Throwable) {}
+                            XposedHelpers.callMethod(preferenceScreen, "addPreference", bannerPref)
 
                             // 2. Category: "About Your Galaxy"
                             val galaxyCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)

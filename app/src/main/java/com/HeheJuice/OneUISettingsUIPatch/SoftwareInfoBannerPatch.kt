@@ -40,7 +40,8 @@ object SoftwareInfoBannerPatch {
             val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
 
             XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
-            XposedHelpers.callMethod(bannerPref, "setOrder", -1)
+            // Force absolute top placement using Int.MIN_VALUE
+            XposedHelpers.callMethod(bannerPref, "setOrder", Int.MIN_VALUE)
             XposedHelpers.callMethod(bannerPref, "setSelectable", false)
 
             try {
@@ -49,7 +50,7 @@ object SoftwareInfoBannerPatch {
             } catch (ignored: Throwable) {}
 
             XposedHelpers.callMethod(preferenceScreen, "addPreference", bannerPref)
-            Log.d(TAG, "Successfully injected custom wallpaper banner preference.")
+            Log.d(TAG, "Successfully injected custom wallpaper banner preference at top.")
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to inject custom wallpaper banner", e)
         }
@@ -73,19 +74,16 @@ object SoftwareInfoBannerPatch {
                             val itemView = XposedHelpers.getObjectField(holder, "itemView") as? ViewGroup ?: return
                             val ctx = itemView.context
 
-                            // Obtain module context for assets and localized strings using the new package name
                             val modContext = try {
                                 ctx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
                             } catch (e: Throwable) {
                                 null
                             }
 
-                            // Strip native OneUI preference decorations
                             itemView.removeAllViews()
                             itemView.setPadding(0, 0, 0, 0)
                             itemView.background = null
 
-                            // Use FrameLayout with ZERO margins to perfectly cover the native background
                             val rootLayout = FrameLayout(ctx).apply {
                                 layoutParams = ViewGroup.MarginLayoutParams(
                                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -94,7 +92,6 @@ object SoftwareInfoBannerPatch {
                                     setMargins(0, 0, 0, 0)
                                 }
 
-                                // Native hardware clipping for perfectly smooth corners without 1px strokes
                                 clipToOutline = true
                                 outlineProvider = object : ViewOutlineProvider() {
                                     override fun getOutline(view: View, outline: Outline) {
@@ -103,7 +100,6 @@ object SoftwareInfoBannerPatch {
                                 }
                             }
 
-                            // 1. Wallpaper Image View with Center-Crop Slicing
                             val imageView = ImageView(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -136,7 +132,6 @@ object SoftwareInfoBannerPatch {
                                 }
                             }
 
-                            // 2. Dark gradient overlay for text readability
                             val overlayView = View(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -148,7 +143,6 @@ object SoftwareInfoBannerPatch {
                                 )
                             }
 
-                            // 3. Dynamic Text Overlay with multi-language support
                             val textView = TextView(ctx).apply {
                                 layoutParams = FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.WRAP_CONTENT,

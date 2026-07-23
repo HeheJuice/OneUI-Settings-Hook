@@ -1,222 +1,153 @@
 package com.HeheJuice.OneUISettingsUIPatch
 
-import android.app.WallpaperManager
 import android.content.Context
-import android.graphics.Color
-import android.graphics.Outline
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
-import android.view.Gravity
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewOutlineProvider
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
+import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.callbacks.XC_LoadPackage
 
-object SoftwareInfoBannerPatch {
-    private const val TAG = "SoftwareInfoBannerPatch"
-    private var isHookInitialized = false
-    private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsUIPatch"
-
-    fun injectBanner(preferenceScreen: Any, context: Context, classLoader: ClassLoader) {
-        try {
-            if (!isHookInitialized) {
-                initializeHook(classLoader)
-                isHookInitialized = true
-            }
-
-            val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
-            if (existingBanner != null) return
-
-            val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", classLoader)
-            val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
-
-            XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
-            XposedHelpers.callMethod(bannerPref, "setOrder", -999)
-            XposedHelpers.callMethod(bannerPref, "setSelectable", false)
-            
-            // Assign a unique public layout so RecyclerView gives it a unique ViewType
-            // This prevents it from being mixed up or recycled into normal text preferences.
-            XposedHelpers.callMethod(bannerPref, "setLayoutResource", android.R.layout.two_line_list_item)
-
-            try {
-                XposedHelpers.callMethod(bannerPref, "setDividerAllowedAbove", false)
-                XposedHelpers.callMethod(bannerPref, "setDividerAllowedBelow", false)
-            } catch (ignored: Throwable) {}
-
-            XposedHelpers.callMethod(preferenceScreen, "addPreference", bannerPref)
-            Log.d(TAG, "Successfully injected custom wallpaper banner preference at top.")
-        } catch (e: Throwable) {
-            Log.e(TAG, "Failed to inject custom wallpaper banner", e)
-        }
+class SettingPatch : IXposedHookLoadPackage {
+    
+    companion object {
+        private const val TAG = "OneUISettingsUIPatch"
+        private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsUIPatch"
+        private val processedFragments = mutableSetOf<Int>()
     }
 
-    private fun initializeHook(classLoader: ClassLoader) {
+    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        if (lpparam.packageName != "com.android.settings") return
+
+        val targetFragmentClass = "androidx.preference.PreferenceFragmentCompat"
+        
         try {
-            val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", classLoader)
             XposedHelpers.findAndHookMethod(
-                preferenceClass,
-                "onBindViewHolder",
-                XposedHelpers.findClass("androidx.preference.PreferenceViewHolder", classLoader),
+                targetFragmentClass,
+                lpparam.classLoader,
+                "addPreferencesFromResource",
+                Int::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         try {
-                            val preference = param.thisObject
-                            val key = XposedHelpers.callMethod(preference, "getKey") as? String
-                            if (key != "custom_wallpaper_banner") return
+                            val fragment = param.thisObject
+                            val fragmentHash = fragment.hashCode()
+                            if (processedFragments.contains(fragmentHash)) return
 
-                            val holder = param.args[0]
-                            val itemView = XposedHelpers.getObjectField(holder, "itemView") as? ViewGroup ?: return
-                            val ctx = itemView.context
+                            val preferenceScreen = XposedHelpers.callMethod(fragment, "getPreferenceScreen") ?: return
+                            val context = XposedHelpers.callMethod(fragment, "getContext") as? Context ?: return
 
-                            // If we already built the banner inside this recycled view, skip building it again
-                            if (itemView.findViewById<View>(android.R.id.custom) != null) {
+                            val oneUiPref = XposedHelpers.callMethod(preferenceScreen, "findPreference", "one_ui_version")
+                            val firmwarePref = XposedHelpers.callMethod(preferenceScreen, "findPreference", "android_firmware_version")
+                            
+                            if (oneUiPref == null && firmwarePref == null) return
+
+                            // Strict run-once check
+                            val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
+                            if (existingBanner != null) {
+                                processedFragments.add(fragmentHash)
                                 return
                             }
 
+                            processedFragments.add(fragmentHash)
+                            Log.d(TAG, "Software Info screen detected! Restructuring layout & injecting banner at top...")
+
                             val modContext = try {
-                                ctx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
+                                context.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
                             } catch (e: Throwable) {
                                 null
                             }
 
-                            itemView.removeAllViews()
-                            itemView.setPadding(0, 0, 0, 0)
-                            itemView.background = null
+                            val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
+                            val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", lpparam.classLoader)
 
-                            // Safely update LayoutParams without causing RecyclerView ClassCastExceptions
-                            val bannerHeightPx = dpToPx(ctx, 160f)
-                            val lp = itemView.layoutParams
-                            if (lp != null) {
-                                lp.height = bannerHeightPx
-                                lp.width = ViewGroup.LayoutParams.MATCH_PARENT
-                                itemView.layoutParams = lp
-                            }
+                            // 1. Inject the banner at the absolute top
+                            SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
 
-                            val rootLayout = FrameLayout(ctx).apply {
-                                id = android.R.id.custom // Tag it so we know it's our initialized layout
-                                layoutParams = FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                    bannerHeightPx
-                                )
-                                clipToOutline = true
-                                outlineProvider = object : ViewOutlineProvider() {
-                                    val radius = dpToPx(ctx, 26f).toFloat()
-                                    override fun getOutline(view: View, outline: Outline) {
-                                        outline.setRoundRect(0, 0, view.width, view.height, radius)
-                                    }
+                            // 2. Category: "About Your Galaxy"
+                            val galaxyCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
+                            XposedHelpers.callMethod(galaxyCategory, "setTitle", getLocalizedString(modContext, "about_your_galaxy", "About Your Galaxy"))
+                            XposedHelpers.callMethod(galaxyCategory, "setKey", "GalaxyInfo")
+                            XposedHelpers.callMethod(preferenceScreen, "addPreference", galaxyCategory)
+
+                            val galaxyKeys = listOf("one_ui_version", "android_firmware_version", "kernel_version", "build_number")
+                            for (key in galaxyKeys) {
+                                val pref = XposedHelpers.callMethod(preferenceScreen, "findPreference", key)
+                                if (pref != null) {
+                                    XposedHelpers.callMethod(preferenceScreen, "removePreference", pref)
+                                    XposedHelpers.callMethod(galaxyCategory, "addPreference", pref)
                                 }
                             }
 
-                            val imageView = ImageView(ctx).apply {
-                                layoutParams = FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                    FrameLayout.LayoutParams.MATCH_PARENT
-                                )
-                                scaleType = ImageView.ScaleType.CENTER_CROP
-                            }
+                            // 3. Category: "Module Information"
+                            val moduleCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
+                            XposedHelpers.callMethod(moduleCategory, "setTitle", getLocalizedString(modContext, "module_info_category", "Module Information"))
+                            XposedHelpers.callMethod(moduleCategory, "setKey", "module_info_category")
+                            XposedHelpers.callMethod(preferenceScreen, "addPreference", moduleCategory)
 
-                            try {
-                                val wallpaperManager = WallpaperManager.getInstance(ctx)
-                                val wallpaperDrawable = wallpaperManager.drawable
-                                if (wallpaperDrawable != null) {
-                                    imageView.setImageDrawable(wallpaperDrawable)
-                                } else {
-                                    imageView.setBackgroundColor(Color.parseColor("#222222"))
+                            val namePref = XposedHelpers.newInstance(preferenceClass, context)
+                            XposedHelpers.callMethod(namePref, "setTitle", "OneUI Settings UI Patch")
+                            XposedHelpers.callMethod(namePref, "setSummary", "Restructures Samsung OneUI Settings Software Info page with custom wallpaper banner and category groupings.")
+                            XposedHelpers.callMethod(namePref, "setSelectable", false)
+                            XposedHelpers.callMethod(moduleCategory, "addPreference", namePref)
+
+                            val makerPref = XposedHelpers.newInstance(preferenceClass, context)
+                            XposedHelpers.callMethod(makerPref, "setTitle", getLocalizedString(modContext, "module_maker_title", "Module Maker"))
+                            XposedHelpers.callMethod(makerPref, "setSummary", "HeheJuice")
+                            XposedHelpers.callMethod(makerPref, "setSelectable", false)
+                            XposedHelpers.callMethod(moduleCategory, "addPreference", makerPref)
+
+                            val githubPref = XposedHelpers.newInstance(preferenceClass, context)
+                            XposedHelpers.callMethod(githubPref, "setTitle", getLocalizedString(modContext, "module_github_title", "GitHub Repository"))
+                            XposedHelpers.callMethod(githubPref, "setSummary", "https://github.com/HeheJuice/OneUI-Settings-Patch")
+                            val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Patch"))
+                            XposedHelpers.callMethod(githubPref, "setIntent", viewIntent)
+                            XposedHelpers.callMethod(moduleCategory, "addPreference", githubPref)
+
+                            // 4. Category: "Software Details"
+                            val softwareCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
+                            XposedHelpers.callMethod(softwareCategory, "setTitle", getLocalizedString(modContext, "software_details", "Software Details"))
+                            XposedHelpers.callMethod(softwareCategory, "setKey", "extra_info")
+                            XposedHelpers.callMethod(preferenceScreen, "addPreference", softwareCategory)
+
+                            val softwareKeys = listOf(
+                                "module_version", "base_band", "selinux_status", 
+                                "knox_version", "omc_version", "carrier_config_ver", 
+                                "cc_mode_status", "security_sw_version", "security_key"
+                            )
+                            for (key in softwareKeys) {
+                                val pref = XposedHelpers.callMethod(preferenceScreen, "findPreference", key)
+                                if (pref != null) {
+                                    XposedHelpers.callMethod(preferenceScreen, "removePreference", pref)
+                                    XposedHelpers.callMethod(softwareCategory, "addPreference", pref)
                                 }
-                            } catch (e: Throwable) {
-                                Log.e(TAG, "Failed to load wallpaper drawable", e)
-                                imageView.setBackgroundColor(Color.parseColor("#222222"))
                             }
 
-                            val overlayView = View(ctx).apply {
-                                layoutParams = FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                    FrameLayout.LayoutParams.MATCH_PARENT
-                                )
-                                background = GradientDrawable(
-                                    GradientDrawable.Orientation.TOP_BOTTOM,
-                                    intArrayOf(Color.parseColor("#33000000"), Color.parseColor("#77000000"))
-                                )
-                            }
-
-                            val textView = TextView(ctx).apply {
-                                layoutParams = FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    FrameLayout.LayoutParams.WRAP_CONTENT
-                                ).apply {
-                                    gravity = Gravity.CENTER
-                                }
-                                text = getOneUiVersionDisplay(modContext)
-                                textSize = 38f
-                                
-                                typeface = try {
-                                    Typeface.createFromAsset(modContext?.assets, "SamsungSharpSans-Bold.ttf")
-                                } catch (e: Throwable) {
-                                    Typeface.DEFAULT_BOLD
-                                }
-
-                                setTextColor(Color.WHITE)
-                                setShadowLayer(10f, 0f, 4f, Color.parseColor("#C0000000"))
-                            }
-
-                            rootLayout.addView(imageView)
-                            rootLayout.addView(overlayView)
-                            rootLayout.addView(textView)
-
-                            itemView.addView(rootLayout)
+                            Log.d(TAG, "Successfully restructured Software Info layout with banner at the top.")
                         } catch (e: Throwable) {
-                            Log.e(TAG, "Error binding custom wallpaper banner view", e)
+                            Log.e(TAG, "Error restructuring software info layout", e)
                         }
                     }
                 }
             )
-            Log.d(TAG, "Successfully initialized global Preference.onBindViewHolder hook for banner.")
+            Log.d(TAG, "Successfully hooked $targetFragmentClass")
         } catch (e: Throwable) {
-            Log.e(TAG, "Failed to initialize global banner hook", e)
+            Log.e(TAG, "Failed to hook $targetFragmentClass", e)
         }
     }
 
-    private fun getOneUiVersionDisplay(modContext: Context?): String {
-        try {
-            val c = Class.forName("android.os.SystemProperties")
-            val rawValue = c.getMethod("get", String::class.java, String::class.java).invoke(null, "ro.build.version.oneui", "") as? String ?: ""
-            
-            val intVal = rawValue.toIntOrNull()
-            val versionStr = if (intVal != null) {
-                val major = intVal / 10000
-                val minor = (intVal % 10000) / 100
-                if (minor > 0) "$major.$minor" else "$major"
-            } else if (rawValue.isNotBlank()) {
-                rawValue
-            } else {
-                ""
-            }
-
-            if (modContext != null && versionStr.isNotEmpty()) {
-                val resId = modContext.resources.getIdentifier("oneui_version_format", "string", MODULE_PACKAGE_NAME)
-                if (resId != 0) {
-                    return String.format(modContext.getString(resId), versionStr)
-                }
-            } else if (modContext != null) {
-                val resId = modContext.resources.getIdentifier("oneui_default", "string", MODULE_PACKAGE_NAME)
+    private fun getLocalizedString(modContext: Context?, key: String, fallback: String): String {
+        if (modContext != null) {
+            try {
+                val resId = modContext.resources.getIdentifier(key, "string", MODULE_PACKAGE_NAME)
                 if (resId != 0) {
                     return modContext.getString(resId)
                 }
+            } catch (e: Throwable) {
+                Log.e(TAG, "Failed to load localized string for $key", e)
             }
-
-            return if (versionStr.isNotEmpty()) "OneUI $versionStr" else "OneUI"
-        } catch (e: Throwable) {
-            Log.e(TAG, "Failed to read ro.build.version.oneui property", e)
         }
-        return "OneUI"
-    }
-
-    private fun dpToPx(context: Context, dp: Float): Int {
-        return Math.round(dp * context.resources.displayMetrics.density)
+        return fallback
     }
 }

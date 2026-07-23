@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AboutUIModify"
+rootProject.name = "SettingsUIModify"
 include(":app")

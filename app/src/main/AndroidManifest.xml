@@ -3,9 +3,9 @@
 
     <application
         android:allowBackup="false"
-        package="com.HeheJuice.OneUIAboutPatch"
+        package="com.HeheJuice.OneUISettingsUIPatch"
         android:icon="@drawable/ic_hehe"
-        android:label="OneUI Setting UI Patch">
+        android:label="OneUI Settings UI Patch">
         
         <meta-data
             android:name="xposedmodule"
@@ -13,7 +13,7 @@
             
         <meta-data
             android:name="xposeddescription"
-            android:value="Patch Samsung Setting UI" />
+            android:value="Patching Samsung Settings UI Elements" />
             
         <meta-data
             android:name="xposedminversion"

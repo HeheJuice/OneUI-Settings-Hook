@@ -20,6 +20,9 @@ class SettingPatch : IXposedHookLoadPackage {
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName != "com.android.settings") return
 
+        // Initialize global sensitivity masker for IMEI and SN
+        SensitiveInfoPatch.applyPatch(lpparam.classLoader)
+
         val targetFragmentClass = "androidx.preference.PreferenceFragmentCompat"
         
         try {
@@ -33,9 +36,14 @@ class SettingPatch : IXposedHookLoadPackage {
                         try {
                             val fragment = param.thisObject
                             val fragmentHash = fragment.hashCode()
+                            
+                            val preferenceScreen = XposedHelpers.callMethod(fragment, "getPreferenceScreen") ?: return
+                            
+                            // Remove sensitivity tiles completely from screens that load them (optional pass)
+                            SensitiveInfoPatch.removeSensitivePreferences(preferenceScreen)
+
                             if (processedFragments.contains(fragmentHash)) return
 
-                            val preferenceScreen = XposedHelpers.callMethod(fragment, "getPreferenceScreen") ?: return
                             val context = XposedHelpers.callMethod(fragment, "getContext") as? Context ?: return
 
                             val oneUiPref = XposedHelpers.callMethod(preferenceScreen, "findPreference", "one_ui_version")
@@ -43,7 +51,6 @@ class SettingPatch : IXposedHookLoadPackage {
                             
                             if (oneUiPref == null && firmwarePref == null) return
 
-                            // Prevent multiple injections
                             val existingBanner = XposedHelpers.callMethod(preferenceScreen, "findPreference", "custom_wallpaper_banner")
                             if (existingBanner != null) {
                                 processedFragments.add(fragmentHash)
@@ -62,7 +69,7 @@ class SettingPatch : IXposedHookLoadPackage {
                             val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
                             val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", lpparam.classLoader)
 
-                            // 1. Inject the banner at the top
+                            // 1. Inject the banner at the absolute top
                             SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
 
                             // 2. Category: "About Your Galaxy"
@@ -86,14 +93,12 @@ class SettingPatch : IXposedHookLoadPackage {
                             XposedHelpers.callMethod(moduleCategory, "setKey", "module_info_category")
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", moduleCategory)
 
-                            // App Name (@string/app_name) & Module Summary (@string/module_summary)
                             val namePref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(namePref, "setTitle", getLocalizedString(modContext, "app_name", "OneUI Settings UI Patch"))
                             XposedHelpers.callMethod(namePref, "setSummary", getLocalizedString(modContext, "module_summary", "Modifying OneUI Settings UI"))
                             XposedHelpers.callMethod(namePref, "setSelectable", false)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", namePref)
 
-                            // Module Maker (Clickable -> GitHub Profile)
                             val makerPref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(makerPref, "setTitle", getLocalizedString(modContext, "module_maker_title", "Module Maker"))
                             XposedHelpers.callMethod(makerPref, "setSummary", "HeheJuice")
@@ -101,7 +106,6 @@ class SettingPatch : IXposedHookLoadPackage {
                             XposedHelpers.callMethod(makerPref, "setIntent", makerIntent)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", makerPref)
 
-                            // GitHub Repository (Clickable -> Repo URL)
                             val githubPref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(githubPref, "setTitle", getLocalizedString(modContext, "module_github_title", "GitHub Repository"))
                             XposedHelpers.callMethod(githubPref, "setSummary", "https://github.com/HeheJuice/OneUI-Settings-Patch")

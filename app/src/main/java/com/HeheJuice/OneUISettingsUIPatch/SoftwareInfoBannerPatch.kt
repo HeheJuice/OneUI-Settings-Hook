@@ -45,8 +45,6 @@ object SoftwareInfoBannerPatch {
             XposedHelpers.callMethod(bannerPref, "setOrder", -999)
             XposedHelpers.callMethod(bannerPref, "setSelectable", false)
             
-            // Assign a unique public layout so RecyclerView gives it an exclusive ViewType.
-            // This prevents view recycling conflicts with normal preferences.
             XposedHelpers.callMethod(bannerPref, "setLayoutResource", android.R.layout.two_line_list_item)
 
             try {
@@ -79,7 +77,6 @@ object SoftwareInfoBannerPatch {
                             val itemView = XposedHelpers.getObjectField(holder, "itemView") as? ViewGroup ?: return
                             val ctx = itemView.context
 
-                            // Skip rebuilding if already initialized inside this view
                             if (itemView.findViewById<View>(android.R.id.custom) != null) {
                                 return
                             }
@@ -94,7 +91,6 @@ object SoftwareInfoBannerPatch {
                             itemView.setPadding(0, 0, 0, 0)
                             itemView.background = null
 
-                            // Update LayoutParams safely without breaking RecyclerView layout managers
                             val bannerHeightPx = dpToPx(ctx, 160f)
                             val lp = itemView.layoutParams
                             if (lp != null) {
@@ -175,9 +171,9 @@ object SoftwareInfoBannerPatch {
 
                             itemView.addView(rootLayout)
 
-                            // Run Typewriter reveal and activate continuous shimmer sweep
+                            // Trigger typewriter reveal & shimmer (passing 120ms for a slower typing speed)
                             val targetText = getOneUiVersionDisplay(modContext)
-                            applyTypewriterWithShimmer(textView, targetText)
+                            applyTypewriterWithShimmer(textView, targetText, charDelayMs = 120L)
 
                         } catch (e: Throwable) {
                             Log.e(TAG, "Error binding custom wallpaper banner view", e)
@@ -191,7 +187,7 @@ object SoftwareInfoBannerPatch {
         }
     }
 
-    private fun applyTypewriterWithShimmer(textView: TextView, fullText: String, charDelayMs: Long = 65L) {
+    private fun applyTypewriterWithShimmer(textView: TextView, fullText: String, charDelayMs: Long = 120L) {
         val handler = Handler(Looper.getMainLooper())
         var index = 0
         textView.text = ""
@@ -229,7 +225,7 @@ object SoftwareInfoBannerPatch {
         val matrix = Matrix()
 
         val animator = ValueAnimator.ofFloat(-textWidth, textWidth * 2f).apply {
-            duration = 2200
+            duration = 3800 // Slower shimmer sweep (3.8 seconds per loop)
             repeatCount = ValueAnimator.INFINITE
             repeatMode = ValueAnimator.RESTART
             addUpdateListener { animation ->

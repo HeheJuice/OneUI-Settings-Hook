@@ -3,6 +3,7 @@ package com.HeheJuice.OneUISettingsUIPatch
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.callbacks.XC_LoadPackage
 import java.util.WeakHashMap
 
 object DevicePrivacyPatch {
@@ -11,80 +12,83 @@ object DevicePrivacyPatch {
     private val isRevealedState = WeakHashMap<Any, Boolean>()
     private const val MASK_TEXT = "••••••••••••••••"
 
-    fun init(classLoader: ClassLoader) {
-        try {
-            val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", classLoader)
+    // Restricted strictly to IMEI and Series/Serial Number preference keys
+    private val targetKeys = setOf(
+        "imei",
+        "serial_number"
+    )
 
-            // 1. Hook binding to mask IMEI / Serial numbers by default
+    fun init(lpparam: XC_LoadPackage.LoadPackageParam) {
+        try {
+            val statusInfoClass = XposedHelpers.findClass(
+                "com.samsung.android.settings.deviceinfo.statusinfo.StatusInfoSettings",
+                lpparam.classLoader
+            )
+
             XposedHelpers.findAndHookMethod(
-                preferenceClass,
-                "onBindViewHolder",
-                XposedHelpers.findClass("androidx.preference.PreferenceViewHolder", classLoader),
+                statusInfoClass,
+                "addPreferencesFromResource",
+                Int::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         try {
-                            val preference = param.thisObject
-                            val key = (XposedHelpers.callMethod(preference, "getKey") as? String)?.lowercase() ?: return
+                            val fragment = param.thisObject
+                            val preferenceScreen = XposedHelpers.callMethod(fragment, "getPreferenceScreen") ?: return
 
-                            // Target Samsung's IMEI, Serial, and MEID preference keys
-                            if (key.contains("imei") || key.contains("serial") || key.contains("meid")) {
-                                val summary = XposedHelpers.callMethod(preference, "getSummary") as? CharSequence
-                                if (summary != null && summary.isNotEmpty() && summary != MASK_TEXT) {
-                                    
-                                    // Save real value if not already stored
-                                    if (!realValues.containsKey(preference)) {
-                                        realValues[preference] = summary
-                                        isRevealedState[preference] = false
-                                    }
-
-                                    // Apply mask if currently hidden
-                                    val isRevealed = isRevealedState[preference] == true
-                                    if (!isRevealed) {
-                                        XposedHelpers.callMethod(preference, "setSummary", MASK_TEXT)
-                                    }
-                                }
+                            for (key in targetKeys) {
+                                val pref = XposedHelpers.callMethod(preferenceScreen, "findPreference", key) ?: continue
+                                setupPrivacyPreference(pref)
                             }
                         } catch (e: Throwable) {
-                            Log.e(TAG, "Error masking sensitive preference", e)
+                            Log.e(TAG, "Error applying privacy mask in StatusInfoSettings", e)
                         }
                     }
                 }
             )
 
-            // 2. Hook click action to toggle between masked and real text
+            Log.d(TAG, "Successfully initialized DevicePrivacyPatch for IMEI and Serial Number.")
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to initialize DevicePrivacyPatch", e)
+        }
+    }
+
+    private fun setupPrivacyPreference(preference: Any) {
+        try {
+            val preferenceClass = preference.javaClass
+
+            val summary = XposedHelpers.callMethod(preference, "getSummary") as? CharSequence
+            if (summary != null && summary.isNotEmpty() && summary != MASK_TEXT) {
+                if (!realValues.containsKey(preference)) {
+                    realValues[preference] = summary
+                    isRevealedState[preference] = false
+                }
+                XposedHelpers.callMethod(preference, "setSummary", MASK_TEXT)
+            }
+
             XposedHelpers.findAndHookMethod(
                 preferenceClass,
                 "performClick",
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
-                            val preference = param.thisObject
-                            val key = (XposedHelpers.callMethod(preference, "getKey") as? String)?.lowercase() ?: return
+                            val pref = param.thisObject
+                            if (realValues.containsKey(pref)) {
+                                val currentRevealed = isRevealedState[pref] == true
+                                val newRevealed = !currentRevealed
+                                isRevealedState[pref] = newRevealed
 
-                            if (key.contains("imei") || key.contains("serial") || key.contains("meid")) {
-                                if (realValues.containsKey(preference)) {
-                                    val currentRevealed = isRevealedState[preference] == true
-                                    val newRevealed = !currentRevealed
-                                    isRevealedState[preference] = newRevealed
-
-                                    // Update summary text dynamically on tap
-                                    val textToSet = if (newRevealed) realValues[preference] else MASK_TEXT
-                                    XposedHelpers.callMethod(preference, "setSummary", textToSet)
-
-                                    // Consume click event so it toggles securely in-place without opening default popups
-                                    param.result = true
-                                }
+                                val textToSet = if (newRevealed) realValues[pref] else MASK_TEXT
+                                XposedHelpers.callMethod(pref, "setSummary", textToSet)
+                                param.result = true
                             }
                         } catch (e: Throwable) {
-                            Log.e(TAG, "Error handling preference click toggle", e)
+                            Log.e(TAG, "Error toggling privacy preference", e)
                         }
                     }
                 }
             )
-
-            Log.d(TAG, "Successfully initialized DevicePrivacyPatch hooks.")
         } catch (e: Throwable) {
-            Log.e(TAG, "Failed to initialize DevicePrivacyPatch", e)
+            Log.e(TAG, "Error setting up privacy preference item", e)
         }
     }
 }

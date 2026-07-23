@@ -14,6 +14,12 @@
 - OneUI-Settings-UI-Patch is a LSPosed Module that Apply some new Settings UI For OneUI 7 ~ 8.5
 - LSPosed and Root Required
 
+### 😶‍🌫️ Features 
+- Redesign Software Info Page
+- Sensitive Information Protection 
+     - Auto-Hide the following 
+          - IMEI
+          - Series Number 
 ### ℹ️ How to use?
 - Install the .APK and activate in LSPosed
 - Return to Module List and Long press "OneUI Settings UI Patch"

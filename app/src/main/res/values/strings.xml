@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">OneUI Settings UI Patch</string>
-    <string name="module_summary">Modifying OneUI Settings UI</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">About Your Galaxy</string>
+    <string name="software_details">Software Details</string>
     <string name="module_info_category">Module Information</string>
     <string name="module_maker_title">Module Maker</string>
     <string name="module_github_title">GitHub Repository</string>
-    <string name="software_details">Software Details</string>
+    <string name="module_summary">Modifying OneUI Settings UI</string>
 </resources>

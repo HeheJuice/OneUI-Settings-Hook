@@ -38,7 +38,6 @@ class SettingPatch : IXposedHookLoadPackage {
                             val preferenceScreen = XposedHelpers.callMethod(fragment, "getPreferenceScreen") ?: return
                             val context = XposedHelpers.callMethod(fragment, "getContext") as? Context ?: return
 
-                            // Check if this is the Software Info page
                             val oneUiPref = XposedHelpers.callMethod(preferenceScreen, "findPreference", "one_ui_version")
                             val firmwarePref = XposedHelpers.callMethod(preferenceScreen, "findPreference", "android_firmware_version")
                             
@@ -53,16 +52,17 @@ class SettingPatch : IXposedHookLoadPackage {
                                 null
                             }
 
-                            // Inject custom wallpaper banner at the top
+                            // Inject custom wallpaper banner at the absolute top
                             SoftwareInfoBannerPatch.injectBanner(preferenceScreen, context, lpparam.classLoader)
 
                             val preferenceCategoryClass = XposedHelpers.findClass("androidx.preference.PreferenceCategory", lpparam.classLoader)
                             val preferenceClass = XposedHelpers.findClass("androidx.preference.Preference", lpparam.classLoader)
 
-                            // 1. Category: "About Your Galaxy" (Top)
+                            // 1. Category: "About Your Galaxy" (Order: -10)
                             val galaxyCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
                             XposedHelpers.callMethod(galaxyCategory, "setTitle", getLocalizedString(modContext, "about_your_galaxy", "About Your Galaxy"))
                             XposedHelpers.callMethod(galaxyCategory, "setKey", "GalaxyInfo")
+                            XposedHelpers.callMethod(galaxyCategory, "setOrder", -10)
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", galaxyCategory)
 
                             val galaxyKeys = listOf("one_ui_version", "android_firmware_version", "kernel_version", "build_number")
@@ -74,27 +74,25 @@ class SettingPatch : IXposedHookLoadPackage {
                                 }
                             }
 
-                            // 2. Category: "Module Information" (Moved above Software Details)
+                            // 2. Category: "Module Information" (Order: -5)
                             val moduleCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
                             XposedHelpers.callMethod(moduleCategory, "setTitle", getLocalizedString(modContext, "module_info_category", "Module Information"))
                             XposedHelpers.callMethod(moduleCategory, "setKey", "module_info_category")
+                            XposedHelpers.callMethod(moduleCategory, "setOrder", -5)
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", moduleCategory)
 
-                            // Module Name / About
                             val namePref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(namePref, "setTitle", "OneUI Settings UI Patch")
                             XposedHelpers.callMethod(namePref, "setSummary", "Restructures Samsung OneUI Settings Software Info page with custom wallpaper banner and category groupings.")
                             XposedHelpers.callMethod(namePref, "setSelectable", false)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", namePref)
 
-                            // Module Maker
                             val makerPref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(makerPref, "setTitle", getLocalizedString(modContext, "module_maker_title", "Module Maker"))
                             XposedHelpers.callMethod(makerPref, "setSummary", "HeheJuice")
                             XposedHelpers.callMethod(makerPref, "setSelectable", false)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", makerPref)
 
-                            // GitHub Link
                             val githubPref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(githubPref, "setTitle", getLocalizedString(modContext, "module_github_title", "GitHub Repository"))
                             XposedHelpers.callMethod(githubPref, "setSummary", "https://github.com/HeheJuice/OneUI-Settings-Patch")
@@ -102,10 +100,11 @@ class SettingPatch : IXposedHookLoadPackage {
                             XposedHelpers.callMethod(githubPref, "setIntent", viewIntent)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", githubPref)
 
-                            // 3. Category: "Software Details" (Moved below Module Information)
+                            // 3. Category: "Software Details" (Order: 0)
                             val softwareCategory = XposedHelpers.newInstance(preferenceCategoryClass, context)
                             XposedHelpers.callMethod(softwareCategory, "setTitle", getLocalizedString(modContext, "software_details", "Software Details"))
                             XposedHelpers.callMethod(softwareCategory, "setKey", "extra_info")
+                            XposedHelpers.callMethod(softwareCategory, "setOrder", 0)
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", softwareCategory)
 
                             val softwareKeys = listOf(
@@ -121,7 +120,7 @@ class SettingPatch : IXposedHookLoadPackage {
                                 }
                             }
 
-                            Log.d(TAG, "Successfully restructured Software Info layout with native module info placed above software details.")
+                            Log.d(TAG, "Successfully restructured Software Info layout with forced orders.")
                         } catch (e: Throwable) {
                             Log.e(TAG, "Error restructuring software info layout", e)
                         }

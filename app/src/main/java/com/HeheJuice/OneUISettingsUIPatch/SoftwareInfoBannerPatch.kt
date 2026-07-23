@@ -2,13 +2,9 @@ package com.HeheJuice.OneUISettingsUIPatch
 
 import android.app.WallpaperManager
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.Typeface
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import android.view.Gravity
@@ -40,8 +36,7 @@ object SoftwareInfoBannerPatch {
             val bannerPref = XposedHelpers.newInstance(preferenceClass, context)
 
             XposedHelpers.callMethod(bannerPref, "setKey", "custom_wallpaper_banner")
-            // Force absolute top placement using Int.MIN_VALUE
-            XposedHelpers.callMethod(bannerPref, "setOrder", Int.MIN_VALUE)
+            XposedHelpers.callMethod(bannerPref, "setOrder", -999)
             XposedHelpers.callMethod(bannerPref, "setSelectable", false)
 
             try {
@@ -84,18 +79,22 @@ object SoftwareInfoBannerPatch {
                             itemView.setPadding(0, 0, 0, 0)
                             itemView.background = null
 
-                            val rootLayout = FrameLayout(ctx).apply {
-                                layoutParams = ViewGroup.MarginLayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    dpToPx(ctx, 160f)
-                                ).apply {
-                                    setMargins(0, 0, 0, 0)
-                                }
+                            val bannerHeightPx = dpToPx(ctx, 160f)
+                            itemView.layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                bannerHeightPx
+                            )
 
+                            val rootLayout = FrameLayout(ctx).apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    bannerHeightPx
+                                )
                                 clipToOutline = true
                                 outlineProvider = object : ViewOutlineProvider() {
+                                    val radius = dpToPx(ctx, 26f).toFloat()
                                     override fun getOutline(view: View, outline: Outline) {
-                                        outline.setRoundRect(0, 0, view.width, view.height, dpToPx(ctx, 26f).toFloat())
+                                        outline.setRoundRect(0, 0, view.width, view.height, radius)
                                     }
                                 }
                             }
@@ -105,31 +104,21 @@ object SoftwareInfoBannerPatch {
                                     FrameLayout.LayoutParams.MATCH_PARENT,
                                     FrameLayout.LayoutParams.MATCH_PARENT
                                 )
-                                scaleType = ImageView.ScaleType.FIT_XY
+                                scaleType = ImageView.ScaleType.CENTER_CROP
+                            }
 
-                                post {
-                                    try {
-                                        val wallpaperManager = WallpaperManager.getInstance(ctx)
-                                        val wallpaperDrawable = wallpaperManager.drawable
-                                        val vWidth = width
-                                        val vHeight = height
-
-                                        if (wallpaperDrawable != null && vWidth > 0 && vHeight > 0) {
-                                            val rawBitmap = drawableToBitmap(wallpaperDrawable)
-                                            if (rawBitmap != null) {
-                                                val centerCroppedBitmap = centerCropBitmap(rawBitmap, vWidth, vHeight)
-                                                setImageBitmap(centerCroppedBitmap)
-                                            } else {
-                                                setImageDrawable(wallpaperDrawable)
-                                            }
-                                        } else {
-                                            setBackgroundColor(Color.parseColor("#333333"))
-                                        }
-                                    } catch (e: Throwable) {
-                                        Log.e(TAG, "Error applying center-cropped wallpaper bitmap", e)
-                                        setBackgroundColor(Color.parseColor("#333333"))
-                                    }
+                            // Load wallpaper safely with fallback gradient/color
+                            try {
+                                val wallpaperManager = WallpaperManager.getInstance(ctx)
+                                val wallpaperDrawable = wallpaperManager.drawable
+                                if (wallpaperDrawable != null) {
+                                    imageView.setImageDrawable(wallpaperDrawable)
+                                } else {
+                                    imageView.setBackgroundColor(Color.parseColor("#222222"))
                                 }
+                            } catch (e: Throwable) {
+                                Log.e(TAG, "Failed to load wallpaper drawable, applying fallback background", e)
+                                imageView.setBackgroundColor(Color.parseColor("#222222"))
                             }
 
                             val overlayView = View(ctx).apply {
@@ -213,46 +202,6 @@ object SoftwareInfoBannerPatch {
             Log.e(TAG, "Failed to read ro.build.version.oneui property", e)
         }
         return "OneUI"
-    }
-
-    private fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        if (drawable is BitmapDrawable) {
-            return drawable.bitmap
-        }
-        val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 1080
-        val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 1920
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
-    }
-
-    private fun centerCropBitmap(bitmap: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
-        val bWidth = bitmap.width
-        val bHeight = bitmap.height
-
-        val targetRatio = targetWidth.toFloat() / targetHeight.toFloat()
-        val bitmapRatio = bWidth.toFloat() / bHeight.toFloat()
-
-        val cropWidth: Int
-        val cropHeight: Int
-        val cropX: Int
-        val cropY: Int
-
-        if (bitmapRatio > targetRatio) {
-            cropHeight = bHeight
-            cropWidth = (bHeight * targetRatio).toInt()
-            cropX = (bWidth - cropWidth) / 2
-            cropY = 0
-        } else {
-            cropWidth = bWidth
-            cropHeight = (bWidth / targetRatio).toInt()
-            cropX = 0
-            cropY = (bHeight - cropHeight) / 2
-        }
-
-        return Bitmap.createBitmap(bitmap, cropX, cropY, cropWidth, cropHeight)
     }
 
     private fun dpToPx(context: Context, dp: Float): Int {

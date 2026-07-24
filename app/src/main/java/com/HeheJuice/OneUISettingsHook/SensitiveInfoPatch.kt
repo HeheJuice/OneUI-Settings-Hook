@@ -10,10 +10,8 @@ object SensitiveInfoPatch {
     private const val TAG = "SensitiveInfoPatch"
     private var isHooked = false
 
-    // Mask string (8 characters fits cleanly on 1 line)
     private const val MASK_TEXT = "********" 
 
-    // Custom View Tag keys to store real text and toggle state per TextView
     private const val TAG_REAL_TEXT = 0x7f099991
     private const val TAG_IS_UNMASKED = 0x7f099992
     private const val TAG_HOOK_LOCK = 0x7f099993
@@ -21,7 +19,6 @@ object SensitiveInfoPatch {
     fun applyPatch(classLoader: ClassLoader) {
         if (isHooked) return
         try {
-            // Hook TextView.setText(CharSequence, BufferType) directly.
             XposedHelpers.findAndHookMethod(
                 TextView::class.java,
                 "setText",
@@ -35,38 +32,41 @@ object SensitiveInfoPatch {
 
                             if (rawInput.isBlank() || rawInput == MASK_TEXT) return
 
-                            // Skip if we are manually toggling text via click listener
                             if (tv.getTag(TAG_HOOK_LOCK) == true) return
 
                             val existingReal = tv.getTag(TAG_REAL_TEXT) as? String
                             val textToEvaluate = existingReal ?: rawInput
 
-                            // Clean spaces, dashes, and parentheses for pattern checking
                             val cleanText = textToEvaluate
                                 .replace(" ", "")
                                 .replace("-", "")
+                                .replace(".", "")
+                                .replace("/", "")
                                 .replace("(", "")
                                 .replace(")", "")
                                 .trim()
 
-                            // 1. IMEI: 14 to 16 digits
+                            // Check if the text is a formatted date (e.g., 2024-05-12, 2024.05.12, 20240512)
+                            val isDate = textToEvaluate.matches(Regex("""^\d{4}[./-]\d{1,2}[./-]\d{1,2}$""")) ||
+                                         (cleanText.length == 8 && (cleanText.startsWith("19") || cleanText.startsWith("20")))
+
                             val isImei = cleanText.length in 14..16 && cleanText.all { it.isDigit() }
 
-                            // 2. Samsung Serial Number: 10 to 12 alphanumeric characters with letters & numbers
                             val isSerialNumber = cleanText.length in 10..12 && 
                                                  cleanText.all { it.isLetterOrDigit() } && 
                                                  cleanText.any { it.isDigit() } && 
                                                  cleanText.any { it.isLetter() }
 
-                            // 3. Phone Number: International (+ followed by 8-15 digits) or Local (8-11 digits)
-                            val isPhoneNumber = (cleanText.startsWith("+") && 
-                                                 cleanText.substring(1).all { it.isDigit() } && 
-                                                 cleanText.length in 9..16) ||
-                                                (cleanText.all { it.isDigit() } && 
-                                                 cleanText.length in 8..11)
+                            // Exclude dates from being flagged as phone numbers
+                            val isPhoneNumber = !isDate && (
+                                (cleanText.startsWith("+") && 
+                                 cleanText.substring(1).all { it.isDigit() } && 
+                                 cleanText.length in 9..16) ||
+                                (cleanText.all { it.isDigit() } && 
+                                 cleanText.length in 8..11)
+                            )
 
                             if (isImei || isSerialNumber || isPhoneNumber) {
-                                // Save original sensitive value
                                 tv.setTag(TAG_REAL_TEXT, textToEvaluate)
 
                                 val isUnmasked = tv.getTag(TAG_IS_UNMASKED) == true
@@ -75,7 +75,6 @@ object SensitiveInfoPatch {
                                     param.args[0] = MASK_TEXT
                                 }
 
-                                // Attach tap listener to the TextView
                                 tv.isClickable = true
                                 tv.setOnClickListener { view ->
                                     val targetTv = view as? TextView ?: return@setOnClickListener
@@ -89,7 +88,6 @@ object SensitiveInfoPatch {
                                     targetTv.setTag(TAG_HOOK_LOCK, false)
                                 }
 
-                                // Expand clickable touch area to the parent container row
                                 (tv.parent as? ViewGroup)?.let { parent ->
                                     parent.isClickable = true
                                     parent.setOnClickListener {

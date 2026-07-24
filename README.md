@@ -32,15 +32,12 @@
 - Unlock Extra Battery Information
 - LSPosed Module Settings
 ### 📂 Preview
-<table>
-  <tr>
-    <td><img src="Banner/SS1.jpg" width="200" /></td>
-    <td><img src="Banner/SS2.jpg" width="200" /></td>
-    <td><img src="Banner/SS3.jpg" width="200" /></td>
-    <td><img src="Banner/SS4.jpg" width="200" /></td>
-  </tr>
-</table>
-
+<div align="center">
+<img loading="lazy" src="Banner/SS1.jpg" width="82" />
+<img loading="lazy" src="Banner/SS2.jpg" width="82" />
+<img loading="lazy" src="Banner/SS3.jpg" width="82" />
+<img loading="lazy" src="Banner/SS4.jpg" width="82" />
+</div>
 
 ### ℹ️ How to use?
 - Install the .APK and activate in LSPosed

@@ -8,6 +8,8 @@
 [![Chat](https://img.shields.io/badge/Telegram-Chat-26A5E4?style=flat-square&logo=Telegram)](https://t.me/sechehe)
 ![LSPosed](https://img.shields.io/badge/Powered_by-LSPosed-F48FB1?style=flat-square&logo=android)
 [![MinSDK](https://img.shields.io/badge/Min_SDK-35-brightgreen?style=flat-square&logo=android)](https://developer.android.com/about/versions)
+[![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-Settings-Hook/total?color=blue&label=Total+Downloads+from+GitHub&style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
+[![Design](https://img.shields.io/badge/OneUI-7~9-blue?style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
 </div>
 
 ### 🗺 Project Overview 
@@ -17,19 +19,26 @@
 - LSPosed and Root Required
 
 ### 😶‍🌫️ Features 
-- Redesign Software Info Page
+- ‼️ Redesign Software Info Page
      - Glow Text Animation 
      - Software Info Card Background = Home Wall
 - Sensitive Information Protection 
      - Auto-Hide the following 
           - IMEI
           - Series Number 
+          - Phone Number 
+- Custom Fonts Detection Removed
+     - Support Custom Fonts APK
+- Unlock Extra Battery Information 
 ### 📂 Preview
-<div>
-    <img src="Banner/SS1.jpg" width="155" />
-    <img src="Banner/SS2.jpg" width="155" />
+<table>
+  <tr>
+    <td><img src="Banner/SS1.jpg" width="200" /></td>
+    <td><img src="Banner/SS2.jpg" width="200" /></td>
+    <td><img src="Banner/SS3.jpg" width="200" /></td>
+  </tr>
+</table>
 
-</div>
 
 ### ℹ️ How to use?
 - Install the .APK and activate in LSPosed

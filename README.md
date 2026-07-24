@@ -31,11 +31,14 @@
      - Support Custom Fonts APK
 - Unlock Extra Battery Information 
 ### 📂 Preview
-<div>
-    <img src="Banner/SS1.jpg" width="155" />
-    <img src="Banner/SS2.jpg" width="155" />
+<table>
+  <tr>
+    <td><img src="Banner/SS1.jpg" width="200" /></td>
+    <td><img src="Banner/SS2.jpg" width="200" /></td>
+    <td><img src="Banner/SS3.jpg" width="200" /></td>
+  </tr>
+</table>
 
-</div>
 
 ### ℹ️ How to use?
 - Install the .APK and activate in LSPosed

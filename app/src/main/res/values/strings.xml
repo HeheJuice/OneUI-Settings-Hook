@@ -1,9 +1,23 @@
 <resources>
+    <!-- App & SettingsActivity Header -->
     <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">Module configuration &amp; information</string>
+
+    <!-- OneUI & System Hook Info -->
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">About Your Galaxy</string>
     <string name="software_details">Software Details</string>
+
+    <!-- SettingsActivity Cards & Buttons -->
+    <string name="module_version">Version %1$s</string>
+    <string name="module_desc">All Xposed hooks are active and loaded into com.android.settings.</string>
+    <string name="btn_mit_license">View MIT License</string>
+    <string name="btn_github_repo">View GitHub Repository</string>
+    <string name="card_about_title">About Module</string>
+    <string name="btn_developer">Developer: HeheJuice</string>
+
+    <!-- Category & Metadata -->
     <string name="module_info_category">Module Information</string>
     <string name="module_maker_title">Module Maker</string>
     <string name="module_github_title">GitHub Repository</string>

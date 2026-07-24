@@ -1,6 +1,10 @@
 package com.HeheJuice.OneUISettingsHook
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import de.robv.android.xposed.XC_MethodHook
@@ -28,6 +32,10 @@ object SensitiveInfoPatch {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
                             val tv = param.thisObject as? TextView ?: return
+
+                            // Skip masking logic entirely if we are on the Battery Information page
+                            if (isBatteryPage(tv)) return
+
                             val rawInput = param.args[0]?.toString() ?: return
 
                             if (rawInput.isBlank() || rawInput == MASK_TEXT) return
@@ -46,17 +54,15 @@ object SensitiveInfoPatch {
                                 .replace(")", "")
                                 .trim()
 
-                            // 1. Matches formatted date strings like "06/01/2022", "06.01.2022", "2022-01-06"
+                            // Matches formatted dates or strings with month names
                             val isFormattedDate = textToEvaluate.trim().matches(
                                 Regex("""^\d{1,4}[./\-\s]\d{1,2}[./\-\s]\d{1,4}$""")
                             )
 
-                            // 2. Matches dates with month names like "06 January 2022" or "Jan 2022"
                             val hasMonthName = textToEvaluate.contains(
                                 Regex("""(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b""")
                             )
 
-                            // 3. Validates YYYYMMDD numeric strings against valid month (1..12) and day (1..31) ranges
                             val isRawYyyymmdd = cleanText.length == 8 && 
                                 (cleanText.startsWith("19") || cleanText.startsWith("20")) &&
                                 (cleanText.substring(4, 6).toIntOrNull() in 1..12) &&
@@ -71,7 +77,6 @@ object SensitiveInfoPatch {
                                                  cleanText.any { it.isDigit() } && 
                                                  cleanText.any { it.isLetter() }
 
-                            // Exclude dates from being categorized as phone numbers
                             val isPhoneNumber = !isDate && (
                                 (cleanText.startsWith("+") && 
                                  cleanText.substring(1).all { it.isDigit() } && 
@@ -121,5 +126,41 @@ object SensitiveInfoPatch {
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to apply SensitiveInfoPatch hooks", e)
         }
+    }
+
+    /**
+     * Checks if the TextView resides inside the Battery Information screen
+     */
+    private fun isBatteryPage(tv: TextView): Boolean {
+        val activity = getActivity(tv.context) ?: return false
+
+        // 1. Check Activity class name
+        val activityName = activity.javaClass.name.lowercase()
+        if (activityName.contains("battery")) return true
+
+        // 2. Check fragment target in Settings Intent
+        val showFragment = activity.intent?.getStringExtra(":settings:show_fragment")?.lowercase() ?: ""
+        if (showFragment.contains("battery")) return true
+
+        // 3. Check Activity title (e.g., "Battery information")
+        val title = activity.title?.toString()?.lowercase() ?: ""
+        if (title.contains("battery")) return true
+
+        return false
+    }
+
+    private fun getActivity(context: Context?): Activity? {
+        var currentContext = context
+        while (currentContext != null) {
+            if (currentContext is Activity) return currentContext
+            if (currentContext is ContextWrapper) {
+                val base = currentContext.baseContext
+                if (base === currentContext) break
+                currentContext = base
+            } else {
+                break
+            }
+        }
+        return null
     }
 }

@@ -31,7 +31,7 @@ class SettingsActivity : Activity() {
         val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == 
                      android.content.res.Configuration.UI_MODE_NIGHT_YES
 
-        // OneUI 8.5 Color Palette
+        // OneUI Color Palette
         val bgColor = if (isDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
         val cardBgColor = if (isDark) Color.parseColor("#1C1C1E") else Color.parseColor("#FFFFFF")
         val cardBorderColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
@@ -41,6 +41,9 @@ class SettingsActivity : Activity() {
         val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
         val starBtnColor = if (isDark) Color.parseColor("#FF9F0A") else Color.parseColor("#FF9500")
         val redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
+        
+        // Circular back button background color (matching Image 2)
+        val backBtnBgColor = if (isDark) Color.parseColor("#3A3A3C") else Color.parseColor("#E5E5EA")
 
         // Detect module version programmatically
         val rawVersion = try {
@@ -49,14 +52,20 @@ class SettingsActivity : Activity() {
             "1.0.0"
         }
 
+        // Fullscreen viewport container
         val scrollView = ScrollView(this).apply {
             setBackgroundColor(bgColor)
             isVerticalScrollBarEnabled = false
+            isFillViewport = true // Fills full vertical screen height
         }
 
         val rootLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dpToPx(16), dpToPx(20), dpToPx(16), dpToPx(36))
+            setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(24))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
         }
 
         // --- OneUI Back Arrow Vector Drawable ---
@@ -64,7 +73,7 @@ class SettingsActivity : Activity() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
                 style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2).toFloat()
+                strokeWidth = dpToPx(2.2f).toFloat()
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
@@ -72,12 +81,12 @@ class SettingsActivity : Activity() {
             override fun draw(canvas: Canvas) {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
-                val size = dpToPx(6).toFloat()
+                val size = dpToPx(5.5f).toFloat()
 
                 val path = Path().apply {
-                    moveTo(cx + size * 0.5f, cy - size)
+                    moveTo(cx + size * 0.4f, cy - size)
                     lineTo(cx - size * 0.5f, cy)
-                    lineTo(cx + size * 0.5f, cy + size)
+                    lineTo(cx + size * 0.4f, cy + size)
                 }
                 canvas.drawPath(path, paint)
             }
@@ -88,18 +97,21 @@ class SettingsActivity : Activity() {
             override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
         }
 
-        // --- Back Button (Top Action Bar) ---
-        val outValue = TypedValue()
-        theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+        // --- Back Button (Circular background matching Image 2) ---
+        val backBtnBackground = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(backBtnBgColor)
+        }
 
         val backBtn = ImageView(this).apply {
             setImageDrawable(backArrowDrawable)
-            setBackgroundResource(outValue.resourceId)
+            background = backBtnBackground
             contentDescription = getString(R.string.btn_back)
             isClickable = true
             isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(dpToPx(40), dpToPx(40)).apply {
-                bottomMargin = dpToPx(12)
+            layoutParams = LinearLayout.LayoutParams(dpToPx(42), dpToPx(42)).apply {
+                topMargin = dpToPx(8)
+                bottomMargin = dpToPx(16)
             }
             setOnClickListener {
                 finish()
@@ -113,14 +125,14 @@ class SettingsActivity : Activity() {
             text = getString(R.string.app_name)
             textSize = 28f
             setTextColor(primaryTextColor)
-            setPadding(dpToPx(8), 0, dpToPx(8), dpToPx(4))
+            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(2))
         }
 
         val headerSub = TextView(this).apply {
             text = getString(R.string.header_subtitle)
             textSize = 14f
             setTextColor(secondaryTextColor)
-            setPadding(dpToPx(8), 0, dpToPx(8), dpToPx(24))
+            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(20))
         }
 
         rootLayout.addView(headerTitle)
@@ -160,7 +172,7 @@ class SettingsActivity : Activity() {
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
             background = licenseBtnDrawable
-            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
             isClickable = true
             isFocusable = true
             setOnClickListener {
@@ -184,7 +196,7 @@ class SettingsActivity : Activity() {
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
             background = starBtnDrawable
-            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
             isClickable = true
             isFocusable = true
             layoutParams = LinearLayout.LayoutParams(
@@ -214,7 +226,7 @@ class SettingsActivity : Activity() {
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER
             background = githubBtnDrawable
-            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
             isClickable = true
             isFocusable = true
             layoutParams = LinearLayout.LayoutParams(
@@ -244,7 +256,7 @@ class SettingsActivity : Activity() {
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
             background = bugBtnDrawable
-            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
             isClickable = true
             isFocusable = true
             layoutParams = LinearLayout.LayoutParams(
@@ -274,7 +286,7 @@ class SettingsActivity : Activity() {
         val spacer = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(16)
+                dpToPx(14)
             )
         }
         rootLayout.addView(spacer)
@@ -313,7 +325,7 @@ class SettingsActivity : Activity() {
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER
             background = makerBtnDrawable
-            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
             isClickable = true
             isFocusable = true
             setOnClickListener {
@@ -347,7 +359,7 @@ class SettingsActivity : Activity() {
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER
             background = tgChannelDrawable
-            setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+            setPadding(dpToPx(12), dpToPx(14), dpToPx(12), dpToPx(14))
             isClickable = true
             isFocusable = true
             layoutParams = LinearLayout.LayoutParams(
@@ -377,7 +389,7 @@ class SettingsActivity : Activity() {
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER
             background = tgChatDrawable
-            setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+            setPadding(dpToPx(12), dpToPx(14), dpToPx(12), dpToPx(14))
             isClickable = true
             isFocusable = true
             layoutParams = LinearLayout.LayoutParams(
@@ -409,11 +421,13 @@ class SettingsActivity : Activity() {
         setContentView(scrollView)
     }
 
-    private fun dpToPx(dp: Int): Int {
+    private fun dpToPx(dp: Float): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            dp.toFloat(),
+            dp,
             resources.displayMetrics
         ).toInt()
     }
+
+    private fun dpToPx(dp: Int): Int = dpToPx(dp.toFloat())
 }

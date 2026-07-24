@@ -8,6 +8,8 @@
 [![Chat](https://img.shields.io/badge/Telegram-Chat-26A5E4?style=flat-square&logo=Telegram)](https://t.me/sechehe)
 ![LSPosed](https://img.shields.io/badge/Powered_by-LSPosed-F48FB1?style=flat-square&logo=android)
 [![MinSDK](https://img.shields.io/badge/Min_SDK-35-brightgreen?style=flat-square&logo=android)](https://developer.android.com/about/versions)
+[![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-Lockscreen-Font-EXT/total?color=blue&label=Total+Downloads+from+GitHub&style=flat-square)](https://github.com/HeheJuice/OneUI-Lockscreen-Font-EXT/releases)
+[![Design](https://img.shields.io/badge/OneUI-6+-blue)](https://github.com/HeheJuice/OneUI-Lockscreen-Font-EXT/releases)
 </div>
 
 ### 🗺 Project Overview 
@@ -27,6 +29,7 @@
           - Phone Number (Testing 
 - Custom Fonts Detection Removed
      - Support Custom Fonts APK
+- Unlock Extra Battery Information 
 ### 📂 Preview
 <div>
     <img src="Banner/SS1.jpg" width="155" />

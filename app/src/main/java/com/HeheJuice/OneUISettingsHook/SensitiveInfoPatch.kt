@@ -46,9 +46,23 @@ object SensitiveInfoPatch {
                                 .replace(")", "")
                                 .trim()
 
-                            // Check if the text is a formatted date (e.g., 2024-05-12, 2024.05.12, 20240512)
-                            val isDate = textToEvaluate.matches(Regex("""^\d{4}[./-]\d{1,2}[./-]\d{1,2}$""")) ||
-                                         (cleanText.length == 8 && (cleanText.startsWith("19") || cleanText.startsWith("20")))
+                            // 1. Matches formatted date strings like "06/01/2022", "06.01.2022", "2022-01-06"
+                            val isFormattedDate = textToEvaluate.trim().matches(
+                                Regex("""^\d{1,4}[./\-\s]\d{1,2}[./\-\s]\d{1,4}$""")
+                            )
+
+                            // 2. Matches dates with month names like "06 January 2022" or "Jan 2022"
+                            val hasMonthName = textToEvaluate.contains(
+                                Regex("""(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b""")
+                            )
+
+                            // 3. Validates YYYYMMDD numeric strings against valid month (1..12) and day (1..31) ranges
+                            val isRawYyyymmdd = cleanText.length == 8 && 
+                                (cleanText.startsWith("19") || cleanText.startsWith("20")) &&
+                                (cleanText.substring(4, 6).toIntOrNull() in 1..12) &&
+                                (cleanText.substring(6, 8).toIntOrNull() in 1..31)
+
+                            val isDate = isFormattedDate || hasMonthName || isRawYyyymmdd
 
                             val isImei = cleanText.length in 14..16 && cleanText.all { it.isDigit() }
 
@@ -57,7 +71,7 @@ object SensitiveInfoPatch {
                                                  cleanText.any { it.isDigit() } && 
                                                  cleanText.any { it.isLetter() }
 
-                            // Exclude dates from being flagged as phone numbers
+                            // Exclude dates from being categorized as phone numbers
                             val isPhoneNumber = !isDate && (
                                 (cleanText.startsWith("+") && 
                                  cleanText.substring(1).all { it.isDigit() } && 

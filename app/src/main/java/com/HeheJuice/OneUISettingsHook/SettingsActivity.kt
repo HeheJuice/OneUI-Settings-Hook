@@ -33,7 +33,7 @@ class SettingsActivity : Activity() {
         val accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
         val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
 
-        // 1. Detect module version programmatically
+        // Detect module version programmatically
         val moduleVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
         } catch (e: Exception) {
@@ -69,7 +69,7 @@ class SettingsActivity : Activity() {
         rootLayout.addView(headerSub)
 
         // ==========================================
-        // CARD 1: Module Status & Actions
+        // CARD 1: Module Info & License
         // ==========================================
         val card1Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
@@ -97,23 +97,27 @@ class SettingsActivity : Activity() {
             setPadding(0, 0, 0, dpToPx(20))
         }
 
-        // Button 1: Restart Settings App
-        val restartBtnDrawable = GradientDrawable().apply {
+        // Button 1: MIT License Button
+        val licenseBtnDrawable = GradientDrawable().apply {
             setColor(accentColor)
             cornerRadius = dpToPx(100).toFloat()
         }
 
-        val restartBtn = TextView(this).apply {
-            text = "Restart Settings App"
+        val licenseBtn = TextView(this).apply {
+            text = "View MIT License"
             textSize = 15f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
-            background = restartBtnDrawable
+            background = licenseBtnDrawable
             setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                restartSettingsApp()
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/blob/main/LICENSE")
+                )
+                startActivity(intent)
             }
         }
 
@@ -149,7 +153,7 @@ class SettingsActivity : Activity() {
 
         card1Layout.addView(versionTv)
         card1Layout.addView(cardDesc)
-        card1Layout.addView(restartBtn)
+        card1Layout.addView(licenseBtn)
         card1Layout.addView(githubBtn)
 
         rootLayout.addView(card1Layout)
@@ -164,7 +168,7 @@ class SettingsActivity : Activity() {
         rootLayout.addView(spacer)
 
         // ==========================================
-        // CARD 2: Developer & License Info
+        // CARD 2: Developer Info
         // ==========================================
         val card2Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
@@ -182,15 +186,24 @@ class SettingsActivity : Activity() {
             text = "About Module"
             textSize = 18f
             setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(8))
+            setPadding(0, 0, 0, dpToPx(16))
         }
 
-        val makerTv = TextView(this).apply {
+        // Button: Developer Profile
+        val makerBtnDrawable = GradientDrawable().apply {
+            setColor(secondaryBtnColor)
+            cornerRadius = dpToPx(100).toFloat()
+        }
+
+        val makerBtn = TextView(this).apply {
             text = "Developer: HeheJuice"
-            textSize = 14f
+            textSize = 15f
             setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(4))
+            gravity = Gravity.CENTER
+            background = makerBtnDrawable
+            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
             isClickable = true
+            isFocusable = true
             setOnClickListener {
                 val intent = Intent(
                     Intent.ACTION_VIEW,
@@ -200,31 +213,13 @@ class SettingsActivity : Activity() {
             }
         }
 
-        val licenseTv = TextView(this).apply {
-            text = "License: MIT License"
-            textSize = 14f
-            setTextColor(secondaryTextColor)
-        }
-
         card2Layout.addView(aboutTitle)
-        card2Layout.addView(makerTv)
-        card2Layout.addView(licenseTv)
+        card2Layout.addView(makerBtn)
 
         rootLayout.addView(card2Layout)
 
         scrollView.addView(rootLayout)
         setContentView(scrollView)
-    }
-
-    /**
-     * Force stops com.android.settings using root shell command
-     */
-    private fun restartSettingsApp() {
-        try {
-            Runtime.getRuntime().exec(arrayOf("su", "-c", "am force-stop com.android.settings"))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     private fun dpToPx(dp: Int): Int {

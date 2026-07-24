@@ -21,6 +21,12 @@
      - Auto-Hide the following 
           - IMEI
           - Series Number 
+### 📂 Preview
+<div>
+    <img src="Banner/SS1.jpg" width="70" />
+    <img src="Banner/SS2.jpg" width="70" />
+
+</div>
 
 ### ℹ️ How to use?
 - Install the .APK and activate in LSPosed

@@ -8,7 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.View
+import android.view.Window
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -16,7 +16,10 @@ import android.widget.TextView
 class SettingsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Hide standard window action bar programmatically
+        requestWindowFeature(Window.FEATURE_NO_ACTION_BAR)
         super.onCreate(savedInstanceState)
+        actionBar?.hide()
 
         val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == 
                      android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -29,7 +32,6 @@ class SettingsActivity : Activity() {
         val secondaryTextColor = if (isDark) Color.parseColor("#8E8E93") else Color.parseColor("#6C6C70")
         val accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
 
-        // Main Scroll View
         val scrollView = ScrollView(this).apply {
             setBackgroundColor(bgColor)
             isVerticalScrollBarEnabled = false
@@ -40,7 +42,7 @@ class SettingsActivity : Activity() {
             setPadding(dpToPx(20), dpToPx(36), dpToPx(20), dpToPx(36))
         }
 
-        // --- OneUI 8.5 Header (Thumb-friendly large header) ---
+        // OneUI 8.5 Large Header
         val headerTitle = TextView(this).apply {
             text = "OneUI Settings Hook"
             textSize = 28f
@@ -58,11 +60,11 @@ class SettingsActivity : Activity() {
         rootLayout.addView(headerTitle)
         rootLayout.addView(headerSub)
 
-        // --- OneUI 8.5 Card Container (Rounded Card with subtle border) ---
+        // OneUI 8.5 Card Container (26dp corner radius with subtle border)
         val cardDrawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(26).toFloat() // OneUI standard 26dp radius
-            setStroke(dpToPx(1), cardBorderColor) // Subtle outline
+            cornerRadius = dpToPx(26).toFloat()
+            setStroke(dpToPx(1), cardBorderColor)
         }
 
         val cardLayout = LinearLayout(this).apply {
@@ -71,7 +73,6 @@ class SettingsActivity : Activity() {
             setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
         }
 
-        // Card Content
         val cardTitle = TextView(this).apply {
             text = "Status: Active"
             textSize = 18f
@@ -86,10 +87,10 @@ class SettingsActivity : Activity() {
             setPadding(0, 0, 0, dpToPx(20))
         }
 
-        // Pill / Capsule Action Button
+        // Pill / Capsule Button
         val buttonDrawable = GradientDrawable().apply {
             setColor(accentColor)
-            cornerRadius = dpToPx(100).toFloat() // Pill shape
+            cornerRadius = dpToPx(100).toFloat()
         }
 
         val githubBtn = TextView(this).apply {

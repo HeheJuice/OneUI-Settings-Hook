@@ -26,7 +26,7 @@
      - Auto-Hide the following 
           - IMEI
           - Series Number 
-          - Phone Number (Testing 
+          - Phone Number 
 - Custom Fonts Detection Removed
      - Support Custom Fonts APK
 - Unlock Extra Battery Information 

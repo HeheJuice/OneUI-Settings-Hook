@@ -11,11 +11,13 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.Window
+import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -42,8 +44,6 @@ class SettingsActivity : Activity() {
         val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
         val starBtnColor = if (isDark) Color.parseColor("#FF9F0A") else Color.parseColor("#FF9500")
         val redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
-        
-        // Translucent dark circle background for back button so cards can be seen scrolling underneath
         val backBtnBgColor = if (isDark) Color.parseColor("#CC3A3A3C") else Color.parseColor("#CCE5E5EA")
 
         val rawVersion = try {
@@ -57,13 +57,20 @@ class SettingsActivity : Activity() {
             setBackgroundColor(bgColor)
         }
 
+        val statusBarHeight = getStatusBarHeight()
+
         // --- Scrollable Card Container ---
         val scrollView = ScrollView(this).apply {
             isVerticalScrollBarEnabled = false
             isFillViewport = true
-            clipToPadding = false // Allows card content to scroll cleanly under back button
-            // Top padding (68dp) leaves room for floating back button at start position
-            setPadding(dpToPx(16), dpToPx(68), dpToPx(16), dpToPx(32))
+            clipToPadding = false // Allows cards to scroll seamlessly under back button
+            // Dynamically account for status bar + back button height
+            setPadding(
+                dpToPx(16), 
+                statusBarHeight + dpToPx(68), 
+                dpToPx(16), 
+                dpToPx(32)
+            )
         }
 
         val scrollContent = LinearLayout(this).apply {
@@ -335,10 +342,15 @@ class SettingsActivity : Activity() {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
             )
-            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            // Push top bar down below system status bar + extra 12dp spacing
+            setPadding(
+                dpToPx(16), 
+                statusBarHeight + dpToPx(12), 
+                dpToPx(16), 
+                dpToPx(12)
+            )
         }
 
-        // Vector Arrow Drawable
         val backArrowDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
@@ -385,7 +397,32 @@ class SettingsActivity : Activity() {
         topBarLayout.addView(backBtn)
         rootFrameLayout.addView(topBarLayout)
 
+        // Dynamic system insets listener for edge-to-edge system bars
+        rootFrameLayout.setOnApplyWindowInsetsListener { _, insets ->
+            val topInset = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                insets.getInsets(WindowInsets.Type.statusBars()).top
+            } else {
+                @Suppress("DEPRECATION")
+                insets.systemWindowInsetTop
+            }
+            val effectiveTop = if (topInset > 0) topInset else statusBarHeight
+
+            topBarLayout.setPadding(dpToPx(16), effectiveTop + dpToPx(12), dpToPx(16), dpToPx(12))
+            scrollView.setPadding(dpToPx(16), effectiveTop + dpToPx(68), dpToPx(16), dpToPx(32))
+
+            insets
+        }
+
         setContentView(rootFrameLayout)
+    }
+
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            dpToPx(36) // Safe default offset for status bar height
+        }
     }
 
     private fun dpToPx(dp: Float): Int {

@@ -16,8 +16,8 @@ import android.widget.TextView
 class SettingsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Hide standard window action bar programmatically
-        requestWindowFeature(Window.FEATURE_NO_ACTION_BAR)
+        // Correct constant for hiding the native framework header
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         actionBar?.hide()
 

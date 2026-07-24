@@ -2,7 +2,13 @@ package com.HeheJuice.OneUISettingsHook
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +16,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.Window
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -49,8 +56,57 @@ class SettingsActivity : Activity() {
 
         val rootLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dpToPx(20), dpToPx(80), dpToPx(20), dpToPx(36))
+            setPadding(dpToPx(16), dpToPx(20), dpToPx(16), dpToPx(36))
         }
+
+        // --- OneUI Back Arrow Vector Drawable ---
+        val backArrowDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val size = dpToPx(6).toFloat()
+
+                val path = Path().apply {
+                    moveTo(cx + size * 0.5f, cy - size)
+                    lineTo(cx - size * 0.5f, cy)
+                    lineTo(cx + size * 0.5f, cy + size)
+                }
+                canvas.drawPath(path, paint)
+            }
+
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+        }
+
+        // --- Back Button (Top Action Bar) ---
+        val outValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+
+        val backBtn = ImageView(this).apply {
+            setImageDrawable(backArrowDrawable)
+            setBackgroundResource(outValue.resourceId)
+            contentDescription = getString(R.string.btn_back)
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(dpToPx(40), dpToPx(40)).apply {
+                bottomMargin = dpToPx(12)
+            }
+            setOnClickListener {
+                finish()
+            }
+        }
+
+        rootLayout.addView(backBtn)
 
         // --- Header Title & Subtitle ---
         val headerTitle = TextView(this).apply {

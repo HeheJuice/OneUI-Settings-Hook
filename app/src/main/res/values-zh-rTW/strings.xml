@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">OneUI Settings Hook</string>
     <string name="header_subtitle">模組設定與詳細資訊</string>
+    <string name="btn_back">返回</string>
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">關於您的 Galaxy</string>

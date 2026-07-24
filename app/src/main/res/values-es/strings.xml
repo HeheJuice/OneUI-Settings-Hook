@@ -1,11 +1,17 @@
 <resources>
     <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">Configuración e información del módulo</string>
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">Acerca de tu Galaxy</string>
     <string name="software_details">Detalles del software</string>
+    <string name="module_version">Versión %1$s</string>
+    <string name="btn_mit_license">Ver licencia MIT</string>
+    <string name="btn_github_repo">Ver repositorio de GitHub</string>
+    <string name="card_about_title">Acerca del módulo</string>
+    <string name="btn_developer">Desarrollador: HeheJuice</string>
     <string name="module_info_category">Información del módulo</string>
     <string name="module_maker_title">Creador del módulo</string>
     <string name="module_github_title">Repositorio de GitHub</string>
-    <string name="module_summary">Modificando la de Ajustes de OneUI</string>
+    <string name="module_summary">Modificando la Configuración de OneUI</string>
 </resources>

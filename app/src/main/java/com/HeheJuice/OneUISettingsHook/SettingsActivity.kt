@@ -34,7 +34,7 @@ class SettingsActivity : Activity() {
         val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
 
         // Detect module version programmatically
-        val moduleVersion = try {
+        val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
         } catch (e: Exception) {
             "1.0.0"
@@ -52,14 +52,14 @@ class SettingsActivity : Activity() {
 
         // --- Header Title & Subtitle ---
         val headerTitle = TextView(this).apply {
-            text = "OneUI Settings Hook"
+            text = getString(R.string.app_name)
             textSize = 28f
             setTextColor(primaryTextColor)
             setPadding(dpToPx(8), 0, dpToPx(8), dpToPx(4))
         }
 
         val headerSub = TextView(this).apply {
-            text = "Module configuration & information"
+            text = getString(R.string.header_subtitle)
             textSize = 14f
             setTextColor(secondaryTextColor)
             setPadding(dpToPx(8), 0, dpToPx(8), dpToPx(24))
@@ -84,17 +84,10 @@ class SettingsActivity : Activity() {
         }
 
         val versionTv = TextView(this).apply {
-            text = "Version $moduleVersion"
+            text = getString(R.string.module_version, rawVersion)
             textSize = 16f
             setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(4))
-        }
-
-        val cardDesc = TextView(this).apply {
-            text = "All Xposed hooks are active and loaded into com.android.settings."
-            textSize = 14f
-            setTextColor(secondaryTextColor)
-            setPadding(0, 0, 0, dpToPx(20))
+            setPadding(0, 0, 0, dpToPx(16))
         }
 
         // Button 1: MIT License Button
@@ -104,7 +97,7 @@ class SettingsActivity : Activity() {
         }
 
         val licenseBtn = TextView(this).apply {
-            text = "View MIT License"
+            text = getString(R.string.btn_mit_license)
             textSize = 15f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
@@ -128,7 +121,7 @@ class SettingsActivity : Activity() {
         }
 
         val githubBtn = TextView(this).apply {
-            text = "View GitHub Repository"
+            text = getString(R.string.btn_github_repo)
             textSize = 15f
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER
@@ -152,7 +145,6 @@ class SettingsActivity : Activity() {
         }
 
         card1Layout.addView(versionTv)
-        card1Layout.addView(cardDesc)
         card1Layout.addView(licenseBtn)
         card1Layout.addView(githubBtn)
 
@@ -183,7 +175,7 @@ class SettingsActivity : Activity() {
         }
 
         val aboutTitle = TextView(this).apply {
-            text = "About Module"
+            text = getString(R.string.card_about_title)
             textSize = 18f
             setTextColor(primaryTextColor)
             setPadding(0, 0, 0, dpToPx(16))
@@ -196,7 +188,7 @@ class SettingsActivity : Activity() {
         }
 
         val makerBtn = TextView(this).apply {
-            text = "Developer: HeheJuice"
+            text = getString(R.string.btn_developer)
             textSize = 15f
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER

@@ -4,14 +4,18 @@
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">關於您的 Galaxy</string>
-    <string name="software_details">軟件資料</string>
+    <string name="software_details">軟體資訊</string>
     <string name="module_version">版本 %1$s</string>
     <string name="btn_mit_license">檢視 MIT 授權條款</string>
-    <string name="btn_github_repo">檢視 GitHub 專案庫</string>
+    <string name="btn_star_repo">喜歡這個專案？給我們點個 Star 吧</string>
+    <string name="btn_github_repo">檢視 GitHub 儲存庫</string>
+    <string name="btn_report_bugs">回報 Bug</string>
     <string name="card_about_title">關於模組</string>
     <string name="btn_developer">開發者：HeheJuice</string>
+    <string name="btn_tg_channel">Telegram 頻道</string>
+    <string name="btn_tg_chat">Telegram 群組</string>
     <string name="module_info_category">模組資訊</string>
     <string name="module_maker_title">模組開發者</string>
-    <string name="module_github_title">GitHub 專案庫</string>
+    <string name="module_github_title">GitHub 儲存庫</string>
     <string name="module_summary">修改 OneUI 設定</string>
 </resources>

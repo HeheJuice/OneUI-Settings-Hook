@@ -32,6 +32,8 @@ class SettingsActivity : Activity() {
         val secondaryTextColor = if (isDark) Color.parseColor("#8E8E93") else Color.parseColor("#6C6C70")
         val accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
         val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
+        val starBtnColor = if (isDark) Color.parseColor("#FF9F0A") else Color.parseColor("#FF9500")
+        val redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
 
         // Detect module version programmatically
         val rawVersion = try {
@@ -69,7 +71,7 @@ class SettingsActivity : Activity() {
         rootLayout.addView(headerSub)
 
         // ==========================================
-        // CARD 1: Module Info & License
+        // CARD 1: Module Info & Quick Actions
         // ==========================================
         val card1Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
@@ -114,7 +116,37 @@ class SettingsActivity : Activity() {
             }
         }
 
-        // Button 2: GitHub Repository Link
+        // Button 2: Star Repo Button
+        val starBtnDrawable = GradientDrawable().apply {
+            setColor(starBtnColor)
+            cornerRadius = dpToPx(100).toFloat()
+        }
+
+        val starBtn = TextView(this).apply {
+            text = getString(R.string.btn_star_repo)
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            background = starBtnDrawable
+            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(10)
+            }
+            setOnClickListener {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")
+                )
+                startActivity(intent)
+            }
+        }
+
+        // Button 3: GitHub Repository Link
         val githubBtnDrawable = GradientDrawable().apply {
             setColor(secondaryBtnColor)
             cornerRadius = dpToPx(100).toFloat()
@@ -138,7 +170,37 @@ class SettingsActivity : Activity() {
             setOnClickListener {
                 val intent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Patch")
+                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")
+                )
+                startActivity(intent)
+            }
+        }
+
+        // Button 4: Red Report Bugs Button
+        val bugBtnDrawable = GradientDrawable().apply {
+            setColor(redBtnColor)
+            cornerRadius = dpToPx(100).toFloat()
+        }
+
+        val bugBtn = TextView(this).apply {
+            text = getString(R.string.btn_report_bugs)
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            background = bugBtnDrawable
+            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(10)
+            }
+            setOnClickListener {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")
                 )
                 startActivity(intent)
             }
@@ -146,7 +208,9 @@ class SettingsActivity : Activity() {
 
         card1Layout.addView(versionTv)
         card1Layout.addView(licenseBtn)
+        card1Layout.addView(starBtn)
         card1Layout.addView(githubBtn)
+        card1Layout.addView(bugBtn)
 
         rootLayout.addView(card1Layout)
 
@@ -160,7 +224,7 @@ class SettingsActivity : Activity() {
         rootLayout.addView(spacer)
 
         // ==========================================
-        // CARD 2: Developer Info
+        // CARD 2: Developer & Community Info
         // ==========================================
         val card2Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
@@ -205,8 +269,83 @@ class SettingsActivity : Activity() {
             }
         }
 
+        // --- Telegram Buttons Row (Side-by-Side) ---
+        val tgRowLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(10)
+            }
+        }
+
+        val tgChannelDrawable = GradientDrawable().apply {
+            setColor(secondaryBtnColor)
+            cornerRadius = dpToPx(100).toFloat()
+        }
+
+        val tgChannelBtn = TextView(this).apply {
+            text = getString(R.string.btn_tg_channel)
+            textSize = 14f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            background = tgChannelDrawable
+            setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            ).apply {
+                marginEnd = dpToPx(5)
+            }
+            setOnClickListener {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://t.me/channelhehejuice")
+                )
+                startActivity(intent)
+            }
+        }
+
+        val tgChatDrawable = GradientDrawable().apply {
+            setColor(secondaryBtnColor)
+            cornerRadius = dpToPx(100).toFloat()
+        }
+
+        val tgChatBtn = TextView(this).apply {
+            text = getString(R.string.btn_tg_chat)
+            textSize = 14f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            background = tgChatDrawable
+            setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            ).apply {
+                marginStart = dpToPx(5)
+            }
+            setOnClickListener {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://t.me/sechehe")
+                )
+                startActivity(intent)
+            }
+        }
+
+        tgRowLayout.addView(tgChannelBtn)
+        tgRowLayout.addView(tgChatBtn)
+
         card2Layout.addView(aboutTitle)
         card2Layout.addView(makerBtn)
+        card2Layout.addView(tgRowLayout)
 
         rootLayout.addView(card2Layout)
 

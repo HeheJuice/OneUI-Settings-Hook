@@ -16,6 +16,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.Window
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -42,33 +43,302 @@ class SettingsActivity : Activity() {
         val starBtnColor = if (isDark) Color.parseColor("#FF9F0A") else Color.parseColor("#FF9500")
         val redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
         
-        // Circular back button background color (matching Image 2)
-        val backBtnBgColor = if (isDark) Color.parseColor("#3A3A3C") else Color.parseColor("#E5E5EA")
+        // Translucent dark circle background for back button so cards can be seen scrolling underneath
+        val backBtnBgColor = if (isDark) Color.parseColor("#CC3A3A3C") else Color.parseColor("#CCE5E5EA")
 
-        // Detect module version programmatically
         val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
         } catch (e: Exception) {
             "1.0.0"
         }
 
-        // Fullscreen viewport container
-        val scrollView = ScrollView(this).apply {
+        // Root container overlaying fixed top bar & scrollable card body
+        val rootFrameLayout = FrameLayout(this).apply {
             setBackgroundColor(bgColor)
-            isVerticalScrollBarEnabled = false
-            isFillViewport = true // Fills full vertical screen height
         }
 
-        val rootLayout = LinearLayout(this).apply {
+        // --- Scrollable Card Container ---
+        val scrollView = ScrollView(this).apply {
+            isVerticalScrollBarEnabled = false
+            isFillViewport = true
+            clipToPadding = false // Allows card content to scroll cleanly under back button
+            // Top padding (68dp) leaves room for floating back button at start position
+            setPadding(dpToPx(16), dpToPx(68), dpToPx(16), dpToPx(32))
+        }
+
+        val scrollContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(24))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
             )
         }
 
-        // --- OneUI Back Arrow Vector Drawable ---
+        // --- Header Title & Subtitle ---
+        val headerTitle = TextView(this).apply {
+            text = getString(R.string.app_name)
+            textSize = 30f
+            setTextColor(primaryTextColor)
+            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(4))
+        }
+
+        val headerSub = TextView(this).apply {
+            text = getString(R.string.header_subtitle)
+            textSize = 15f
+            setTextColor(secondaryTextColor)
+            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(24))
+        }
+
+        scrollContent.addView(headerTitle)
+        scrollContent.addView(headerSub)
+
+        val buttonHeightPx = dpToPx(54)
+
+        // ==========================================
+        // CARD 1: Module Info & Quick Actions
+        // ==========================================
+        val card1Drawable = GradientDrawable().apply {
+            setColor(cardBgColor)
+            cornerRadius = dpToPx(28).toFloat()
+            setStroke(dpToPx(1), cardBorderColor)
+        }
+
+        val card1Layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = card1Drawable
+            setPadding(dpToPx(20), dpToPx(24), dpToPx(20), dpToPx(24))
+        }
+
+        val versionTv = TextView(this).apply {
+            text = getString(R.string.module_version, rawVersion)
+            textSize = 17f
+            setTextColor(primaryTextColor)
+            setPadding(0, 0, 0, dpToPx(18))
+        }
+
+        // Button 1: MIT License
+        val licenseBtn = TextView(this).apply {
+            text = getString(R.string.btn_mit_license)
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(accentColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                buttonHeightPx
+            )
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/blob/main/LICENSE")))
+            }
+        }
+
+        // Button 2: Star Repo
+        val starBtn = TextView(this).apply {
+            text = getString(R.string.btn_star_repo)
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(starBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                buttonHeightPx
+            ).apply {
+                topMargin = dpToPx(12)
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
+            }
+        }
+
+        // Button 3: GitHub Repo
+        val githubBtn = TextView(this).apply {
+            text = getString(R.string.btn_github_repo)
+            textSize = 15f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(secondaryBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                buttonHeightPx
+            ).apply {
+                topMargin = dpToPx(12)
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
+            }
+        }
+
+        // Button 4: Report Bugs
+        val bugBtn = TextView(this).apply {
+            text = getString(R.string.btn_report_bugs)
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(redBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                buttonHeightPx
+            ).apply {
+                topMargin = dpToPx(12)
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")))
+            }
+        }
+
+        card1Layout.addView(versionTv)
+        card1Layout.addView(licenseBtn)
+        card1Layout.addView(starBtn)
+        card1Layout.addView(githubBtn)
+        card1Layout.addView(bugBtn)
+
+        scrollContent.addView(card1Layout)
+
+        // Dynamic Spacer between cards
+        val spacer = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(16)
+            )
+        }
+        scrollContent.addView(spacer)
+
+        // ==========================================
+        // CARD 2: Developer & Community Info
+        // ==========================================
+        val card2Drawable = GradientDrawable().apply {
+            setColor(cardBgColor)
+            cornerRadius = dpToPx(28).toFloat()
+            setStroke(dpToPx(1), cardBorderColor)
+        }
+
+        val card2Layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = card2Drawable
+            setPadding(dpToPx(20), dpToPx(24), dpToPx(20), dpToPx(24))
+        }
+
+        val aboutTitle = TextView(this).apply {
+            text = getString(R.string.card_about_title)
+            textSize = 18f
+            setTextColor(primaryTextColor)
+            setPadding(0, 0, 0, dpToPx(18))
+        }
+
+        // Button: Developer Profile
+        val makerBtn = TextView(this).apply {
+            text = getString(R.string.btn_developer)
+            textSize = 15f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(secondaryBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                buttonHeightPx
+            )
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice")))
+            }
+        }
+
+        // Telegram Row
+        val tgRowLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                buttonHeightPx
+            ).apply {
+                topMargin = dpToPx(12)
+            }
+        }
+
+        val tgChannelBtn = TextView(this).apply {
+            text = getString(R.string.btn_tg_channel)
+            textSize = 14f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(secondaryBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = dpToPx(6)
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/channelhehejuice")))
+            }
+        }
+
+        val tgChatBtn = TextView(this).apply {
+            text = getString(R.string.btn_tg_chat)
+            textSize = 14f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(secondaryBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6)
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/sechehe")))
+            }
+        }
+
+        tgRowLayout.addView(tgChannelBtn)
+        tgRowLayout.addView(tgChatBtn)
+
+        card2Layout.addView(aboutTitle)
+        card2Layout.addView(makerBtn)
+        card2Layout.addView(tgRowLayout)
+
+        scrollContent.addView(card2Layout)
+
+        scrollView.addView(scrollContent)
+        rootFrameLayout.addView(scrollView)
+
+        // ==========================================
+        // FLOATING TOP BAR (Fixed Floating Back Button)
+        // ==========================================
+        val topBarLayout = FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
+        }
+
+        // Vector Arrow Drawable
         val backArrowDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
@@ -97,7 +367,6 @@ class SettingsActivity : Activity() {
             override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
         }
 
-        // --- Back Button (Circular background matching Image 2) ---
         val backBtnBackground = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
             setColor(backBtnBgColor)
@@ -109,316 +378,14 @@ class SettingsActivity : Activity() {
             contentDescription = getString(R.string.btn_back)
             isClickable = true
             isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(dpToPx(42), dpToPx(42)).apply {
-                topMargin = dpToPx(8)
-                bottomMargin = dpToPx(16)
-            }
-            setOnClickListener {
-                finish()
-            }
+            layoutParams = FrameLayout.LayoutParams(dpToPx(42), dpToPx(42))
+            setOnClickListener { finish() }
         }
 
-        rootLayout.addView(backBtn)
+        topBarLayout.addView(backBtn)
+        rootFrameLayout.addView(topBarLayout)
 
-        // --- Header Title & Subtitle ---
-        val headerTitle = TextView(this).apply {
-            text = getString(R.string.app_name)
-            textSize = 28f
-            setTextColor(primaryTextColor)
-            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(2))
-        }
-
-        val headerSub = TextView(this).apply {
-            text = getString(R.string.header_subtitle)
-            textSize = 14f
-            setTextColor(secondaryTextColor)
-            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(20))
-        }
-
-        rootLayout.addView(headerTitle)
-        rootLayout.addView(headerSub)
-
-        // ==========================================
-        // CARD 1: Module Info & Quick Actions
-        // ==========================================
-        val card1Drawable = GradientDrawable().apply {
-            setColor(cardBgColor)
-            cornerRadius = dpToPx(26).toFloat()
-            setStroke(dpToPx(1), cardBorderColor)
-        }
-
-        val card1Layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = card1Drawable
-            setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
-        }
-
-        val versionTv = TextView(this).apply {
-            text = getString(R.string.module_version, rawVersion)
-            textSize = 16f
-            setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(16))
-        }
-
-        // Button 1: MIT License Button
-        val licenseBtnDrawable = GradientDrawable().apply {
-            setColor(accentColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val licenseBtn = TextView(this).apply {
-            text = getString(R.string.btn_mit_license)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            background = licenseBtnDrawable
-            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/blob/main/LICENSE")
-                )
-                startActivity(intent)
-            }
-        }
-
-        // Button 2: Star Repo Button
-        val starBtnDrawable = GradientDrawable().apply {
-            setColor(starBtnColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val starBtn = TextView(this).apply {
-            text = getString(R.string.btn_star_repo)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            background = starBtnDrawable
-            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dpToPx(10)
-            }
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")
-                )
-                startActivity(intent)
-            }
-        }
-
-        // Button 3: GitHub Repository Link
-        val githubBtnDrawable = GradientDrawable().apply {
-            setColor(secondaryBtnColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val githubBtn = TextView(this).apply {
-            text = getString(R.string.btn_github_repo)
-            textSize = 15f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = githubBtnDrawable
-            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dpToPx(10)
-            }
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")
-                )
-                startActivity(intent)
-            }
-        }
-
-        // Button 4: Red Report Bugs Button
-        val bugBtnDrawable = GradientDrawable().apply {
-            setColor(redBtnColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val bugBtn = TextView(this).apply {
-            text = getString(R.string.btn_report_bugs)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            background = bugBtnDrawable
-            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dpToPx(10)
-            }
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")
-                )
-                startActivity(intent)
-            }
-        }
-
-        card1Layout.addView(versionTv)
-        card1Layout.addView(licenseBtn)
-        card1Layout.addView(starBtn)
-        card1Layout.addView(githubBtn)
-        card1Layout.addView(bugBtn)
-
-        rootLayout.addView(card1Layout)
-
-        // Spacer between cards
-        val spacer = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(14)
-            )
-        }
-        rootLayout.addView(spacer)
-
-        // ==========================================
-        // CARD 2: Developer & Community Info
-        // ==========================================
-        val card2Drawable = GradientDrawable().apply {
-            setColor(cardBgColor)
-            cornerRadius = dpToPx(26).toFloat()
-            setStroke(dpToPx(1), cardBorderColor)
-        }
-
-        val card2Layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = card2Drawable
-            setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
-        }
-
-        val aboutTitle = TextView(this).apply {
-            text = getString(R.string.card_about_title)
-            textSize = 18f
-            setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(16))
-        }
-
-        // Button: Developer Profile
-        val makerBtnDrawable = GradientDrawable().apply {
-            setColor(secondaryBtnColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val makerBtn = TextView(this).apply {
-            text = getString(R.string.btn_developer)
-            textSize = 15f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = makerBtnDrawable
-            setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/HeheJuice")
-                )
-                startActivity(intent)
-            }
-        }
-
-        // --- Telegram Buttons Row (Side-by-Side) ---
-        val tgRowLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = dpToPx(10)
-            }
-        }
-
-        val tgChannelDrawable = GradientDrawable().apply {
-            setColor(secondaryBtnColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val tgChannelBtn = TextView(this).apply {
-            text = getString(R.string.btn_tg_channel)
-            textSize = 14f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = tgChannelDrawable
-            setPadding(dpToPx(12), dpToPx(14), dpToPx(12), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            ).apply {
-                marginEnd = dpToPx(5)
-            }
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://t.me/channelhehejuice")
-                )
-                startActivity(intent)
-            }
-        }
-
-        val tgChatDrawable = GradientDrawable().apply {
-            setColor(secondaryBtnColor)
-            cornerRadius = dpToPx(100).toFloat()
-        }
-
-        val tgChatBtn = TextView(this).apply {
-            text = getString(R.string.btn_tg_chat)
-            textSize = 14f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = tgChatDrawable
-            setPadding(dpToPx(12), dpToPx(14), dpToPx(12), dpToPx(14))
-            isClickable = true
-            isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            ).apply {
-                marginStart = dpToPx(5)
-            }
-            setOnClickListener {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://t.me/sechehe")
-                )
-                startActivity(intent)
-            }
-        }
-
-        tgRowLayout.addView(tgChannelBtn)
-        tgRowLayout.addView(tgChatBtn)
-
-        card2Layout.addView(aboutTitle)
-        card2Layout.addView(makerBtn)
-        card2Layout.addView(tgRowLayout)
-
-        rootLayout.addView(card2Layout)
-
-        scrollView.addView(rootLayout)
-        setContentView(scrollView)
+        setContentView(rootFrameLayout)
     }
 
     private fun dpToPx(dp: Float): Int {

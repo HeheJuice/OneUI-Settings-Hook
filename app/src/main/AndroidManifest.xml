@@ -29,7 +29,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 
-                <!-- This category enables the gear/settings button in LSPosed -->
+          
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
             </intent-filter>
         </activity>

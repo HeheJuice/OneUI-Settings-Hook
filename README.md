@@ -17,6 +17,8 @@
 
 ### 😶‍🌫️ Features 
 - Redesign Software Info Page
+     - Glow Text Animation 
+     - Software Info Card Background = Home Wall
 - Sensitive Information Protection 
      - Auto-Hide the following 
           - IMEI

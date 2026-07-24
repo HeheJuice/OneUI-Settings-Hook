@@ -106,8 +106,8 @@ class SettingPatch : IXposedHookLoadPackage {
 
                             val githubPref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(githubPref, "setTitle", getLocalizedString(modContext, "module_github_title", "GitHub Repository"))
-                            XposedHelpers.callMethod(githubPref, "setSummary", "https://github.com/HeheJuice/OneUI-Settings-Patch")
-                            val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Patch"))
+                            XposedHelpers.callMethod(githubPref, "setSummary", "https://github.com/HeheJuice/OneUI-Settings-Hook")
+                            val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook"))
                             XposedHelpers.callMethod(githubPref, "setIntent", viewIntent)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", githubPref)
 

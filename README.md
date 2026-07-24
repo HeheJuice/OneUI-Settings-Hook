@@ -24,6 +24,9 @@
      - Auto-Hide the following 
           - IMEI
           - Series Number 
+          - Phone Number (Testing 
+- Custom Fonts Detection Removed
+     - Support Custom Fonts APK
 ### 📂 Preview
 <div>
     <img src="Banner/SS1.jpg" width="155" />

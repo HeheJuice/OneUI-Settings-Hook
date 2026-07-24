@@ -26,11 +26,12 @@
     android:name=".SettingsActivity"
     android:exported="true"
     android:label="OneUI Settings Hook"
-    android:theme="@android:style/Theme.DeviceDefault.DayNight">
+    android:theme="@android:style/Theme.DeviceDefault.DayNight.NoActionBar">
     <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
     </intent-filter>
 </activity>
+
     </application>
 </manifest>

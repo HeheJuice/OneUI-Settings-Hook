@@ -10,7 +10,7 @@ object SensitiveInfoPatch {
     private const val TAG = "SensitiveInfoPatch"
     private var isHooked = false
 
-    // Adjust your mask string length/style here (8 characters fits perfectly on 1 line)
+    // Mask string (8 characters fits cleanly on 1 line)
     private const val MASK_TEXT = "********" 
 
     // Custom View Tag keys to store real text and toggle state per TextView
@@ -41,8 +41,13 @@ object SensitiveInfoPatch {
                             val existingReal = tv.getTag(TAG_REAL_TEXT) as? String
                             val textToEvaluate = existingReal ?: rawInput
 
-                            // Clean spaces/dashes for pattern checking
-                            val cleanText = textToEvaluate.replace(" ", "").replace("-", "").trim()
+                            // Clean spaces, dashes, and parentheses for pattern checking
+                            val cleanText = textToEvaluate
+                                .replace(" ", "")
+                                .replace("-", "")
+                                .replace("(", "")
+                                .replace(")", "")
+                                .trim()
 
                             // 1. IMEI: 14 to 16 digits
                             val isImei = cleanText.length in 14..16 && cleanText.all { it.isDigit() }
@@ -53,7 +58,14 @@ object SensitiveInfoPatch {
                                                  cleanText.any { it.isDigit() } && 
                                                  cleanText.any { it.isLetter() }
 
-                            if (isImei || isSerialNumber) {
+                            // 3. Phone Number: International (+ followed by 8-15 digits) or Local (8-11 digits)
+                            val isPhoneNumber = (cleanText.startsWith("+") && 
+                                                 cleanText.substring(1).all { it.isDigit() } && 
+                                                 cleanText.length in 9..16) ||
+                                                (cleanText.all { it.isDigit() } && 
+                                                 cleanText.length in 8..11)
+
+                            if (isImei || isSerialNumber || isPhoneNumber) {
                                 // Save original sensitive value
                                 tv.setTag(TAG_REAL_TEXT, textToEvaluate)
 

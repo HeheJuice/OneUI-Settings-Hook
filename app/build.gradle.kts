@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.HeheJuice.OneUISettingsUIPatch"
+    namespace = "com.HeheJuice.OneUISettingsHook"
     compileSdk = 36
     compileSdkVersion(36) 
 
     defaultConfig {
-        applicationId = "com.HeheJuice.OneUISettingsUIPatch"
+        applicationId = "com.HeheJuice.OneUISettingsHook"
         minSdk = 35
         targetSdk = 36
         versionCode = 1

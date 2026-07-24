@@ -1,4 +1,4 @@
-package com.HeheJuice.OneUISettingsUIPatch
+package com.HeheJuice.OneUISettingsHook
 
 import android.animation.ValueAnimator
 import android.app.WallpaperManager
@@ -26,7 +26,7 @@ import de.robv.android.xposed.XposedHelpers
 object SoftwareInfoBannerPatch {
     private const val TAG = "SoftwareInfoBannerPatch"
     private var isHookInitialized = false
-    private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsUIPatch"
+    private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsHook"
 
     fun injectBanner(preferenceScreen: Any, context: Context, classLoader: ClassLoader) {
         try {

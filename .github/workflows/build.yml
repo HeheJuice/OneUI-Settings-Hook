@@ -47,10 +47,10 @@ jobs:
     - name: Copy APK to Debug Folder and Push
       run: |
         mkdir -p debug
-        cp app/build/outputs/apk/debug/app-debug.apk debug/OneUI-Setting-UI-debug.apk
+        cp app/build/outputs/apk/debug/app-debug.apk debug/OneUI-Settings-Hook.apk
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add debug/OneUI-Setting-UI-debug.apk
+        git add debug/OneUI-Settings-Hook.apk
         git commit -m "Automated build: Update debug artifact [skip ci]" || echo "No changes to commit"
         git push origin Test --force 
 
@@ -58,4 +58,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: lsposed-module-debug
-        path: debug/OneUI-Setting-UI-debug.apk
+        path: debug/OneUI-Settings-Hook.apk

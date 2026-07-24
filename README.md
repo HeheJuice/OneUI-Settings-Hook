@@ -11,7 +11,7 @@
 </div>
 
 ### 🗺 Project Overview 
-- OneUI-Settings-UI-Patch 
+- OneUI-Settings-Hook 
 - Patches apply for Settings Apps from OneUI 7 +
 - LSPosed and Root Required
 
@@ -29,5 +29,5 @@
 - Not applying ? Open a issue with your Software Details 
 
 ### 🥰 Credits
-- HeheJuice aka ME ,for making the whole Patch 
+- HeheJuice aka ME ,for making the whole Patch and Hook
 - LSPosed Team for the patch method

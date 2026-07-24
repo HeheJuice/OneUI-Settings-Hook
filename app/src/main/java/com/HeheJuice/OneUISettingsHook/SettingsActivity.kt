@@ -1,18 +1,17 @@
 package com.HeheJuice.OneUISettingsHook
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Simple programmatic UI for module settings
         val rootLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(64, 64, 64, 64)
@@ -35,7 +34,10 @@ class SettingsActivity : AppCompatActivity() {
             textSize = 16f
             setPadding(0, 24, 0, 24)
             setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Patch"))
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Patch")
+                )
                 startActivity(intent)
             }
         }

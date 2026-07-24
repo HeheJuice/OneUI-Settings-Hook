@@ -23,8 +23,8 @@
           - Series Number 
 ### 📂 Preview
 <div>
-    <img src="Banner/SS1.jpg" width="70" />
-    <img src="Banner/SS2.jpg" width="70" />
+    <img src="Banner/SS1.jpg" width="110" />
+    <img src="Banner/SS2.jpg" width="110" />
 
 </div>
 

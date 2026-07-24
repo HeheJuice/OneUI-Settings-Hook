@@ -26,6 +26,9 @@ class SettingPatch : IXposedHookLoadPackage {
         // 2. Initialize Custom Font validity check patch
         FontValidityPatch.applyPatch(lpparam.classLoader)
 
+        // 3. Initialize Extra Battery Info patch
+        ExtraBatteryInfo.applyPatch(lpparam.classLoader)
+
         val targetFragmentClass = "androidx.preference.PreferenceFragmentCompat"
         
         try {

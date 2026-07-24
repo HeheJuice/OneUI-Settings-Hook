@@ -12,7 +12,7 @@ android {
         applicationId = "com.HeheJuice.OneUISettingsHook"
         minSdk = 35
         targetSdk = 36
-        versionCode = 1.5
+        versionCode = 1
         versionName = "V.1.5"
     }
 

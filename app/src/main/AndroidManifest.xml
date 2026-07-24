@@ -22,5 +22,16 @@
         <meta-data 
     android:name="xposedscope" 
     android:value="com.android.settings" />
+<activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:label="OneUI Settings Hook">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                
+                <!-- This category enables the gear/settings button in LSPosed -->
+                <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

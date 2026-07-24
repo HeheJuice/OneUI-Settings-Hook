@@ -47,5 +47,5 @@
 - Not applying ? Open a issue with your Software Details 
 
 ### 🥰 Credits
-- HeheJuice aka ME ,for making the whole Patch and Hook
+- [HeheJuice](https://github.com/HeheJuice),for making the whole Patch and Hook
 - LSPosed Team for the patch method

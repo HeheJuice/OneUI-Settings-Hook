@@ -13,7 +13,7 @@
 ### 🗺 Project Overview 
 - OneUI-Settings-Hook 
 - Patches apply for Settings Apps from OneUI 7 +
-     - Tested on OneUI 7 ~ 8.5 
+     - Tested on OneUI 7 ~ 9
 - LSPosed and Root Required
 
 ### 😶‍🌫️ Features 

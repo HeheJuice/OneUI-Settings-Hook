@@ -19,7 +19,7 @@
 - LSPosed and Root Required
 
 ### 😶‍🌫️ Features 
-- Redesign Software Info Page
+- ‼️ Redesign Software Info Page
      - Glow Text Animation 
      - Software Info Card Background = Home Wall
 - Sensitive Information Protection 

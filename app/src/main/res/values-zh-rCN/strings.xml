@@ -1,11 +1,22 @@
 <resources>
-    <string name="app_name">OneUI 设置界面补丁</string>
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">模块配置与详细信息</string>
+    <string name="btn_back">返回</string>
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
-    <string name="about_your_galaxy">关于你的 Galaxy</string>
-    <string name="software_details">软件详细资料</string>
+    <string name="about_your_galaxy">关于您的 Galaxy</string>
+    <string name="software_details">软件信息</string>
+    <string name="module_version">版本 %1$s</string>
+    <string name="btn_mit_license">查看 MIT 许可证</string>
+    <string name="btn_star_repo">喜欢这个项目？给我们点个 Star 吧</string>
+    <string name="btn_github_repo">查看 GitHub 仓库</string>
+    <string name="btn_report_bugs">反馈 Bug</string>
+    <string name="card_about_title">关于模块</string>
+    <string name="btn_developer">开发者：HeheJuice</string>
+    <string name="btn_tg_channel">Telegram 频道</string>
+    <string name="btn_tg_chat">Telegram 群组</string>
     <string name="module_info_category">模块信息</string>
-    <string name="module_maker_title">模块制作</string>
+    <string name="module_maker_title">模块开发者</string>
     <string name="module_github_title">GitHub 仓库</string>
     <string name="module_summary">修改 OneUI 设置</string>
 </resources>

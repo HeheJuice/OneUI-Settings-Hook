@@ -1,11 +1,22 @@
 <resources>
     <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">モジュールの設定と詳細情報</string>
+    <string name="btn_back">戻る</string>
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">Galaxy について</string>
-    <string name="software_details">ソフトウェアの詳細</string>
+    <string name="software_details">ソフトウェア情報</string>
+    <string name="module_version">バージョン %1$s</string>
+    <string name="btn_mit_license">MIT ライセンスを表示</string>
+    <string name="btn_star_repo">気に入ったらスターをお願いします！</string>
+    <string name="btn_github_repo">GitHub リポジトリを表示</string>
+    <string name="btn_report_bugs">バグを報告</string>
+    <string name="card_about_title">モジュールについて</string>
+    <string name="btn_developer">開発者: HeheJuice</string>
+    <string name="btn_tg_channel">Telegram チャンネル</string>
+    <string name="btn_tg_chat">Telegram チャット</string>
     <string name="module_info_category">モジュール情報</string>
-    <string name="module_maker_title">モジュール製作者</string>
+    <string name="module_maker_title">モジュール開発者</string>
     <string name="module_github_title">GitHub リポジトリ</string>
-    <string name="module_summary">OneUI Settings の変更</string>
+    <string name="module_summary">OneUI 設定の変更</string>
 </resources>

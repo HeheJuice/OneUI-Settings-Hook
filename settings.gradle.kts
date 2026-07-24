@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SettingsUIModify"
+rootProject.name = "SettingsHook"
 include(":app")

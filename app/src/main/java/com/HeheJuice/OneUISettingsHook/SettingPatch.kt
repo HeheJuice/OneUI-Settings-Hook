@@ -1,4 +1,4 @@
-package com.HeheJuice.OneUISettingsUIPatch
+package com.HeheJuice.OneUISettingsHook
 
 import android.content.Context
 import android.content.Intent
@@ -13,7 +13,7 @@ class SettingPatch : IXposedHookLoadPackage {
     
     companion object {
         private const val TAG = "OneUISettingsUIPatch"
-        private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsUIPatch"
+        private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsHook"
         private val processedFragments = mutableSetOf<Int>()
     }
 

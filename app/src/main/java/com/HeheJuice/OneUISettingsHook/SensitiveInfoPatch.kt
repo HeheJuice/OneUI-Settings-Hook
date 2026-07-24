@@ -1,4 +1,4 @@
-package com.HeheJuice.OneUISettingsUIPatch
+package com.HeheJuice.OneUISettingsHook
 
 import android.util.Log
 import android.view.ViewGroup

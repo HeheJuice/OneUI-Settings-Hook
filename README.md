@@ -9,7 +9,7 @@
 ![LSPosed](https://img.shields.io/badge/Powered_by-LSPosed-F48FB1?style=flat-square&logo=android)
 [![MinSDK](https://img.shields.io/badge/Min_SDK-35-brightgreen?style=flat-square&logo=android)](https://developer.android.com/about/versions)
 [![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-Settings-Hook/total?color=blue&label=Total+Downloads+from+GitHub&style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
-[![Design](https://img.shields.io/badge/OneUI-6+-blue?style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
+[![Design](https://img.shields.io/badge/OneUI-7~9-blue?style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
 </div>
 
 ### 🗺 Project Overview 

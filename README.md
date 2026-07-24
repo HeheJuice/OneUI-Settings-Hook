@@ -36,6 +36,7 @@
     <td><img src="Banner/SS1.jpg" width="200" /></td>
     <td><img src="Banner/SS2.jpg" width="200" /></td>
     <td><img src="Banner/SS3.jpg" width="200" /></td>
+    <td><img src="Banner/SS4.jpg" width="200" /></td>
   </tr>
 </table>
 

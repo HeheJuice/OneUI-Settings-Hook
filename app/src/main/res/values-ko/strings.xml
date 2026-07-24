@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App & Header -->
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">모듈 설정 및 정보</string>
+    <string name="btn_back">뒤로 가기</string>
+
+    <!-- OneUI & Device Details -->
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">Galaxy 정보</string>
+    <string name="software_details">소프트웨어 정보</string>
+
+    <!-- Card 1: Module Info & Quick Actions -->
+    <string name="module_version">버전 %1$s</string>
+    <string name="btn_mit_license">MIT 라이선스 보기</string>
+    <string name="btn_star_repo">프로젝트가 마음에 드시나요? Star 누르기</string>
+    <string name="btn_github_repo">GitHub 저장소 보기</string>
+    <string name="btn_report_bugs">버그 신고</string>
+
+    <!-- Card 2: Developer & Community -->
+    <string name="card_about_title">모듈 정보</string>
+    <string name="btn_developer">개발자: HeheJuice</string>
+    <string name="btn_tg_channel">텔레그램 채널</string>
+    <string name="btn_tg_chat">텔레그램 대화방</string>
+
+    <!-- Categories & Summaries -->
+    <string name="module_info_category">모듈 정보</string>
+    <string name="module_maker_title">모듈 제작자</string>
+    <string name="module_github_title">GitHub 저장소</string>
+    <string name="module_summary">OneUI 설정 수정</string>
+</resources>

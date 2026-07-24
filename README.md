@@ -29,7 +29,8 @@
           - Phone Number 
 - Custom Fonts Detection Removed
      - Support Custom Fonts APK
-- Unlock Extra Battery Information 
+- Unlock Extra Battery Information
+- LSPosed Module Settings
 ### 📂 Preview
 <table>
   <tr>

@@ -23,10 +23,7 @@ class SettingPatch : IXposedHookLoadPackage {
         // 1. Initialize IMEI, Serial Number & Phone Number tap-to-toggle masking
         SensitiveInfoPatch.applyPatch(lpparam.classLoader)
 
-        // 2. Initialize Screenshot privacy toast patch
-        ScreenshotPrivacyPatch.applyPatch(lpparam.classLoader)
-
-        // 3. Initialize Custom Font validity check patch
+        // 2. Initialize Custom Font validity check patch
         FontValidityPatch.applyPatch(lpparam.classLoader)
 
         val targetFragmentClass = "androidx.preference.PreferenceFragmentCompat"

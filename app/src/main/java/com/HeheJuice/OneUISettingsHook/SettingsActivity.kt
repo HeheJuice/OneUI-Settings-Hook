@@ -46,7 +46,7 @@ class SettingsActivity : Activity() {
         val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
         val starBtnColor = if (isDark) Color.parseColor("#FF9F0A") else Color.parseColor("#FF9500")
         val redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
-        val backBtnBgColor = if (isDark) Color.parseColor("#CC3A3A3C") else Color.parseColor("#CCE5E5EA")
+        val backBtnBgColor = if (isDark) Color.parseColor("#3A3A3C") else Color.parseColor("#E5E5EA")
 
         val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
@@ -278,12 +278,12 @@ class SettingsActivity : Activity() {
 
         val topBarTitle = TextView(this).apply {
             text = getString(R.string.app_name)
-            textSize = 15f
+            textSize = 16f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             background = topBarTitleBg
-            setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8))
+            setPadding(dpToPx(20), dpToPx(10), dpToPx(20), dpToPx(10))
             alpha = 0f
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -296,7 +296,7 @@ class SettingsActivity : Activity() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
                 style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2.2f).toFloat()
+                strokeWidth = dpToPx(2.5f).toFloat()
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
@@ -304,7 +304,7 @@ class SettingsActivity : Activity() {
             override fun draw(canvas: Canvas) {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
-                val size = dpToPx(5.5f).toFloat()
+                val size = dpToPx(6.5f).toFloat()
 
                 val path = Path().apply {
                     moveTo(cx + size * 0.4f, cy - size)
@@ -331,7 +331,7 @@ class SettingsActivity : Activity() {
             contentDescription = getString(R.string.btn_back)
             isClickable = true
             isFocusable = true
-            layoutParams = FrameLayout.LayoutParams(dpToPx(42), dpToPx(42), Gravity.START or Gravity.CENTER_VERTICAL)
+            layoutParams = FrameLayout.LayoutParams(dpToPx(48), dpToPx(48), Gravity.START or Gravity.CENTER_VERTICAL)
             setOnClickListener { finish() }
             setOnTouchListener(pressScaleTouchListener)
         }

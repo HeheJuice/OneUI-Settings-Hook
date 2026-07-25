@@ -8,6 +8,7 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PixelFormat
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
@@ -15,6 +16,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
@@ -62,14 +64,14 @@ class SettingsActivity : Activity() {
         // --- Scrollable Card Container ---
         val scrollView = ScrollView(this).apply {
             isVerticalScrollBarEnabled = false
-            isFillViewport = true
-            clipToPadding = false // Allows cards to scroll seamlessly under back button
-            // Dynamically account for status bar + back button height
+            isFillViewport = false // Allows loose movement even if content is short
+            overScrollMode = View.OVER_SCROLL_ALWAYS // Enables elastic overscroll bounce effect
+            clipToPadding = false
             setPadding(
                 dpToPx(16), 
                 statusBarHeight + dpToPx(68), 
                 dpToPx(16), 
-                dpToPx(32)
+                dpToPx(180) // Extra bottom space so the page can always scroll/move freely
             )
         }
 
@@ -81,25 +83,52 @@ class SettingsActivity : Activity() {
             )
         }
 
-        // --- Header Title & Subtitle ---
+        val buttonHeightPx = dpToPx(54)
+
+        // ==========================================
+        // CARD 0: Header Title & Subtitle Card
+        // ==========================================
+        val headerCardDrawable = GradientDrawable().apply {
+            setColor(cardBgColor)
+            cornerRadius = dpToPx(28).toFloat()
+            setStroke(dpToPx(1), cardBorderColor)
+        }
+
+        val headerCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = headerCardDrawable
+            setPadding(dpToPx(20), dpToPx(24), dpToPx(20), dpToPx(24))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
         val headerTitle = TextView(this).apply {
             text = getString(R.string.app_name)
-            textSize = 30f
+            textSize = 28f
             setTextColor(primaryTextColor)
-            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(4))
         }
 
         val headerSub = TextView(this).apply {
             text = getString(R.string.header_subtitle)
             textSize = 15f
             setTextColor(secondaryTextColor)
-            setPadding(dpToPx(4), 0, dpToPx(4), dpToPx(24))
+            setPadding(0, dpToPx(4), 0, 0)
         }
 
-        scrollContent.addView(headerTitle)
-        scrollContent.addView(headerSub)
+        headerCardLayout.addView(headerTitle)
+        headerCardLayout.addView(headerSub)
+        scrollContent.addView(headerCardLayout)
 
-        val buttonHeightPx = dpToPx(54)
+        // Spacer between Header Card & Card 1
+        val headerSpacer = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(16)
+            )
+        }
+        scrollContent.addView(headerSpacer)
 
         // ==========================================
         // CARD 1: Module Info & Quick Actions
@@ -123,94 +152,26 @@ class SettingsActivity : Activity() {
             setPadding(0, 0, 0, dpToPx(18))
         }
 
-        // Button 1: MIT License
-        val licenseBtn = TextView(this).apply {
-            text = getString(R.string.btn_mit_license)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(accentColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                buttonHeightPx
-            )
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/blob/main/LICENSE")))
-            }
+        val licenseBtn = createAnimatedButton(getString(R.string.btn_mit_license), Color.WHITE, accentColor, buttonHeightPx) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/blob/main/LICENSE")))
         }
 
-        // Button 2: Star Repo
-        val starBtn = TextView(this).apply {
-            text = getString(R.string.btn_star_repo)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(starBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                buttonHeightPx
-            ).apply {
-                topMargin = dpToPx(12)
-            }
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
-            }
+        val starBtn = createAnimatedButton(getString(R.string.btn_star_repo), Color.WHITE, starBtnColor, buttonHeightPx) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
+        }.apply {
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12)
         }
 
-        // Button 3: GitHub Repo
-        val githubBtn = TextView(this).apply {
-            text = getString(R.string.btn_github_repo)
-            textSize = 15f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                buttonHeightPx
-            ).apply {
-                topMargin = dpToPx(12)
-            }
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
-            }
+        val githubBtn = createAnimatedButton(getString(R.string.btn_github_repo), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
+        }.apply {
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12)
         }
 
-        // Button 4: Report Bugs
-        val bugBtn = TextView(this).apply {
-            text = getString(R.string.btn_report_bugs)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(redBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                buttonHeightPx
-            ).apply {
-                topMargin = dpToPx(12)
-            }
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")))
-            }
+        val bugBtn = createAnimatedButton(getString(R.string.btn_report_bugs), Color.WHITE, redBtnColor, buttonHeightPx) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")))
+        }.apply {
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12)
         }
 
         card1Layout.addView(versionTv)
@@ -221,7 +182,6 @@ class SettingsActivity : Activity() {
 
         scrollContent.addView(card1Layout)
 
-        // Dynamic Spacer between cards
         val spacer = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -252,28 +212,10 @@ class SettingsActivity : Activity() {
             setPadding(0, 0, 0, dpToPx(18))
         }
 
-        // Button: Developer Profile
-        val makerBtn = TextView(this).apply {
-            text = getString(R.string.btn_developer)
-            textSize = 15f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                buttonHeightPx
-            )
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice")))
-            }
+        val makerBtn = createAnimatedButton(getString(R.string.btn_developer), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice")))
         }
 
-        // Telegram Row
         val tgRowLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
@@ -284,41 +226,19 @@ class SettingsActivity : Activity() {
             }
         }
 
-        val tgChannelBtn = TextView(this).apply {
-            text = getString(R.string.btn_tg_channel)
-            textSize = 14f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
+        val tgChannelBtn = createAnimatedButton(getString(R.string.btn_tg_channel), primaryTextColor, secondaryBtnColor, LinearLayout.LayoutParams.MATCH_PARENT) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/channelhehejuice")))
+        }.apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
                 marginEnd = dpToPx(6)
             }
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/channelhehejuice")))
-            }
         }
 
-        val tgChatBtn = TextView(this).apply {
-            text = getString(R.string.btn_tg_chat)
-            textSize = 14f
-            setTextColor(primaryTextColor)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
+        val tgChatBtn = createAnimatedButton(getString(R.string.btn_tg_chat), primaryTextColor, secondaryBtnColor, LinearLayout.LayoutParams.MATCH_PARENT) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/sechehe")))
+        }.apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
                 marginStart = dpToPx(6)
-            }
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/sechehe")))
             }
         }
 
@@ -335,19 +255,32 @@ class SettingsActivity : Activity() {
         rootFrameLayout.addView(scrollView)
 
         // ==========================================
-        // FLOATING TOP BAR (Fixed Floating Back Button)
+        // FLOATING TOP BAR (Fixed Top Bar & Scroll Title)
         // ==========================================
         val topBarLayout = FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
             )
-            // Push top bar down below system status bar + extra 12dp spacing
             setPadding(
                 dpToPx(16), 
                 statusBarHeight + dpToPx(12), 
                 dpToPx(16), 
                 dpToPx(12)
+            )
+        }
+
+        val topBarTitle = TextView(this).apply {
+            text = getString(R.string.app_name)
+            textSize = 18f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            alpha = 0f
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER
             )
         }
 
@@ -390,14 +323,21 @@ class SettingsActivity : Activity() {
             contentDescription = getString(R.string.btn_back)
             isClickable = true
             isFocusable = true
-            layoutParams = FrameLayout.LayoutParams(dpToPx(42), dpToPx(42))
+            layoutParams = FrameLayout.LayoutParams(dpToPx(42), dpToPx(42), Gravity.START or Gravity.CENTER_VERTICAL)
             setOnClickListener { finish() }
+            setOnTouchListener(pressScaleTouchListener)
         }
 
+        topBarLayout.addView(topBarTitle)
         topBarLayout.addView(backBtn)
         rootFrameLayout.addView(topBarLayout)
 
-        // Dynamic system insets listener for edge-to-edge system bars
+        scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            val fadeThreshold = dpToPx(40).toFloat()
+            val alpha = (scrollY / fadeThreshold).coerceIn(0f, 1f)
+            topBarTitle.alpha = alpha
+        }
+
         rootFrameLayout.setOnApplyWindowInsetsListener { _, insets ->
             val topInset = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 insets.getInsets(WindowInsets.Type.statusBars()).top
@@ -408,12 +348,72 @@ class SettingsActivity : Activity() {
             val effectiveTop = if (topInset > 0) topInset else statusBarHeight
 
             topBarLayout.setPadding(dpToPx(16), effectiveTop + dpToPx(12), dpToPx(16), dpToPx(12))
-            scrollView.setPadding(dpToPx(16), effectiveTop + dpToPx(68), dpToPx(16), dpToPx(32))
+            scrollView.setPadding(dpToPx(16), effectiveTop + dpToPx(68), dpToPx(16), dpToPx(180))
 
             insets
         }
 
         setContentView(rootFrameLayout)
+
+        applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
+    }
+
+    // ==========================================
+    // ANIMATION HELPER FUNCTIONS
+    // ==========================================
+
+    private val pressScaleTouchListener = View.OnTouchListener { v, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                v.animate().scaleX(0.96f).scaleY(0.96f).duration = 100
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                v.animate().scaleX(1.0f).scaleY(1.0f).duration = 150
+            }
+        }
+        false
+    }
+
+    private fun createAnimatedButton(
+        textStr: String, 
+        textColor: Int, 
+        bgColor: Int, 
+        height: Int, 
+        onClick: () -> Unit
+    ): TextView {
+        return TextView(this).apply {
+            text = textStr
+            textSize = 15f
+            setTextColor(textColor)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(bgColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                height
+            )
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { onClick() }
+            setOnTouchListener(pressScaleTouchListener)
+        }
+    }
+
+    private fun applyEntranceAnimations(views: List<View>) {
+        views.forEachIndexed { index, view ->
+            view.translationY = dpToPx(40).toFloat()
+            view.alpha = 0f
+
+            view.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(400)
+                .setStartDelay((index * 60).toLong())
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
+                .start()
+        }
     }
 
     private fun getStatusBarHeight(): Int {
@@ -421,7 +421,7 @@ class SettingsActivity : Activity() {
         return if (resourceId > 0) {
             resources.getDimensionPixelSize(resourceId)
         } else {
-            dpToPx(36) // Safe default offset for status bar height
+            dpToPx(36)
         }
     }
 

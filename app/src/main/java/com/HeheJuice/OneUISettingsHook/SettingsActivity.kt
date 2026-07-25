@@ -90,7 +90,7 @@ class SettingsActivity : Activity() {
         // ==========================================
         val headerCardDrawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(28f)
+            cornerRadius = dpToPx(28f).toFloat()
             setStroke(dpToPx(1f), cardBorderColor)
         }
 
@@ -134,7 +134,7 @@ class SettingsActivity : Activity() {
         // ==========================================
         val card1Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(28f)
+            cornerRadius = dpToPx(28f).toFloat()
             setStroke(dpToPx(1f), cardBorderColor)
         }
 
@@ -194,7 +194,7 @@ class SettingsActivity : Activity() {
         // ==========================================
         val card2Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(28f)
+            cornerRadius = dpToPx(28f).toFloat()
             setStroke(dpToPx(1f), cardBorderColor)
         }
 
@@ -252,6 +252,7 @@ class SettingsActivity : Activity() {
 
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
+
         // ==========================================
         // FLOATING TOP BAR (Fixed Top Bar & Scroll Title)
         // ==========================================
@@ -270,7 +271,7 @@ class SettingsActivity : Activity() {
 
         val topBarTitleBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadius = dpToPx(100f)
+            cornerRadius = dpToPx(100f).toFloat()
             setColor(backBtnBgColor)
         }
 
@@ -294,7 +295,7 @@ class SettingsActivity : Activity() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
                 style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2.5f)
+                strokeWidth = dpToPx(2.5f).toFloat()
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
@@ -339,7 +340,7 @@ class SettingsActivity : Activity() {
         rootFrameLayout.addView(topBarLayout)
 
         // ==========================================
-        // BOTTOM BAR (Two Pills & Circle Search Button)
+        // BOTTOM BAR (Single Pill & Circle Search Button)
         // ==========================================
         val bottomBarLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -354,21 +355,21 @@ class SettingsActivity : Activity() {
             setPadding(dpToPx(4f), dpToPx(4f), dpToPx(4f), dpToPx(4f))
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = dpToPx(100f)
+                cornerRadius = dpToPx(100f).toFloat()
                 setColor(cardBgColor)
                 setStroke(dpToPx(1f), cardBorderColor)
             }
         }
 
         val moduleInfoPillBtn = TextView(this).apply {
-            text = getString(R.string.bottom_bar_module_info)
+            text = getString(R.string.module_info_category)
             textSize = 14f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             background = GradientDrawable().apply {
                 setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100f)
+                cornerRadius = dpToPx(100f).toFloat()
             }
             setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
             isClickable = true
@@ -383,36 +384,11 @@ class SettingsActivity : Activity() {
             )
         }
 
-        val updateCheckPillBtn = TextView(this).apply {
-            text = getString(R.string.card_about_title)
-            textSize = 14f
-            setTextColor(primaryTextColor)
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100f)
-            }
-            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                scrollView.smoothScrollTo(0, card1Layout.top)
-            }
-            setOnTouchListener(pressScaleTouchListener)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                dpToPx(52f)
-            ).apply {
-                marginStart = dpToPx(4f)
-            }
-        }
-
         val searchIconDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
                 style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2.2f)
+                strokeWidth = dpToPx(2.2f).toFloat()
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
@@ -420,9 +396,16 @@ class SettingsActivity : Activity() {
             override fun draw(canvas: Canvas) {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
-                canvas.drawCircle(cx - dpToPx(1.5f), cy - dpToPx(1.5f), dpToPx(4.5f), paint)
-                val handleOffset = dpToPx(3.2f)
-                val handleEnd = dpToPx(7f)
+                
+                canvas.drawCircle(
+                    cx - dpToPx(1.5f).toFloat(), 
+                    cy - dpToPx(1.5f).toFloat(), 
+                    dpToPx(4.5f).toFloat(), 
+                    paint
+                )
+                
+                val handleOffset = dpToPx(3.2f).toFloat()
+                val handleEnd = dpToPx(7f).toFloat()
                 canvas.drawLine(cx + handleOffset, cy + handleOffset, cx + handleEnd, cy + handleEnd, paint)
             }
 
@@ -444,7 +427,7 @@ class SettingsActivity : Activity() {
             isClickable = true
             isFocusable = true
             layoutParams = LinearLayout.LayoutParams(dpToPx(52f), dpToPx(52f)).apply {
-                marginStart = dpToPx(8f)
+                marginStart = dpToPx(4f)
             }
             setOnClickListener {
                 val searchIntent = packageManager.getLaunchIntentForPackage("com.google.android.googlequicksearchbox") 
@@ -461,7 +444,6 @@ class SettingsActivity : Activity() {
         }
 
         bottomBarLayout.addView(moduleInfoPillBtn)
-        bottomBarLayout.addView(updateCheckPillBtn)
         bottomBarLayout.addView(searchCircleBtn)
         rootFrameLayout.addView(bottomBarLayout)
 
@@ -528,7 +510,7 @@ class SettingsActivity : Activity() {
             gravity = Gravity.CENTER
             background = GradientDrawable().apply {
                 setColor(bgColor)
-                cornerRadius = dpToPx(100f)
+                cornerRadius = dpToPx(100f).toFloat()
             }
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

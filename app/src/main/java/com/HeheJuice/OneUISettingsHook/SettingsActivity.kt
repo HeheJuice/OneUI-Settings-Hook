@@ -430,17 +430,15 @@ class SettingsActivity : Activity() {
                 marginStart = dpToPx(4f)
             }
             setOnClickListener {
-                val searchIntent = packageManager.getLaunchIntentForPackage("com.google.android.googlequicksearchbox") 
-                    ?: Intent(Intent.ACTION_WEB_SEARCH)
-                try {
-                    startActivity(searchIntent)
-                } catch (e: Exception) {
-                    try {
-                        startActivity(Intent(Intent.ACTION_WEB_SEARCH))
-                    } catch (_: Exception) {}
-                }
-            }
-            setOnTouchListener(pressScaleTouchListener)
+    val intent = Intent().apply {
+        component = ComponentName(
+            "com.android.settings.intelligence",
+            "com.android.settings.intelligence.search.SearchActivity"
+        )
+    }
+    startActivity(intent)
+}
+    setOnTouchListener(pressScaleTouchListener)
         }
 
         bottomBarLayout.addView(moduleInfoPillBtn)

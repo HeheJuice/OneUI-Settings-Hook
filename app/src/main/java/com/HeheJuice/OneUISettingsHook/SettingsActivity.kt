@@ -397,9 +397,9 @@ class SettingsActivity : Activity() {
             override fun draw(canvas: Canvas) {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
-                canvas.drawCircle(cx - dpToPx(1.5f), cy - dpToPx(1.5f), dpToPx(4.5f), paint)
-                val handleOffset = dpToPx(3.2f)
-                val handleEnd = dpToPx(7f)
+                canvas.drawCircle(cx - dpToPx(1.5f).toFloat(), cy - dpToPx(1.5f).toFloat(), dpToPx(4.5f).toFloat(), paint)
+                val handleOffset = dpToPx(3.2f).toFloat()
+                val handleEnd = dpToPx(7f).toFloat()
                 canvas.drawLine(cx + handleOffset, cy + handleOffset, cx + handleEnd, cy + handleEnd, paint)
             }
 

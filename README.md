@@ -9,8 +9,8 @@
 ![LSPosed](https://img.shields.io/badge/Powered_by-LSPosed-F48FB1?style=flat-square&logo=android)
 [![MinSDK](https://img.shields.io/badge/Min_SDK-35-brightgreen?style=flat-square&logo=android)](https://developer.android.com/about/versions)
 [![Design](https://img.shields.io/badge/OneUI-7~9-blue?style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
-[![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-Settings-Hook/total?color=blue&label=Total+Downloads+from+GitHub&style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
-[![LSPosed Downloads](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/total?style=flat-square&color=orange&label=LSPosed%20Downloads)](https://github.com/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/releases)
+[![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-Settings-Hook/total?color=blue&label=Downloads+from+GitHub+Source&style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
+[![LSPosed Downloads](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/total?style=flat-square&color=orange&label=Downloads+From+LSPosed)](https://github.com/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/releases)
 </div>
 
 ### 🗺 Project Overview 

@@ -283,11 +283,11 @@ class SettingsActivity : Activity() {
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             background = topBarTitleBg
-            setPadding(dpToPx(20), dpToPx(10), dpToPx(20), dpToPx(10))
+            setPadding(dpToPx(20), 0, dpToPx(20), 0)
             alpha = 0f
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
+                dpToPx(48),
                 Gravity.CENTER
             )
         }

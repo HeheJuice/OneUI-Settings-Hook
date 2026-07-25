@@ -363,7 +363,7 @@ class SettingsActivity : Activity() {
         }
 
         val moduleInfoPillBtn = TextView(this).apply {
-            text = "Module Info • Update Check"
+            text = getString(R.string.card_about_title)
             textSize = 14f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -540,6 +540,8 @@ class SettingsActivity : Activity() {
             dpToPx(36)
         }
     }
+
+    typealias dpToPx = (Float) -> Int
 
     private fun dpToPx(dp: Float): Int {
         return TypedValue.applyDimension(

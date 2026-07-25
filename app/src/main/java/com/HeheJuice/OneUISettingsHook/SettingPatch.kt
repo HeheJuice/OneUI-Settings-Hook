@@ -97,10 +97,13 @@ class SettingPatch : IXposedHookLoadPackage {
                             XposedHelpers.callMethod(moduleCategory, "setKey", "module_info_category")
                             XposedHelpers.callMethod(preferenceScreen, "addPreference", moduleCategory)
 
+                            // Mod Name / Summary item updated to open GitHub repository on tap
                             val namePref = XposedHelpers.newInstance(preferenceClass, context)
                             XposedHelpers.callMethod(namePref, "setTitle", getLocalizedString(modContext, "app_name", "OneUI Settings Hook"))
                             XposedHelpers.callMethod(namePref, "setSummary", getLocalizedString(modContext, "module_summary", "Modifying OneUI Settings UI"))
-                            XposedHelpers.callMethod(namePref, "setSelectable", false)
+                            XposedHelpers.callMethod(namePref, "setSelectable", true)
+                            val nameIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Patch"))
+                            XposedHelpers.callMethod(namePref, "setIntent", nameIntent)
                             XposedHelpers.callMethod(moduleCategory, "addPreference", namePref)
 
                             val makerPref = XposedHelpers.newInstance(preferenceClass, context)

@@ -54,7 +54,7 @@ class SettingsActivity : Activity() {
             "1.0.0"
         }
 
-        // Root container overlaying fixed top bar & scrollable card body
+        // Root container overlaying fixed top bar, scrollable card body & floating bottom bar
         val rootFrameLayout = FrameLayout(this).apply {
             setBackgroundColor(bgColor)
         }
@@ -340,6 +340,107 @@ class SettingsActivity : Activity() {
         topBarLayout.addView(backBtn)
         rootFrameLayout.addView(topBarLayout)
 
+        // ==========================================
+        // BOTTOM BAR (Pill & Circle Search Button)
+        // ==========================================
+        val bottomBarLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            ).apply {
+                bottomMargin = dpToPx(16)
+            }
+            setPadding(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4))
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dpToPx(100).toFloat()
+                setColor(cardBgColor)
+                setStroke(dpToPx(1), cardBorderColor)
+            }
+        }
+
+        val moduleInfoPillBtn = TextView(this).apply {
+            text = "Module Info • Update Check"
+            textSize = 14f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(secondaryBtnColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            setPadding(dpToPx(20), dpToPx(16), dpToPx(20), dpToPx(16))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                scrollView.smoothScrollTo(0, card1Layout.top)
+            }
+            setOnTouchListener(pressScaleTouchListener)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                dpToPx(52)
+            )
+        }
+
+        val searchIconDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2.2f).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                canvas.drawCircle(cx - dpToPx(1.5f), cy - dpToPx(1.5f), dpToPx(4.5f), paint)
+                val handleOffset = dpToPx(3.2f)
+                val handleEnd = dpToPx(7f)
+                canvas.drawLine(cx + handleOffset, cy + handleOffset, cx + handleEnd, cy + handleEnd, paint)
+            }
+
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+        }
+
+        val searchCircleBackground = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(secondaryBtnColor)
+        }
+
+        val searchCircleBtn = ImageView(this).apply {
+            setImageDrawable(searchIconDrawable)
+            background = searchCircleBackground
+            contentDescription = "Search"
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(dpToPx(52), dpToPx(52)).apply {
+                marginStart = dpToPx(8)
+            }
+            setOnClickListener {
+                val searchIntent = packageManager.getLaunchIntentForPackage("com.google.android.googlequicksearchbox") 
+                    ?: Intent(Intent.ACTION_WEB_SEARCH)
+                try {
+                    startActivity(searchIntent)
+                } catch (e: Exception) {
+                    try {
+                        startActivity(Intent(Intent.ACTION_WEB_SEARCH))
+                    } catch (_: Exception) {}
+                }
+            }
+            setOnTouchListener(pressScaleTouchListener)
+        }
+
+        bottomBarLayout.addView(moduleInfoPillBtn)
+        bottomBarLayout.addView(searchCircleBtn)
+        rootFrameLayout.addView(bottomBarLayout)
+
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             val fadeThreshold = dpToPx(40).toFloat()
             val alpha = (scrollY / fadeThreshold).coerceIn(0f, 1f)
@@ -353,10 +454,17 @@ class SettingsActivity : Activity() {
                 @Suppress("DEPRECATION")
                 insets.systemWindowInsetTop
             }
+            val bottomInset = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                insets.getInsets(WindowInsets.Type.navigationBars() or WindowInsets.Type.ime()).bottom
+            } else {
+                @Suppress("DEPRECATION")
+                insets.systemWindowInsetBottom
+            }
             val effectiveTop = if (topInset > 0) topInset else statusBarHeight
 
             topBarLayout.setPadding(dpToPx(16), effectiveTop + dpToPx(12), dpToPx(16), dpToPx(12))
-            scrollView.setPadding(dpToPx(16), effectiveTop + dpToPx(68), dpToPx(16), dpToPx(180))
+            scrollView.setPadding(dpToPx(16), effectiveTop + dpToPx(68), dpToPx(16), dpToPx(140))
+            (bottomBarLayout.layoutParams as FrameLayout.LayoutParams).bottomMargin = dpToPx(16) + bottomInset
 
             insets
         }
@@ -386,60 +494,4 @@ class SettingsActivity : Activity() {
         textStr: String, 
         textColor: Int, 
         bgColor: Int, 
-        height: Int, 
-        onClick: () -> Unit
-    ): TextView {
-        return TextView(this).apply {
-            text = textStr
-            textSize = 15f
-            setTextColor(textColor)
-            gravity = Gravity.CENTER
-            background = GradientDrawable().apply {
-                setColor(bgColor)
-                cornerRadius = dpToPx(100).toFloat()
-            }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                height
-            )
-            isClickable = true
-            isFocusable = true
-            setOnClickListener { onClick() }
-            setOnTouchListener(pressScaleTouchListener)
-        }
-    }
-
-    private fun applyEntranceAnimations(views: List<View>) {
-        views.forEachIndexed { index, view ->
-            view.translationY = dpToPx(40).toFloat()
-            view.alpha = 0f
-
-            view.animate()
-                .translationY(0f)
-                .alpha(1f)
-                .setDuration(400)
-                .setStartDelay((index * 60).toLong())
-                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
-                .start()
-        }
-    }
-
-    private fun getStatusBarHeight(): Int {
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (resourceId > 0) {
-            resources.getDimensionPixelSize(resourceId)
-        } else {
-            dpToPx(36)
-        }
-    }
-
-    private fun dpToPx(dp: Float): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            resources.displayMetrics
-        ).toInt()
-    }
-
-    private fun dpToPx(dp: Int): Int = dpToPx(dp.toFloat())
-}
+     

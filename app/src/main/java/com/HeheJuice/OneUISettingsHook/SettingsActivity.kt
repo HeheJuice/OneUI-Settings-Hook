@@ -64,14 +64,14 @@ class SettingsActivity : Activity() {
         // --- Scrollable Card Container ---
         val scrollView = ScrollView(this).apply {
             isVerticalScrollBarEnabled = false
-            isFillViewport = false // Allows loose movement even if content is short
-            overScrollMode = View.OVER_SCROLL_ALWAYS // Enables elastic overscroll bounce effect
+            isFillViewport = false
+            overScrollMode = View.OVER_SCROLL_ALWAYS
             clipToPadding = false
             setPadding(
-                dpToPx(16), 
-                statusBarHeight + dpToPx(68), 
-                dpToPx(16), 
-                dpToPx(180) // Extra bottom space so the page can always scroll/move freely
+                dpToPx(16f), 
+                statusBarHeight + dpToPx(68f), 
+                dpToPx(16f), 
+                dpToPx(180f)
             )
         }
 
@@ -83,21 +83,21 @@ class SettingsActivity : Activity() {
             )
         }
 
-        val buttonHeightPx = dpToPx(54)
+        val buttonHeightPx = dpToPx(54f)
 
         // ==========================================
         // CARD 0: Header Title & Subtitle Card
         // ==========================================
         val headerCardDrawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(28).toFloat()
-            setStroke(dpToPx(1), cardBorderColor)
+            cornerRadius = dpToPx(28f)
+            setStroke(dpToPx(1f), cardBorderColor)
         }
 
         val headerCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = headerCardDrawable
-            setPadding(dpToPx(20), dpToPx(24), dpToPx(20), dpToPx(24))
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -114,18 +114,17 @@ class SettingsActivity : Activity() {
             text = getString(R.string.header_subtitle)
             textSize = 15f
             setTextColor(secondaryTextColor)
-            setPadding(0, dpToPx(4), 0, 0)
+            setPadding(0, dpToPx(4f), 0, 0)
         }
 
         headerCardLayout.addView(headerTitle)
         headerCardLayout.addView(headerSub)
         scrollContent.addView(headerCardLayout)
 
-        // Spacer between Header Card & Card 1
         val headerSpacer = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(16)
+                dpToPx(16f)
             )
         }
         scrollContent.addView(headerSpacer)
@@ -135,21 +134,21 @@ class SettingsActivity : Activity() {
         // ==========================================
         val card1Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(28).toFloat()
-            setStroke(dpToPx(1), cardBorderColor)
+            cornerRadius = dpToPx(28f)
+            setStroke(dpToPx(1f), cardBorderColor)
         }
 
         val card1Layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = card1Drawable
-            setPadding(dpToPx(20), dpToPx(24), dpToPx(20), dpToPx(24))
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
 
         val versionTv = TextView(this).apply {
             text = getString(R.string.module_version, rawVersion)
             textSize = 17f
             setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(18))
+            setPadding(0, 0, 0, dpToPx(18f))
         }
 
         val licenseBtn = createAnimatedButton(getString(R.string.btn_mit_license), Color.WHITE, accentColor, buttonHeightPx) {
@@ -159,19 +158,19 @@ class SettingsActivity : Activity() {
         val starBtn = createAnimatedButton(getString(R.string.btn_star_repo), Color.WHITE, starBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
         }.apply {
-            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12)
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f)
         }
 
         val githubBtn = createAnimatedButton(getString(R.string.btn_github_repo), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
         }.apply {
-            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12)
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f)
         }
 
         val bugBtn = createAnimatedButton(getString(R.string.btn_report_bugs), Color.WHITE, redBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")))
         }.apply {
-            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12)
+            (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f)
         }
 
         card1Layout.addView(versionTv)
@@ -185,7 +184,7 @@ class SettingsActivity : Activity() {
         val spacer = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(16)
+                dpToPx(16f)
             )
         }
         scrollContent.addView(spacer)
@@ -195,21 +194,21 @@ class SettingsActivity : Activity() {
         // ==========================================
         val card2Drawable = GradientDrawable().apply {
             setColor(cardBgColor)
-            cornerRadius = dpToPx(28).toFloat()
-            setStroke(dpToPx(1), cardBorderColor)
+            cornerRadius = dpToPx(28f)
+            setStroke(dpToPx(1f), cardBorderColor)
         }
 
         val card2Layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = card2Drawable
-            setPadding(dpToPx(20), dpToPx(24), dpToPx(20), dpToPx(24))
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
 
         val aboutTitle = TextView(this).apply {
             text = getString(R.string.card_about_title)
             textSize = 18f
             setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(18))
+            setPadding(0, 0, 0, dpToPx(18f))
         }
 
         val makerBtn = createAnimatedButton(getString(R.string.btn_developer), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
@@ -222,7 +221,7 @@ class SettingsActivity : Activity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 buttonHeightPx
             ).apply {
-                topMargin = dpToPx(12)
+                topMargin = dpToPx(12f)
             }
         }
 
@@ -230,7 +229,7 @@ class SettingsActivity : Activity() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/channelhehejuice")))
         }.apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-                marginEnd = dpToPx(6)
+                marginEnd = dpToPx(6f)
             }
         }
 
@@ -238,7 +237,7 @@ class SettingsActivity : Activity() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/sechehe")))
         }.apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-                marginStart = dpToPx(6)
+                marginStart = dpToPx(6f)
             }
         }
 
@@ -253,7 +252,6 @@ class SettingsActivity : Activity() {
 
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
-
         // ==========================================
         // FLOATING TOP BAR (Fixed Top Bar & Scroll Title)
         // ==========================================
@@ -263,16 +261,16 @@ class SettingsActivity : Activity() {
                 FrameLayout.LayoutParams.WRAP_CONTENT
             )
             setPadding(
-                dpToPx(16), 
-                statusBarHeight + dpToPx(12), 
-                dpToPx(16), 
-                dpToPx(12)
+                dpToPx(16f), 
+                statusBarHeight + dpToPx(12f), 
+                dpToPx(16f), 
+                dpToPx(12f)
             )
         }
 
         val topBarTitleBg = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadius = dpToPx(100).toFloat()
+            cornerRadius = dpToPx(100f)
             setColor(backBtnBgColor)
         }
 
@@ -283,11 +281,11 @@ class SettingsActivity : Activity() {
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             background = topBarTitleBg
-            setPadding(dpToPx(20), 0, dpToPx(20), 0)
+            setPadding(dpToPx(20f), 0, dpToPx(20f), 0)
             alpha = 0f
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                dpToPx(48),
+                dpToPx(48f),
                 Gravity.CENTER
             )
         }
@@ -296,7 +294,7 @@ class SettingsActivity : Activity() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
                 style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2.5f).toFloat()
+                strokeWidth = dpToPx(2.5f)
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
@@ -304,7 +302,7 @@ class SettingsActivity : Activity() {
             override fun draw(canvas: Canvas) {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
-                val size = dpToPx(6.5f).toFloat()
+                val size = dpToPx(6.5f)
 
                 val path = Path().apply {
                     moveTo(cx + size * 0.4f, cy - size)
@@ -331,7 +329,7 @@ class SettingsActivity : Activity() {
             contentDescription = getString(R.string.btn_back)
             isClickable = true
             isFocusable = true
-            layoutParams = FrameLayout.LayoutParams(dpToPx(48), dpToPx(48), Gravity.START or Gravity.CENTER_VERTICAL)
+            layoutParams = FrameLayout.LayoutParams(dpToPx(48f), dpToPx(48f), Gravity.START or Gravity.CENTER_VERTICAL)
             setOnClickListener { finish() }
             setOnTouchListener(pressScaleTouchListener)
         }
@@ -341,7 +339,7 @@ class SettingsActivity : Activity() {
         rootFrameLayout.addView(topBarLayout)
 
         // ==========================================
-        // BOTTOM BAR (Pill & Circle Search Button)
+        // BOTTOM BAR (Two Pills & Circle Search Button)
         // ==========================================
         val bottomBarLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -351,28 +349,28 @@ class SettingsActivity : Activity() {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
             ).apply {
-                bottomMargin = dpToPx(16)
+                bottomMargin = dpToPx(16f)
             }
-            setPadding(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4))
+            setPadding(dpToPx(4f), dpToPx(4f), dpToPx(4f), dpToPx(4f))
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = dpToPx(100).toFloat()
+                cornerRadius = dpToPx(100f)
                 setColor(cardBgColor)
-                setStroke(dpToPx(1), cardBorderColor)
+                setStroke(dpToPx(1f), cardBorderColor)
             }
         }
 
         val moduleInfoPillBtn = TextView(this).apply {
-            text = getString(R.string.card_about_title)
+            text = getString(R.string.bottom_bar_module_info)
             textSize = 14f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             background = GradientDrawable().apply {
                 setColor(secondaryBtnColor)
-                cornerRadius = dpToPx(100).toFloat()
+                cornerRadius = dpToPx(100f)
             }
-            setPadding(dpToPx(20), dpToPx(16), dpToPx(20), dpToPx(16))
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
             isClickable = true
             isFocusable = true
             setOnClickListener {
@@ -381,15 +379,40 @@ class SettingsActivity : Activity() {
             setOnTouchListener(pressScaleTouchListener)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                dpToPx(52)
+                dpToPx(52f)
             )
+        }
+
+        val updateCheckPillBtn = TextView(this).apply {
+            text = getString(R.string.card_about_title)
+            textSize = 14f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(secondaryBtnColor)
+                cornerRadius = dpToPx(100f)
+            }
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                scrollView.smoothScrollTo(0, card1Layout.top)
+            }
+            setOnTouchListener(pressScaleTouchListener)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                dpToPx(52f)
+            ).apply {
+                marginStart = dpToPx(4f)
+            }
         }
 
         val searchIconDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
                 style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2.2f).toFloat()
+                strokeWidth = dpToPx(2.2f)
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
@@ -397,9 +420,9 @@ class SettingsActivity : Activity() {
             override fun draw(canvas: Canvas) {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
-                canvas.drawCircle(cx - dpToPx(1.5f).toFloat(), cy - dpToPx(1.5f).toFloat(), dpToPx(4.5f).toFloat(), paint)
-                val handleOffset = dpToPx(3.2f).toFloat()
-                val handleEnd = dpToPx(7f).toFloat()
+                canvas.drawCircle(cx - dpToPx(1.5f), cy - dpToPx(1.5f), dpToPx(4.5f), paint)
+                val handleOffset = dpToPx(3.2f)
+                val handleEnd = dpToPx(7f)
                 canvas.drawLine(cx + handleOffset, cy + handleOffset, cx + handleEnd, cy + handleEnd, paint)
             }
 
@@ -420,8 +443,8 @@ class SettingsActivity : Activity() {
             contentDescription = "Search"
             isClickable = true
             isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(dpToPx(52), dpToPx(52)).apply {
-                marginStart = dpToPx(8)
+            layoutParams = LinearLayout.LayoutParams(dpToPx(52f), dpToPx(52f)).apply {
+                marginStart = dpToPx(8f)
             }
             setOnClickListener {
                 val searchIntent = packageManager.getLaunchIntentForPackage("com.google.android.googlequicksearchbox") 
@@ -438,11 +461,12 @@ class SettingsActivity : Activity() {
         }
 
         bottomBarLayout.addView(moduleInfoPillBtn)
+        bottomBarLayout.addView(updateCheckPillBtn)
         bottomBarLayout.addView(searchCircleBtn)
         rootFrameLayout.addView(bottomBarLayout)
 
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val fadeThreshold = dpToPx(40).toFloat()
+            val fadeThreshold = dpToPx(40f).toFloat()
             val alpha = (scrollY / fadeThreshold).coerceIn(0f, 1f)
             topBarTitle.alpha = alpha
         }
@@ -462,9 +486,9 @@ class SettingsActivity : Activity() {
             }
             val effectiveTop = if (topInset > 0) topInset else statusBarHeight
 
-            topBarLayout.setPadding(dpToPx(16), effectiveTop + dpToPx(12), dpToPx(16), dpToPx(12))
-            scrollView.setPadding(dpToPx(16), effectiveTop + dpToPx(68), dpToPx(16), dpToPx(140))
-            (bottomBarLayout.layoutParams as FrameLayout.LayoutParams).bottomMargin = dpToPx(16) + bottomInset
+            topBarLayout.setPadding(dpToPx(16f), effectiveTop + dpToPx(12f), dpToPx(16f), dpToPx(12f))
+            scrollView.setPadding(dpToPx(16f), effectiveTop + dpToPx(68f), dpToPx(16f), dpToPx(140f))
+            (bottomBarLayout.layoutParams as FrameLayout.LayoutParams).bottomMargin = dpToPx(16f) + bottomInset
 
             insets
         }
@@ -504,7 +528,7 @@ class SettingsActivity : Activity() {
             gravity = Gravity.CENTER
             background = GradientDrawable().apply {
                 setColor(bgColor)
-                cornerRadius = dpToPx(100).toFloat()
+                cornerRadius = dpToPx(100f)
             }
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -519,7 +543,7 @@ class SettingsActivity : Activity() {
 
     private fun applyEntranceAnimations(views: List<View>) {
         views.forEachIndexed { index, view ->
-            view.translationY = dpToPx(40).toFloat()
+            view.translationY = dpToPx(40f).toFloat()
             view.alpha = 0f
 
             view.animate()
@@ -537,11 +561,9 @@ class SettingsActivity : Activity() {
         return if (resourceId > 0) {
             resources.getDimensionPixelSize(resourceId)
         } else {
-            dpToPx(36)
+            dpToPx(36f)
         }
     }
-
-    typealias dpToPx = (Float) -> Int
 
     private fun dpToPx(dp: Float): Int {
         return TypedValue.applyDimension(

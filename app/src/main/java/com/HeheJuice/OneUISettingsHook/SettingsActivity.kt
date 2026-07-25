@@ -494,4 +494,60 @@ class SettingsActivity : Activity() {
         textStr: String, 
         textColor: Int, 
         bgColor: Int, 
-     
+        height: Int, 
+        onClick: () -> Unit
+    ): TextView {
+        return TextView(this).apply {
+            text = textStr
+            textSize = 15f
+            setTextColor(textColor)
+            gravity = Gravity.CENTER
+            background = GradientDrawable().apply {
+                setColor(bgColor)
+                cornerRadius = dpToPx(100).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                height
+            )
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { onClick() }
+            setOnTouchListener(pressScaleTouchListener)
+        }
+    }
+
+    private fun applyEntranceAnimations(views: List<View>) {
+        views.forEachIndexed { index, view ->
+            view.translationY = dpToPx(40).toFloat()
+            view.alpha = 0f
+
+            view.animate()
+                .translationY(0f)
+                .alpha(1f)
+                .setDuration(400)
+                .setStartDelay((index * 60).toLong())
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
+                .start()
+        }
+    }
+
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            dpToPx(36)
+        }
+    }
+
+    private fun dpToPx(dp: Float): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            resources.displayMetrics
+        ).toInt()
+    }
+
+    private fun dpToPx(dp: Int): Int = dpToPx(dp.toFloat())
+}

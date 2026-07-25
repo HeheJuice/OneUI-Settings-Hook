@@ -270,12 +270,20 @@ class SettingsActivity : Activity() {
             )
         }
 
+        val topBarTitleBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dpToPx(100).toFloat()
+            setColor(backBtnBgColor)
+        }
+
         val topBarTitle = TextView(this).apply {
             text = getString(R.string.app_name)
-            textSize = 18f
+            textSize = 15f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
+            background = topBarTitleBg
+            setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8))
             alpha = 0f
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,

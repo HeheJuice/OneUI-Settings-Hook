@@ -221,12 +221,13 @@ class SettingsActivity : Activity() {
             }
         }
 
-        val disclaimerTitle = TextView(this).apply {
-            text = getString(R.string.disclaimer_title)
+                val disclaimerTitle = TextView(this).apply {
+            text = "⚠️ ${getString(R.string.disclaimer_title)}"
             textSize = 15f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
         }
+
 
         val disclaimerContent = TextView(this).apply {
             text = getString(R.string.disclaimer_content)

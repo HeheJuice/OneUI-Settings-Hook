@@ -43,5 +43,9 @@
     <string name="msg_banner_text_reset_restarted">已重設並自動重新啟動設定應用程式</string>
 <string name="disclaimer_title">免責聲明與使用須知</string>
 <string name="disclaimer_content">本模組僅提供選用的技術介面。用戶必須明確聲明：所顯示的任何自訂字詞或文字均由用戶本人完全編寫，並非源自本模組或其開發者 (HeheJuice)。開發者不對任何濫用行為、不當言論或在社群媒體上分享的內容承擔責任。</string>
+<string name="notice_title">提示</string>
+<string name="notice_message">請確保您已閱讀並同意「免責聲明與使用須知」。</string>
+<string name="btn_leave">離開</string>
+<string name="btn_continue">繼續</string>
 
 </resources>

@@ -43,5 +43,9 @@
     <string name="msg_banner_text_reset_restarted">已重置并自动重新启动设置应用</string>
 <string name="disclaimer_title">免责声明与使用须知</string>
 <string name="disclaimer_content">本模块仅提供可选的技术界面。用户必须明确声明：所显示的任何自定义字词或文本均由用户本人完全编写，并非源自本模块或其开发者 (HeheJuice)。开发者不对任何滥用行为、不当言论或在社交媒体上分享的内容承担责任。</string>
+<string name="notice_title">提示</string>
+<string name="notice_message">请确保您已阅读并同意“免责声明与使用须知”。</string>
+<string name="btn_leave">离开</string>
+<string name="btn_continue">继续</string>
 
 </resources>

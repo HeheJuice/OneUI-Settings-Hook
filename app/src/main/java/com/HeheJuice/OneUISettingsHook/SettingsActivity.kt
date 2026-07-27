@@ -207,6 +207,39 @@ class SettingsActivity : Activity() {
             setPadding(0, dpToPx(4f), 0, dpToPx(16f))
         }
 
+        // Disclaimer Card Layout (Nested right under custom_banner_subtitle)
+        val disclaimerCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(18f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = dpToPx(16f)
+            }
+        }
+
+                val disclaimerTitle = TextView(this).apply {
+            text = "⚠️ ${getString(R.string.disclaimer_title)}"
+            textSize = 15f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
+
+
+        val disclaimerContent = TextView(this).apply {
+            text = getString(R.string.disclaimer_content)
+            textSize = 13f
+            setTextColor(secondaryTextColor)
+            setLineSpacing(4f, 1.1f)
+            setPadding(0, dpToPx(6f), 0, 0)
+        }
+
+        disclaimerCardLayout.addView(disclaimerTitle)
+        disclaimerCardLayout.addView(disclaimerContent)
+
         val bannerInputEt = EditText(this).apply {
             setText(prefs.getString("custom_banner_text", ""))
             hint = getString(R.string.custom_banner_hint)
@@ -223,37 +256,36 @@ class SettingsActivity : Activity() {
         }
 
         val saveTextBtn = createAnimatedButton(getString(R.string.btn_save_banner_text), Color.WHITE, accentColor, buttonHeightPx) {
-    AlertDialog.Builder(this@SettingsActivity)
-        .setTitle(getString(R.string.notice_title))
-        .setMessage(getString(R.string.notice_message))
-        .setPositiveButton(getString(R.string.btn_continue)) { dialog, _ ->
-            dialog.dismiss()
-            
-            val enteredText = bannerInputEt.text.toString().trim()
-            prefs.edit().putString("custom_banner_text", enteredText).apply()
-            
-            Thread {
-                val safeText = enteredText.replace("'", "'\\''")
-                val success = runRootCommands(listOf(
-                    "settings put global custom_oneui_banner '$safeText'",
-                    "am force-stop com.android.settings"
-                ))
-                
-                runOnUiThread {
-                    if (success) {
-                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
-                    }
+            AlertDialog.Builder(this@SettingsActivity)
+                .setTitle(getString(R.string.notice_title))
+                .setMessage(getString(R.string.notice_message))
+                .setPositiveButton(getString(R.string.btn_continue)) { dialog, _ ->
+                    dialog.dismiss()
+                    
+                    val enteredText = bannerInputEt.text.toString().trim()
+                    prefs.edit().putString("custom_banner_text", enteredText).apply()
+                    
+                    Thread {
+                        val safeText = enteredText.replace("'", "'\\''")
+                        val success = runRootCommands(listOf(
+                            "settings put global custom_oneui_banner '$safeText'",
+                            "am force-stop com.android.settings"
+                        ))
+                        
+                        runOnUiThread {
+                            if (success) {
+                                Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }.start()
                 }
-            }.start()
-        }
-        .setNegativeButton(getString(R.string.btn_leave)) { dialog, _ ->
-            dialog.dismiss()
-        }
-        .show()
-}.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
-
+                .setNegativeButton(getString(R.string.btn_leave)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
 
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")
@@ -274,6 +306,7 @@ class SettingsActivity : Activity() {
 
         customTextCardLayout.addView(customTextTitle)
         customTextCardLayout.addView(customTextSub)
+        customTextCardLayout.addView(disclaimerCardLayout)
         customTextCardLayout.addView(bannerInputEt)
         customTextCardLayout.addView(saveTextBtn)
         customTextCardLayout.addView(resetTextBtn)
@@ -281,39 +314,6 @@ class SettingsActivity : Activity() {
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
-
-        // Disclaimer Card Layout
-        val disclaimerCardLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(cardBgColor)
-                cornerRadius = dpToPx(28f).toFloat()
-                setStroke(dpToPx(1f), cardBorderColor)
-            }
-            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-        }
-
-        val disclaimerTitle = TextView(this).apply {
-            text = getString(R.string.disclaimer_title)
-            textSize = 18f
-            setTextColor(primaryTextColor)
-            setTypeface(null, Typeface.BOLD)
-        }
-
-        val disclaimerContent = TextView(this).apply {
-            text = getString(R.string.disclaimer_content)
-            textSize = 13.5f
-            setTextColor(secondaryTextColor)
-            setLineSpacing(4f, 1.1f)
-            setPadding(0, dpToPx(8f), 0, 0)
-        }
-
-        disclaimerCardLayout.addView(disclaimerTitle)
-        disclaimerCardLayout.addView(disclaimerContent)
-        advancedLayout.addView(disclaimerCardLayout)
-
-        val disclaimerSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
-        advancedLayout.addView(disclaimerSpacer)
 
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -462,7 +462,7 @@ class SettingsActivity : Activity() {
                 advancedPillBtn.setTextColor(primaryTextColor)
                 moduleInfoPillBtn.background = null
                 moduleInfoPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(customTextCardLayout, disclaimerCardLayout, forceStopCardLayout))
+                applyEntranceAnimations(listOf(customTextCardLayout, forceStopCardLayout))
             }
             scrollView.scrollTo(0, 0)
         }

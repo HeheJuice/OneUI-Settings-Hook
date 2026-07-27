@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -16,9 +14,14 @@ object SensitiveInfoPatch {
 
     private const val MASK_TEXT = "********"
 
-    private const val TAG_REAL_TEXT = 0x7f099991
-    private const val TAG_IS_UNMASKED = 0x7f099992
-    private const val TAG_HOOK_LOCK = 0x7f099993
+    private const val FIELD_REAL_TEXT = "HeheJuice_RealText"
+    private const val FIELD_IS_UNMASKED = "HeheJuice_IsUnmasked"
+    private const val FIELD_HOOK_LOCK = "HeheJuice_HookLock"
+
+    private val DATE_REGEX = Regex("""^\d{1,4}[./\-\s]\d{1,2}[./\-\s]\d{1,4}$""")
+    private val MONTH_REGEX = Regex("""(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b""")
+    private val NETWORK_UNITS_REGEX = Regex("""(?i)(dBm|asu|mbps|gbps|ghz|mhz|wpa|wep)""")
+    private val VERSION_OR_IP_REGEX = Regex("""^[vV]?\d{1,4}(\.\d{1,6}){1,4}(\s?[-_a-zA-Z0-9().]+)?$""")
 
     fun applyPatch(classLoader: ClassLoader) {
         if (isHooked) return
@@ -32,17 +35,21 @@ object SensitiveInfoPatch {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
                             val tv = param.thisObject as? TextView ?: return
-                            val rawInput = param.args[0]?.toString() ?: return
+                            val rawInput = param.args[0]?.toString()
 
-                            // 新增：统一跳过判断（包含电池页、WiFi、版本、信号等）
-                            if (shouldSkipMasking(tv, rawInput)) return
+                            if (rawInput.isNullOrBlank() || rawInput == MASK_TEXT) return
+                            if (XposedHelpers.getAdditionalInstanceField(tv, FIELD_HOOK_LOCK) == true) return
 
-                            if (rawInput.isBlank() || rawInput == MASK_TEXT) return
+                            // NEW: Upgraded from isBatteryPage to cover Wi-Fi, Bluetooth, and Connections
+                            if (shouldSkipPage(tv)) return
 
-                            if (tv.getTag(TAG_HOOK_LOCK) == true) return
-
-                            val existingReal = tv.getTag(TAG_REAL_TEXT) as? String
+                            val existingReal = XposedHelpers.getAdditionalInstanceField(tv, FIELD_REAL_TEXT) as? String
                             val textToEvaluate = existingReal ?: rawInput
+                            val trimmedText = textToEvaluate.trim()
+
+                            if (trimmedText.contains(NETWORK_UNITS_REGEX)) return
+                            if (trimmedText.count { it == ':' } >= 2) return
+                            if (trimmedText.matches(VERSION_OR_IP_REGEX)) return
 
                             val cleanText = textToEvaluate
                                 .replace(" ", "")
@@ -53,68 +60,50 @@ object SensitiveInfoPatch {
                                 .replace(")", "")
                                 .trim()
 
-                            // Matches formatted dates or strings with month names
-                            val isFormattedDate = textToEvaluate.trim().matches(
-                                Regex("""^\d{1,4}[./\-\s]\d{1,2}[./\-\s]\d{1,4}$""")
-                            )
-
-                            val hasMonthName = textToEvaluate.contains(
-                                Regex("""(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b""")
-                            )
-
-                            val isRawYyyymmdd = cleanText.length == 8 &&
-                                (cleanText.startsWith("19") || cleanText.startsWith("20")) &&
-                                (cleanText.substring(4, 6).toIntOrNull() in 1..12) &&
-                                (cleanText.substring(6, 8).toIntOrNull() in 1..31)
-
-                            val isDate = isFormattedDate || hasMonthName || isRawYyyymmdd
+                            val isDate = trimmedText.matches(DATE_REGEX) ||
+                                         textToEvaluate.contains(MONTH_REGEX) ||
+                                         isRawDate(cleanText)
 
                             val isImei = cleanText.length in 14..16 && cleanText.all { it.isDigit() }
 
                             val isSerialNumber = cleanText.length in 10..12 &&
-                                cleanText.all { it.isLetterOrDigit() } &&
-                                cleanText.any { it.isDigit() } &&
-                                cleanText.any { it.isLetter() }
+                                    cleanText.all { it.isLetterOrDigit() } &&
+                                    cleanText.any { it.isDigit() } &&
+                                    cleanText.any { it.isLetter() }
 
                             val isPhoneNumber = !isDate && (
-                                (cleanText.startsWith("+") &&
-                                    cleanText.substring(1).all { it.isDigit() } &&
-                                    cleanText.length in 9..16) ||
-                                    (cleanText.all { it.isDigit() } &&
-                                        cleanText.length in 8..11)
-                                )
+                                    (cleanText.startsWith("+") &&
+                                            cleanText.substring(1).all { it.isDigit() } &&
+                                            cleanText.length in 9..16) ||
+                                            (cleanText.all { it.isDigit() } &&
+                                                    cleanText.length in 8..11)
+                                    )
 
                             if (isImei || isSerialNumber || isPhoneNumber) {
-                                tv.setTag(TAG_REAL_TEXT, textToEvaluate)
-
-                                val isUnmasked = tv.getTag(TAG_IS_UNMASKED) == true
+                                XposedHelpers.setAdditionalInstanceField(tv, FIELD_REAL_TEXT, textToEvaluate)
+                                val isUnmasked = XposedHelpers.getAdditionalInstanceField(tv, FIELD_IS_UNMASKED) == true
 
                                 if (!isUnmasked) {
                                     param.args[0] = MASK_TEXT
                                 }
 
-                                tv.isClickable = true
-                                tv.setOnClickListener { view ->
-                                    val targetTv = view as? TextView ?: return@setOnClickListener
-                                    val realVal = targetTv.getTag(TAG_REAL_TEXT) as? String ?: return@setOnClickListener
-                                    val currentlyUnmasked = targetTv.getTag(TAG_IS_UNMASKED) == true
+                                if (!tv.isClickable && existingReal == null) {
+                                    tv.isClickable = true
+                                    tv.setOnClickListener { view ->
+                                        val targetTv = view as? TextView ?: return@setOnClickListener
+                                        val realVal = XposedHelpers.getAdditionalInstanceField(targetTv, FIELD_REAL_TEXT) as? String ?: return@setOnClickListener
+                                        val currentlyUnmasked = XposedHelpers.getAdditionalInstanceField(targetTv, FIELD_IS_UNMASKED) == true
 
-                                    val nextState = !currentlyUnmasked
-                                    targetTv.setTag(TAG_IS_UNMASKED, nextState)
-                                    targetTv.setTag(TAG_HOOK_LOCK, true)
-                                    targetTv.text = if (nextState) realVal else MASK_TEXT
-                                    targetTv.setTag(TAG_HOOK_LOCK, false)
-                                }
-
-                                (tv.parent as? ViewGroup)?.let { parent ->
-                                    parent.isClickable = true
-                                    parent.setOnClickListener {
-                                        tv.performClick()
+                                        val nextState = !currentlyUnmasked
+                                        XposedHelpers.setAdditionalInstanceField(targetTv, FIELD_IS_UNMASKED, nextState)
+                                        XposedHelpers.setAdditionalInstanceField(targetTv, FIELD_HOOK_LOCK, true)
+                                        targetTv.text = if (nextState) realVal else MASK_TEXT
+                                        XposedHelpers.setAdditionalInstanceField(targetTv, FIELD_HOOK_LOCK, false)
                                     }
                                 }
                             }
                         } catch (e: Throwable) {
-                            Log.e(TAG, "Error in TextView.setText hook", e)
+                            // Suppress logs
                         }
                     }
                 }
@@ -127,74 +116,41 @@ object SensitiveInfoPatch {
         }
     }
 
-    /**
-     * 综合判断是否应该跳过掩码逻辑
-     * 包括：电池信息页、WiFi相关页、关于手机/软件信息页、以及包含特定关键词的文本
-     */
-    private fun shouldSkipMasking(tv: TextView, rawText: String): Boolean {
-        // 1. 原有电池页面跳过
-        if (isBatteryPage(tv)) return true
-
-        val activity = getActivity(tv.context)
-        if (activity != null) {
-            val activityName = activity.javaClass.name.lowercase()
-            val fragment = activity.intent?.getStringExtra(":settings:show_fragment")?.lowercase() ?: ""
-
-            // 2. WiFi / 网络相关页面（WiFi名称、信号强度）
-            if (activityName.contains("wifi") || activityName.contains("network") ||
-                fragment.contains("wifi") || fragment.contains("network")) {
-                return true
-            }
-
-            // 3. 关于手机 / 软件信息页面（应用版本）
-            if (activityName.contains("about") || activityName.contains("software") ||
-                activityName.contains("version") || fragment.contains("about") ||
-                fragment.contains("software") || fragment.contains("version")) {
-                return true
-            }
-
-            // 4. 状态信息页面（信号强度等常见于“状态”或“SIM卡状态”）
-            if (activityName.contains("status") || activityName.contains("sim") ||
-                fragment.contains("status") || fragment.contains("sim")) {
-                return true
-            }
-        }
-
-        // 5. 文本内容关键词（额外保险，但避免误判）
-        val lowerText = rawText.lowercase()
-        if (lowerText.contains("wifi") || lowerText.contains("ssid") ||
-            lowerText.contains("版本") || lowerText.contains("version") ||
-            lowerText.contains("信号") || lowerText.contains("signal") ||
-            lowerText.contains("dbm") || lowerText.contains("强度")) {
-            // 若文本看起来像版本号或信号值，可以跳过（例如“版本号: 12.0.1”）
-            // 但这里简单返回 true，实际可根据需要细化
-            return true
-        }
-
-        // 6. 特定视图 ID（如果有明确资源 ID 可在此添加，例如 R.id.wifi_ssid）
-        // if (tv.id == R.id.wifi_ssid_text) return true
-
-        return false
+    private fun isRawDate(cleanText: String): Boolean {
+        if (cleanText.length != 8) return false
+        if (!cleanText.startsWith("19") && !cleanText.startsWith("20")) return false
+        val month = cleanText.substring(4, 6).toIntOrNull() ?: 0
+        val day = cleanText.substring(6, 8).toIntOrNull() ?: 0
+        return month in 1..12 && day in 1..31
     }
 
     /**
-     * 检查是否位于电池信息页面（原有方法）
+     * Checks if the TextView resides inside a page where we want to skip masking entirely.
+     * This avoids accidentally masking Wi-Fi SSIDs, Bluetooth device names, or battery stats.
      */
-    private fun isBatteryPage(tv: TextView): Boolean {
+    private fun shouldSkipPage(tv: TextView): Boolean {
         val activity = getActivity(tv.context) ?: return false
 
-        // 1. 检查 Activity 类名
         val activityName = activity.javaClass.name.lowercase()
-        if (activityName.contains("battery")) return true
-
-        // 2. 检查 Fragment 目标
         val showFragment = activity.intent?.getStringExtra(":settings:show_fragment")?.lowercase() ?: ""
-        if (showFragment.contains("battery")) return true
-
-        // 3. 检查 Activity 标题
         val title = activity.title?.toString()?.lowercase() ?: ""
-        if (title.contains("battery")) return true
 
+        // Array of keywords to ignore masking on
+        val skipKeywords = arrayOf(
+            "battery", 
+            "wifi", 
+            "wi-fi", 
+            "wlan", 
+            "connections", 
+            "network", 
+            "bluetooth"
+        )
+
+        for (keyword in skipKeywords) {
+            if (activityName.contains(keyword) || showFragment.contains(keyword) || title.contains(keyword)) {
+                return true
+            }
+        }
         return false
     }
 

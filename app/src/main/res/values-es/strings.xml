@@ -41,5 +41,9 @@
 <string name="msg_banner_text_reset">¡Restablecido a predeterminado! Forzar la detención de Ajustes para aplicar.</string>
 <string name="disclaimer_title">Aviso legal y de uso</string>
 <string name="disclaimer_content">Este módulo proporciona únicamente una interfaz técnica opcional. Los usuarios deben declarar claramente que cualquier palabra o texto personalizado mostrado ha sido escrito enteramente por ellos mismos y no se origina en este módulo ni en su desarrollador (HeheJuice). El desarrollador no se hace responsable del mal uso, lenguaje inapropiado o contenido compartido en redes sociales.</string>
+<string name="notice_title">Aviso</string>
+<string name="notice_message">Debes asegurarte de haber leído y aceptado el \"Aviso de uso y exención de responsabilidad\".</string>
+<string name="btn_leave">Salir</string>
+<string name="btn_continue">Continuar</string>
 
 </resources>

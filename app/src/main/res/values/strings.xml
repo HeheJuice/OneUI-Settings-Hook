@@ -43,5 +43,9 @@
 <string name="msg_banner_text_reset_restarted">Reset and Auto-Restarted Settings App</string>
 <string name="disclaimer_title">Disclaimer &amp; Usage Notice</string>
 <string name="disclaimer_content">This module provides an optional technical interface only. Users must declare clearly that any custom words or text displayed are written entirely by themselves and do not originate from this module or its developer (HeheJuice). The developer is not responsible for any misuse, inappropriate language, or content shared on social media.</string>
+<string name="notice_title">Notice</string>
+<string name="notice_message">You should make sure that you have read the "Disclaimer &amp; Usage Notice" and accepted it.</string>
+<string name="btn_leave">Leave</string>
+<string name="btn_continue">Continue</string>
 
 </resources>

@@ -43,5 +43,9 @@
     <string name="msg_banner_text_reset_restarted">リセットされ、設定アプリが自動再起動されました</string>
 <string name="disclaimer_title">免責事項・ご利用上の注意</string>
 <string name="disclaimer_content">本モジュールはオプショナルな技術的インターフェースのみを提供します。表示されるカスタムテキストや言葉はすべてユーザー自身によって作成されたものであり、本モジュールや開発者（HeheJuice）に由来するものではないことを明記してください。開発者は、誤用、不適切な表現、またはSNS等への投稿内容について一切の責任を負いません。</string>
+<string name="notice_title">お知らせ</string>
+<string name="notice_message">「免責事項および使用上の注意」を読み、同意したことを確認してください。</string>
+<string name="btn_leave">離れる</string>
+<string name="btn_continue">続行</string>
 
 </resources>

@@ -154,6 +154,11 @@ object SoftwareInfoBannerPatch {
                                 }
                                 textSize = 38f
                                 
+                                // Added padding so text shadows and wide character glpyhs aren't clipped
+                                val padH = dpToPx(ctx, 16f)
+                                val padV = dpToPx(ctx, 8f)
+                                setPadding(padH, padV, padH, padV)
+
                                 typeface = try {
                                     Typeface.createFromAsset(modContext?.assets, "SamsungSharpSans-Bold.ttf")
                                 } catch (e: Throwable) {
@@ -166,7 +171,7 @@ object SoftwareInfoBannerPatch {
 
                             rootLayout.addView(imageView)
                             rootLayout.addView(overlayView)
-                            rootLayout.addView(textView)
+                            rootLayout.addView(rootLayout.let { textView })
 
                             itemView.addView(rootLayout)
 
@@ -212,8 +217,12 @@ object SoftwareInfoBannerPatch {
 
         val baseColor = textView.currentTextColor
 
+        // 1. Narrow the shimmer beam width (e.g. 35% of text length) so it's a sleek beam, not a giant block
+        val shimmerWidth = (textWidth * 0.35f).coerceAtLeast(120f)
+
+        // 2. Create the shader bounded strictly within [0f .. shimmerWidth]
         val shimmerShader = LinearGradient(
-            0f, 0f, textWidth, 0f,
+            0f, 0f, shimmerWidth, 0f,
             intArrayOf(baseColor, Color.WHITE, baseColor),
             floatArrayOf(0f, 0.5f, 1f),
             Shader.TileMode.CLAMP
@@ -222,8 +231,9 @@ object SoftwareInfoBannerPatch {
         textView.paint.shader = shimmerShader
         val matrix = Matrix()
 
-        val animator = ValueAnimator.ofFloat(-textWidth, textWidth * 2f).apply {
-            duration = 3800
+        // 3. Sweep from -shimmerWidth (off-screen left) to textWidth (off-screen right)
+        val animator = ValueAnimator.ofFloat(-shimmerWidth, textWidth).apply {
+            duration = 3200
             repeatCount = ValueAnimator.INFINITE
             repeatMode = ValueAnimator.RESTART
             addUpdateListener { animation ->
@@ -237,7 +247,6 @@ object SoftwareInfoBannerPatch {
     }
 
     private fun getBannerText(ctx: Context): String {
-        // 1. Try reading from the Global Settings database (Bypasses SELinux entirely)
         try {
             val customText = android.provider.Settings.Global.getString(ctx.contentResolver, "custom_oneui_banner")
             if (!customText.isNullOrBlank()) {
@@ -247,7 +256,6 @@ object SoftwareInfoBannerPatch {
             Log.e(TAG, "Failed to read Global Settings", e)
         }
 
-        // 2. Fallback to SystemProperties if the custom text fails or is empty
         return try {
             val c = Class.forName("android.os.SystemProperties")
             val rawValue = c.getMethod("get", String::class.java, String::class.java).invoke(null, "ro.build.version.oneui", "") as? String ?: ""

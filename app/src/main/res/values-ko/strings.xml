@@ -43,5 +43,9 @@
     <string name="msg_banner_text_reset_restarted">초기화되었으며 설정 앱이 자동으로 재시작되었습니다</string>
 <string name="disclaimer_title">면책 조항 및 이용 안내</string>
 <string name="disclaimer_content">이 모듈은 선택적인 기술적 인터페이스만 제공합니다. 사용자는 표시되는 모든 커스텀 문구와 텍스트가 모듈이나 개발자(HeheJuice)가 아닌 사용자 본인에 의해 직접 작성되었음을 명확히 밝혀야 합니다. 개발자는 사용자의 오용, 부적절한 언어 사용 또는 소셜 미디어 공유 내용에 대해 어떠한 책임도 지지 않습니다.</string>
+<string name="notice_title">알림</string>
+<string name="notice_message">\"면책 조항 및 사용 안내\"를 읽고 동의했는지 확인해야 합니다.</string>
+<string name="btn_leave">나가기</string>
+<string name="btn_continue">계속</string>
 
 </resources>

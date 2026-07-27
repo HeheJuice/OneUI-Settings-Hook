@@ -23,6 +23,7 @@
           - Customizable Text in Module Advanced Settings 
 > You should read the "Disclaimer & Usage Notice" Part in Module Advanced Settings before Using 
 
+
      - Software Info Card Background = Home Wall
 - Sensitive Information Protection 
      - Auto-Hide the following 

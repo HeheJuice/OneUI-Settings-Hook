@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">模块配置与详细信息</string>
+    <string name="btn_back">返回</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">关于您的 Galaxy</string>
+    <string name="software_details">软件信息</string>
+    <string name="module_version">版本 %1$s</string>
+    <string name="btn_mit_license">查看 MIT 许可证</string>
+    <string name="btn_star_repo">喜欢这个项目？给我们点个 Star 吧</string>
+    <string name="btn_github_repo">查看 GitHub 仓库</string>
+    <string name="btn_report_bugs">反馈 Bug</string>
+    <string name="card_about_title">关于模块</string>
+    <string name="btn_developer">开发者：HeheJuice</string>
+    <string name="btn_tg_channel">Telegram 频道</string>
+    <string name="btn_tg_chat">Telegram 群组</string>
+    <string name="module_info_category">模块信息</string>
+    <string name="module_maker_title">模块开发者</string>
+    <string name="module_github_title">GitHub 仓库</string>
+    <string name="module_summary">修改 OneUI 设置</string>
+<string name="tab_advanced">高级设置</string>
+    <string name="advanced_controls">高级控制</string>
+    <string name="advanced_subtitle">重启设置应用以快速应用 Hook 修改。</string>
+    <string name="btn_force_stop_settings">强行停止设置</string>
+    <string name="msg_root_permission_required">请授予 Root 权限</string>
+    <string name="msg_settings_force_stopped">已强行停止设置应用</string>
+    <string name="card_device_image_title">设备图片替换</string>
+    <string name="card_device_image_sub">选择或删除自定义设备图片（.png 格式）</string>
+    <string name="btn_select_image">选择图片</string>
+    <string name="btn_remove_image">删除图片</string>
+    <string name="msg_image_replaced">设备图片替换成功</string>
+    <string name="msg_image_removed">设备图片已成功删除</string>
+    <string name="msg_image_failed">处理图片失败</string>
+<string name="custom_banner_title">自定义横幅文字</string>
+<string name="custom_banner_subtitle">设置软件信息卡片上的自定义标题文字 (例如：OneUI 8、OneUI 9 或自定义标题)。</string>
+<string name="custom_banner_hint">例如：OneUI 9.0</string>
+<string name="btn_save_banner_text">保存横幅文字</string>
+<string name="btn_reset_default">重置为默认值</string>
+<string name="msg_banner_text_saved">已保存！请强制停止设置 App 以生效。</string>
+<string name="msg_banner_text_reset">已重置为默认值！请强制停止设置 App 以生效。</string>
+<string name="msg_banner_text_applied">已应用并自动重新启动设置应用</string>
+    <string name="msg_banner_text_reset_restarted">已重置并自动重新启动设置应用</string>
+<string name="disclaimer_title">免责声明与使用须知</string>
+<string name="disclaimer_content">本模块仅提供可选的技术界面。用户必须明确声明：所显示的任何自定义字词或文本均由用户本人完全编写，并非源自本模块或其开发者 (HeheJuice)。开发者不对任何滥用行为、不当言论或在社交媒体上分享的内容承担责任。</string>
+
+</resources>

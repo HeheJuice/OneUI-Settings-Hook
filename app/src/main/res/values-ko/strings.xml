@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">모듈 설정 및 정보</string>
+    <string name="btn_back">뒤로 가기</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">Galaxy 정보</string>
+    <string name="software_details">소프트웨어 정보</string>
+    <string name="module_version">버전 %1$s</string>
+    <string name="btn_mit_license">MIT 라이선스 보기</string>
+    <string name="btn_star_repo">프로젝트가 마음에 드시나요? Star 누르기</string>
+    <string name="btn_github_repo">GitHub 저장소 보기</string>
+    <string name="btn_report_bugs">버그 신고</string>
+    <string name="card_about_title">모듈 정보</string>
+    <string name="btn_developer">개발자: HeheJuice</string>
+    <string name="btn_tg_channel">텔레그램 채널</string>
+    <string name="btn_tg_chat">텔레그램 대화방</string>
+    <string name="module_info_category">모듈 정보</string>
+    <string name="module_maker_title">모듈 제작자</string>
+    <string name="module_github_title">GitHub 저장소</string>
+    <string name="module_summary">OneUI 설정 수정</string>
+<string name="tab_advanced">고급 설정</string>
+    <string name="advanced_controls">고급 제어</string>
+    <string name="advanced_subtitle">Hook 변경 사항을 적용하기 위해 설정 앱을 다시 시작합니다.</string>
+    <string name="btn_force_stop_settings">설정 강제 중지</string>
+    <string name="msg_root_permission_required">Root 권한을 허용해 주세요</string>
+    <string name="msg_settings_force_stopped">설정 앱이 강제 중지되었습니다</string>
+    <string name="card_device_image_title">기기 이미지 교체</string>
+    <string name="card_device_image_sub">사용자 지정 기기 이미지(.png 형식) 선택 또는 삭제</string>
+    <string name="btn_select_image">이미지 선택</string>
+    <string name="btn_remove_image">이미지 삭제</string>
+    <string name="msg_image_replaced">기기 이미지가 교체되었습니다</string>
+    <string name="msg_image_removed">기기 이미지가 삭제되었습니다</string>
+    <string name="msg_image_failed">이미지 처리에 실패했습니다</string>
+<string name="custom_banner_title">사용자 지정 배너 텍스트</string>
+<string name="custom_banner_subtitle">소프트웨어 정보 카드에 사용자 지정 헤더 텍스트를 설정합니다 (예: OneUI 8, OneUI 9 또는 사용자 지정 제목).</string>
+<string name="custom_banner_hint">예: OneUI 9.0</string>
+<string name="btn_save_banner_text">배너 텍스트 저장</string>
+<string name="btn_reset_default">기본값으로 재설정</string>
+<string name="msg_banner_text_saved">저장되었습니다! 설정 앱을 강제 중지하여 적용하세요.</string>
+<string name="msg_banner_text_reset">기본값으로 재설정되었습니다! 설정 앱을 강제 중지하여 적용하세요.</string>
+<string name="msg_banner_text_applied">적용되었으며 설정 앱이 자동으로 재시작되었습니다</string>
+    <string name="msg_banner_text_reset_restarted">초기화되었으며 설정 앱이 자동으로 재시작되었습니다</string>
+<string name="disclaimer_title">면책 조항 및 이용 안내</string>
+<string name="disclaimer_content">이 모듈은 선택적인 기술적 인터페이스만 제공합니다. 사용자는 표시되는 모든 커스텀 문구와 텍스트가 모듈이나 개발자(HeheJuice)가 아닌 사용자 본인에 의해 직접 작성되었음을 명확히 밝혀야 합니다. 개발자는 사용자의 오용, 부적절한 언어 사용 또는 소셜 미디어 공유 내용에 대해 어떠한 책임도 지지 않습니다.</string>
+
+</resources>

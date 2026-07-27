@@ -1,0 +1,61 @@
+name: Build LSPosed Module
+
+on:
+  push:
+    branches: [ "Test" ]
+    paths-ignore:
+      - 'README.md'
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write 
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up Java Development Kit
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.9'  # <--- Add this line
+
+
+    # Safely injects your persistent identity key into the compiler tree
+    - name: Prepare Keystore
+      run: |
+        echo "${{ secrets.SIGNING_KEY }}" | base64 -d --ignore-garbage > app/debug.keystore
+
+
+    - name: Compile Debug APK
+      run: gradle assembleDebug
+      env:
+        RELEASE_SIGNING_PASSWORD: android
+        RELEASE_SIGNING_KEY_ALIAS: androiddebugkey
+        RELEASE_SIGNING_KEY_PASSWORD: android
+
+    - name: Copy APK to Debug Folder and Push
+      run: |
+        mkdir -p debug
+        cp app/build/outputs/apk/debug/app-debug.apk debug/OneUI-Settings-Hook.apk
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add debug/OneUI-Settings-Hook.apk
+        git commit -m "Automated build: Update debug artifact [skip ci]" || echo "No changes to commit"
+        git push origin Test --force 
+
+    - name: Upload Finished Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: lsposed-module-debug
+        path: debug/OneUI-Settings-Hook.apk

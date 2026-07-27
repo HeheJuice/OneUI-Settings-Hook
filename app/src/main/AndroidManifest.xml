@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="false"
+        package="com.HeheJuice.OneUISettingsHook"
+        android:icon="@drawable/ic_hehe"
+        android:label="@string/app_name">
+        
+        <meta-data
+            android:name="xposedmodule"
+            android:value="true" />
+            
+        <meta-data
+            android:name="xposeddescription"
+            android:value="Hooking Samsung Settings Elements" />
+            
+        <meta-data
+            android:name="xposedminversion"
+            android:value="82" />
+        
+        <meta-data 
+    android:name="xposedscope" 
+    android:value="com.android.settings" />
+<activity
+    android:name=".SettingsActivity"
+    android:exported="true"
+    android:label="OneUI Settings Hook"
+    android:theme="@android:style/Theme.DeviceDefault.DayNight">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
+    </intent-filter>
+</activity>
+
+    </application>
+</manifest>

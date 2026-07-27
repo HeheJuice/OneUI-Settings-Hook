@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">Module configuration &amp; information</string>
+    <string name="btn_back">Back</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">About Your Galaxy</string>
+    <string name="software_details">Software Details</string>
+    <string name="module_version">Version %1$s</string>
+    <string name="btn_mit_license">View MIT License</string>
+    <string name="btn_star_repo">Enjoy our product? Give us a Star</string>
+    <string name="btn_github_repo">View GitHub Repository</string>
+    <string name="btn_report_bugs">Report Bugs</string>
+    <string name="card_about_title">About Module</string>
+    <string name="btn_developer">Developer: HeheJuice</string>
+    <string name="btn_tg_channel">Telegram Channel</string>
+    <string name="btn_tg_chat">Telegram Chat</string>
+    <string name="module_info_category">Module Information</string>
+    <string name="module_maker_title">Module Maker</string>
+    <string name="module_github_title">GitHub Repository</string>
+    <string name="module_summary">Modifying OneUI Settings</string>
+<string name="tab_advanced">Advanced</string>
+    <string name="advanced_controls">Advanced Controls</string>
+    <string name="advanced_subtitle">System utilities to apply hooks or restart settings.</string>
+    <string name="btn_force_stop_settings">Force Stop Settings</string>
+    <string name="msg_root_permission_required">Please give Root Permission</string>
+    <string name="msg_settings_force_stopped">Settings app force-stopped</string>
+    <string name="card_device_image_title">Device Image Replacement</string>
+    <string name="card_device_image_sub">Select or remove custom device image (.png format)</string>
+    <string name="btn_select_image">Select Image</string>
+    <string name="btn_remove_image">Remove Image</string>
+    <string name="msg_image_replaced">Device image replaced successfully</string>
+    <string name="msg_image_removed">Device image removed successfully</string>
+    <string name="msg_image_failed">Failed to process image</string>
+    <string name="custom_banner_title">Custom Banner Text</string>
+    <string name="custom_banner_subtitle">Set custom header text on the Software Info card (e.g. OneUI 8, OneUI 9, or Custom Title).</string>
+    <string name="custom_banner_hint">e.g. OneUI 9.0</string>
+    <string name="btn_save_banner_text">Save Banner Text</string>
+    <string name="btn_reset_default">Reset to Default</string>
+    <string name="msg_banner_text_saved">Saved! Force stop Settings to apply.</string>
+    <string name="msg_banner_text_reset">Reset to default! Force stop Settings to apply.</string>
+<string name="msg_banner_text_applied">Applied and Auto-Restarted Settings App</string>
+<string name="msg_banner_text_reset_restarted">Reset and Auto-Restarted Settings App</string>
+<string name="disclaimer_title">Disclaimer &amp; Usage Notice</string>
+<string name="disclaimer_content">This module provides an optional technical interface only. Users must declare clearly that any custom words or text displayed are written entirely by themselves and do not originate from this module or its developer (HeheJuice). The developer is not responsible for any misuse, inappropriate language, or content shared on social media.</string>
+
+</resources>

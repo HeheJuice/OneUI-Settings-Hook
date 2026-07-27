@@ -224,9 +224,9 @@ class SettingsActivity : Activity() {
 
         val saveTextBtn = createAnimatedButton(getString(R.string.btn_save_banner_text), Color.WHITE, accentColor, buttonHeightPx) {
     AlertDialog.Builder(this@SettingsActivity)
-        .setTitle("Notice")
-        .setMessage("You should make sure that you have read the \"Disclaimer & Usage Notice\" and accepted it")
-        .setPositiveButton("Continue") { dialog, _ ->
+        .setTitle(getString(R.string.notice_title))
+        .setMessage(getString(R.string.notice_message))
+        .setPositiveButton(getString(R.string.btn_continue)) { dialog, _ ->
             dialog.dismiss()
             
             val enteredText = bannerInputEt.text.toString().trim()
@@ -248,11 +248,12 @@ class SettingsActivity : Activity() {
                 }
             }.start()
         }
-        .setNegativeButton("Leave") { dialog, _ ->
+        .setNegativeButton(getString(R.string.btn_leave)) { dialog, _ ->
             dialog.dismiss()
         }
         .show()
 }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+
 
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")

@@ -175,7 +175,7 @@ class SettingsActivity : Activity() {
         card2Layout.addView(tgRowLayout)
         moduleInfoLayout.addView(card2Layout)
 
-                // PAGE 2: ADVANCED CONTAINER
+        // PAGE 2: ADVANCED CONTAINER
         val advancedLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             visibility = View.GONE
@@ -207,11 +207,11 @@ class SettingsActivity : Activity() {
             setPadding(0, dpToPx(4f), 0, dpToPx(16f))
         }
 
-        // Disclaimer Card Layout (Moved right under the banner subtitle)
+        // Disclaimer Card Layout (Nested right under custom_banner_subtitle)
         val disclaimerCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
-                setColor(inputBgColor) // Matches inner card tone nicely, or use cardBgColor
+                setColor(inputBgColor)
                 cornerRadius = dpToPx(18f).toFloat()
                 setStroke(dpToPx(1f), cardBorderColor)
             }
@@ -303,71 +303,16 @@ class SettingsActivity : Activity() {
             }.start()
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
 
-        // Assemble the main custom text card container layout in order
         customTextCardLayout.addView(customTextTitle)
         customTextCardLayout.addView(customTextSub)
-        customTextCardLayout.addView(disclaimerCardLayout) // Placed right under subtitle summary
+        customTextCardLayout.addView(disclaimerCardLayout)
         customTextCardLayout.addView(bannerInputEt)
         customTextCardLayout.addView(saveTextBtn)
         customTextCardLayout.addView(resetTextBtn)
-        
         advancedLayout.addView(customTextCardLayout)
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
-
-        val forceStopCardLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(cardBgColor)
-                cornerRadius = dpToPx(28f).toFloat()
-                setStroke(dpToPx(1f), cardBorderColor)
-            }
-            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-        }
-
-        val advancedTitle = TextView(this).apply { text = getString(R.string.advanced_controls); textSize = 22f; setTextColor(primaryTextColor); setTypeface(null, Typeface.BOLD) }
-        val advancedSub = TextView(this).apply { text = getString(R.string.advanced_subtitle); textSize = 14f; setTextColor(secondaryTextColor); setPadding(0, dpToPx(4f), 0, dpToPx(20f)) }
-        val forceStopBtn = createAnimatedButton(getString(R.string.btn_force_stop_settings), Color.WHITE, redBtnColor, buttonHeightPx) { forceStopSettings() }
-
-        forceStopCardLayout.addView(advancedTitle)
-        forceStopCardLayout.addView(advancedSub)
-        forceStopCardLayout.addView(forceStopBtn)
-        advancedLayout.addView(forceStopCardLayout)
-
-
-        // Disclaimer Card Layout
-        val disclaimerCardLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(cardBgColor)
-                cornerRadius = dpToPx(28f).toFloat()
-                setStroke(dpToPx(1f), cardBorderColor)
-            }
-            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-        }
-
-        val disclaimerTitle = TextView(this).apply {
-            text = getString(R.string.disclaimer_title)
-            textSize = 18f
-            setTextColor(primaryTextColor)
-            setTypeface(null, Typeface.BOLD)
-        }
-
-        val disclaimerContent = TextView(this).apply {
-            text = getString(R.string.disclaimer_content)
-            textSize = 13.5f
-            setTextColor(secondaryTextColor)
-            setLineSpacing(4f, 1.1f)
-            setPadding(0, dpToPx(8f), 0, 0)
-        }
-
-        disclaimerCardLayout.addView(disclaimerTitle)
-        disclaimerCardLayout.addView(disclaimerContent)
-        advancedLayout.addView(disclaimerCardLayout)
-
-        val disclaimerSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
-        advancedLayout.addView(disclaimerSpacer)
 
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -516,7 +461,7 @@ class SettingsActivity : Activity() {
                 advancedPillBtn.setTextColor(primaryTextColor)
                 moduleInfoPillBtn.background = null
                 moduleInfoPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(customTextCardLayout, disclaimerCardLayout, forceStopCardLayout))
+                applyEntranceAnimations(listOf(customTextCardLayout, forceStopCardLayout))
             }
             scrollView.scrollTo(0, 0)
         }

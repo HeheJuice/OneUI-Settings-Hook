@@ -1,6 +1,7 @@
 package com.HeheJuice.OneUISettingsHook
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -222,6 +223,12 @@ class SettingsActivity : Activity() {
         }
 
         val saveTextBtn = createAnimatedButton(getString(R.string.btn_save_banner_text), Color.WHITE, accentColor, buttonHeightPx) {
+    AlertDialog.Builder(this@SettingsActivity)
+        .setTitle("Notice")
+        .setMessage("You should make sure that you have read the \"Disclaimer & Usage Notice\" and accepted it")
+        .setPositiveButton("Continue") { dialog, _ ->
+            dialog.dismiss()
+            
             val enteredText = bannerInputEt.text.toString().trim()
             prefs.edit().putString("custom_banner_text", enteredText).apply()
             
@@ -240,7 +247,12 @@ class SettingsActivity : Activity() {
                     }
                 }
             }.start()
-        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+        }
+        .setNegativeButton("Leave") { dialog, _ ->
+            dialog.dismiss()
+        }
+        .show()
+}.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
 
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")

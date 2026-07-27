@@ -21,7 +21,7 @@
 - ‼️ Redesign Software Info Page
      - Glow Text Animation 
           - Customizable Text in Module Advanced Settings 
-> You should read the "Disclaimer & Usage Notice" Part in Module Advanced Settings before Using 
+> You should read the "Disclaimer & Usage Notice" Part in Module Advanced Settings before Using <
 
 
      - Software Info Card Background = Home Wall

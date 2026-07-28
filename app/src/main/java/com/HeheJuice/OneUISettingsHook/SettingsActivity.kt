@@ -1,10 +1,14 @@
 package com.HeheJuice.OneUISettingsHook
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -23,6 +27,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -182,7 +188,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-                        // Custom Banner Text Card
+        // --- CUSTOM BANNER TEXT CARD (EXPANDABLE) ---
         val customTextCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -191,15 +197,8 @@ class SettingsActivity : Activity() {
                 setStroke(dpToPx(1f), cardBorderColor)
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-            
-            // Enable smooth layout animations for expanding/collapsing
-            layoutTransition = android.animation.LayoutTransition().apply {
-                enableTransitionType(android.animation.LayoutTransition.CHANGING)
-                setDuration(250L) // Matches the chevron rotation speed
-            }
         }
 
-        // --- 1. HEADER LAYOUT (Title + Subtitle + Expand Button) ---
         val customTextHeaderLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -228,7 +227,6 @@ class SettingsActivity : Activity() {
         customTextTitleContainer.addView(customTextTitle)
         customTextTitleContainer.addView(customTextSub)
 
-        // Programmatic Chevron Drawable for the Expand Button
         val expandIconDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
@@ -271,15 +269,12 @@ class SettingsActivity : Activity() {
         customTextHeaderLayout.addView(customTextTitleContainer)
         customTextHeaderLayout.addView(expandBtn)
         customTextCardLayout.addView(customTextHeaderLayout)
-
-        // --- 2. EXPANDABLE CONTENT CONTAINER ---
         val expandableContentLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            visibility = View.GONE // Default to collapsed
+            visibility = View.GONE
         }
 
-        // Disclaimer Card Layout 
         val disclaimerCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -383,19 +378,15 @@ class SettingsActivity : Activity() {
         
         customTextCardLayout.addView(expandableContentLayout)
 
-        // --- 3. TOGGLE LOGIC ---
         val toggleExpansion = {
             val isExpanded = expandableContentLayout.visibility == View.VISIBLE
             if (isExpanded) {
-                expandableContentLayout.visibility = View.GONE
-                expandBtn.animate().rotation(0f).setDuration(250L).start()
+                collapseView(expandableContentLayout, expandBtn)
             } else {
-                expandableContentLayout.visibility = View.VISIBLE
-                expandBtn.animate().rotation(180f).setDuration(250L).start()
+                expandView(expandableContentLayout, expandBtn)
             }
         }
 
-        // Allow clicking either the button or the whole header to toggle
         expandBtn.setOnClickListener { toggleExpansion() }
         customTextHeaderLayout.setOnClickListener { toggleExpansion() }
         customTextHeaderLayout.isClickable = true
@@ -405,6 +396,94 @@ class SettingsActivity : Activity() {
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
 
+        // --- DISABLE SOFTWARE UPDATE CARD ---
+        val disableUpdateCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        val updateCardTitle = TextView(this).apply {
+            text = getString(R.string.disable_software_update_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(16f))
+        }
+
+        val updateBtnRowLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, buttonHeightPx)
+        }
+
+        val targetPackage = "com.wssyncmldm"
+
+        val enableUpdateBtn = createAnimatedButton(
+            getString(R.string.btn_enable_update),
+            primaryTextColor,
+            secondaryBtnColor,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            if (!isPackageInstalled(targetPackage)) {
+                Toast.makeText(this@SettingsActivity, getString(R.string.msg_app_not_found), Toast.LENGTH_SHORT).show()
+                return@createAnimatedButton
+            }
+
+            Thread {
+                val success = runRootCommands(listOf("pm enable $targetPackage"))
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_software_update_enabled), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginEnd = dpToPx(6f) }
+        }
+
+        val disableUpdateBtn = createAnimatedButton(
+            getString(R.string.btn_disable_update),
+            Color.WHITE,
+            redBtnColor,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            if (!isPackageInstalled(targetPackage)) {
+                Toast.makeText(this@SettingsActivity, getString(R.string.msg_app_not_found), Toast.LENGTH_SHORT).show()
+                return@createAnimatedButton
+            }
+
+            Thread {
+                val success = runRootCommands(listOf("pm disable $targetPackage"))
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_software_update_disabled), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginStart = dpToPx(6f) }
+        }
+
+        updateBtnRowLayout.addView(enableUpdateBtn)
+        updateBtnRowLayout.addView(disableUpdateBtn)
+
+        disableUpdateCardLayout.addView(updateCardTitle)
+        disableUpdateCardLayout.addView(updateBtnRowLayout)
+
+        advancedLayout.addView(disableUpdateCardLayout)
+
+        val updateCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
+        advancedLayout.addView(updateCardSpacer)
+
+        // --- FORCE STOP SETTINGS CARD ---
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -552,7 +631,7 @@ class SettingsActivity : Activity() {
                 advancedPillBtn.setTextColor(primaryTextColor)
                 moduleInfoPillBtn.background = null
                 moduleInfoPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(customTextCardLayout, forceStopCardLayout))
+                applyEntranceAnimations(listOf(customTextCardLayout, disableUpdateCardLayout, forceStopCardLayout))
             }
             scrollView.scrollTo(0, 0)
         }
@@ -603,7 +682,6 @@ class SettingsActivity : Activity() {
         bottomBarLayout.addView(tabPillContainer)
         bottomBarLayout.addView(searchCircleBtn)
         rootFrameLayout.addView(bottomBarLayout)
-
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             val alpha = (scrollY / dpToPx(40f).toFloat()).coerceIn(0f, 1f)
             topBarTitle.alpha = alpha
@@ -630,6 +708,82 @@ class SettingsActivity : Activity() {
 
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
+    }
+
+    // --- CLASS HELPER FUNCTIONS ---
+
+    private fun expandView(view: View, expandBtn: View) {
+        val parent = view.parent as? View ?: return
+        
+        val matchParentSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY)
+        val wrapContentSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        view.measure(matchParentSpec, wrapContentSpec)
+        val targetHeight = view.measuredHeight
+
+        view.layoutParams.height = 1
+        view.visibility = View.VISIBLE
+        view.alpha = 0f
+
+        val heightAnim = ValueAnimator.ofInt(1, targetHeight).apply {
+            duration = 320L
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                view.layoutParams.height = anim.animatedValue as Int
+                view.requestLayout()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    view.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+                    view.requestLayout()
+                }
+            })
+        }
+
+        view.animate().alpha(1f).setDuration(220L).start()
+        expandBtn.animate().rotation(180f).setDuration(320L)
+            .setInterpolator(AccelerateDecelerateInterpolator()).start()
+        heightAnim.start()
+    }
+
+    private fun collapseView(view: View, expandBtn: View) {
+        val initialHeight = view.height
+
+        val heightAnim = ValueAnimator.ofInt(initialHeight, 0).apply {
+            duration = 280L
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                view.layoutParams.height = anim.animatedValue as Int
+                view.requestLayout()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    view.visibility = View.GONE
+                    view.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+                }
+            })
+        }
+
+        view.animate().alpha(0f).setDuration(180L).start()
+        expandBtn.animate().rotation(0f).setDuration(280L)
+            .setInterpolator(AccelerateDecelerateInterpolator()).start()
+        heightAnim.start()
+    }
+
+    private fun isPackageInstalled(packageName: String): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(
+                    packageName, 
+                    PackageManager.PackageInfoFlags.of(PackageManager.MATCH_UNINSTALLED_PACKAGES.toLong())
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, PackageManager.MATCH_UNINSTALLED_PACKAGES)
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun forceStopSettings() {
@@ -692,7 +846,7 @@ class SettingsActivity : Activity() {
                 .alpha(1f)
                 .setDuration(400)
                 .setStartDelay((index * 60).toLong())
-                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
+                .setInterpolator(DecelerateInterpolator(1.5f))
                 .start()
         }
     }

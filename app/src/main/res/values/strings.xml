@@ -47,5 +47,13 @@
 <string name="notice_message">You should make sure that you have read the "Disclaimer &amp; Usage Notice" and accepted it.</string>
 <string name="btn_leave">Leave</string>
 <string name="btn_continue">Continue</string>
-
+<!-- Disable Software Update App Card -->
+    <string name="disable_software_update_title">Disable Software Update App</string>
+    <string name="btn_enable_update">Enable</string>
+    <string name="btn_disable_update">Disable</string>
+    
+    <!-- Toast Messages -->
+    <string name="msg_software_update_enabled">Software Update app enabled</string>
+    <string name="msg_software_update_disabled">Software Update app disabled</string>
+<string name="msg_app_not_found">App not found</string>
 </resources>

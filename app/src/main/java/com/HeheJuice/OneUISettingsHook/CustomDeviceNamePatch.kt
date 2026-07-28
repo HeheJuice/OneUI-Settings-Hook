@@ -4,7 +4,6 @@ import android.content.Context
 import android.provider.Settings
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 object CustomDeviceNamePatch {
@@ -16,39 +15,37 @@ object CustomDeviceNamePatch {
         try {
             val secDeviceInfoUtilsClass = XposedHelpers.findClass(TARGET_CLASS, classLoader)
 
-            val deviceNameHook = object : XC_MethodHook() {
+            val productNameHook = object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val context = param.args.firstOrNull { it is Context } as? Context ?: return
                     
-                    // Retrieve custom name set via root/settings from global table or prop fallbacks
-                    val customName = Settings.Global.getString(context.contentResolver, "default_device_name")
-                        ?: Settings.Global.getString(context.contentResolver, "device_name")
+                    // STRICTLY read default_device_name. Do NOT fall back to "device_name"!
+                    val customProductName = Settings.Global.getString(context.contentResolver, "default_device_name")
 
-                    if (!customName.isNullOrBlank()) {
-                        param.result = customName
+                    if (!customProductName.isNullOrBlank()) {
+                        param.result = customProductName
                     }
                 }
             }
 
-            // Methods present in SecDeviceInfoUtils.smali that return device name variants
-            val targetMethods = listOf(
+            // Methods that resolve the factory product/model name
+            val productMethods = listOf(
                 "getDefaultDeviceName",
-                "getDeviceName",
                 "getOfficialDeviceName",
                 "getMarketDeviceName"
             )
 
-            for (methodName in targetMethods) {
+            for (methodName in productMethods) {
                 try {
                     XposedHelpers.findAndHookMethod(
                         secDeviceInfoUtilsClass,
                         methodName,
                         Context::class.java,
-                        deviceNameHook
+                        productNameHook
                     )
-                    Log.d(TAG, "Successfully hooked SecDeviceInfoUtils.$methodName")
+                    Log.d(TAG, "Successfully hooked SecDeviceInfoUtils.$methodName for Product Name")
                 } catch (e: Throwable) {
-                    // Method variation might be absent depending on specific OneUI firmware base
+                    // Method may not exist on some ROM bases
                 }
             }
 

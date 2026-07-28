@@ -39,6 +39,12 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import java.security.MessageDigest
+
+private fun hashPassword(input: String): String {
+    val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
+    return bytes.joinToString("") { "%02x".format(it) }
+}
 
 class SettingsActivity : Activity() {
 
@@ -728,7 +734,12 @@ class SettingsActivity : Activity() {
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
     }
-    // --- CLASS HELPER FUNCTIONS ---
+        // --- CLASS HELPER FUNCTIONS ---
+
+    private fun hashPassword(input: String): String {
+        val bytes = java.security.MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
 
     private fun showPasswordProtectionDialog(
         cardBgColor: Int,
@@ -819,8 +830,11 @@ class SettingsActivity : Activity() {
             accentColor, 
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
+            // SHA-256 Hash of "5201314"
+            val expectedHash = "811f0a2e55eb8431952e4630a9e70df446e1a49f5068a356391d84637651c6c5"
             val enteredPin = passwordInput.text.toString().trim()
-            if (enteredPin == "5201314") {
+
+            if (hashPassword(enteredPin) == expectedHash) {
                 dialog.dismiss()
                 onSuccess()
             } else {
@@ -1096,3 +1110,4 @@ class SettingsActivity : Activity() {
     private fun dpToPx(dp: Float): Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
     private fun dpToPx(dp: Int): Int = dpToPx(dp.toFloat())
 }
+

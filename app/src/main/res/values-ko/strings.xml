@@ -47,5 +47,10 @@
 <string name="notice_message">\"면책 조항 및 사용 안내\"를 읽고 동의했는지 확인해야 합니다.</string>
 <string name="btn_leave">나가기</string>
 <string name="btn_continue">계속</string>
-
+<string name="disable_software_update_title">소프트웨어 업데이트 앱 비활성화</string>
+    <string name="btn_enable_update">사용</string>
+    <string name="btn_disable_update">차단</string>
+    <string name="msg_software_update_enabled">소프트웨어 업데이트 앱이 활성화되었습니다</string>
+    <string name="msg_software_update_disabled">소프트웨어 업데이트 앱이 비활성화되었습니다</string>
+    <string name="msg_app_not_found">앱을 찾을 수 없습니다</string>
 </resources>

@@ -49,6 +49,97 @@ private fun hashPassword(input: String): String {
     return bytes.joinToString("") { "%02x".format(it.toInt() and 0xFF) }
 }
 
+private fun showNoticeDialog(
+    cardBgColor: Int,
+    cardBorderColor: Int,
+    primaryTextColor: Int,
+    secondaryTextColor: Int,
+    accentColor: Int,
+    secondaryBtnColor: Int,
+    buttonHeightPx: Int,
+    onConfirm: () -> Unit
+) {
+    val dialog = Dialog(this)
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+    val cardLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        background = GradientDrawable().apply {
+            setColor(cardBgColor)
+            cornerRadius = dpToPx(28f).toFloat()
+            setStroke(dpToPx(1f), cardBorderColor)
+        }
+        setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(20f))
+    }
+
+    val titleTv = TextView(this).apply {
+        text = getString(R.string.notice_title)
+        textSize = 20f
+        setTextColor(primaryTextColor)
+        setTypeface(null, Typeface.BOLD)
+        gravity = Gravity.CENTER
+    }
+
+    val messageTv = TextView(this).apply {
+        text = getString(R.string.notice_message)
+        textSize = 14f
+        setTextColor(secondaryTextColor)
+        gravity = Gravity.CENTER
+        setPadding(0, dpToPx(10f), 0, dpToPx(20f))
+    }
+
+    val btnRow = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 
+            buttonHeightPx
+        )
+    }
+
+    val leaveBtn = createAnimatedButton(
+        getString(R.string.btn_leave), 
+        primaryTextColor, 
+        secondaryBtnColor, 
+        LinearLayout.LayoutParams.MATCH_PARENT
+    ) {
+        dialog.dismiss()
+    }.apply {
+        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+            marginEnd = dpToPx(6f)
+        }
+    }
+
+    val continueBtn = createAnimatedButton(
+        getString(R.string.btn_continue), 
+        Color.WHITE, 
+        accentColor, 
+        LinearLayout.LayoutParams.MATCH_PARENT
+    ) {
+        dialog.dismiss()
+        onConfirm()
+    }.apply {
+        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+            marginStart = dpToPx(6f)
+        }
+    }
+
+    btnRow.addView(leaveBtn)
+    btnRow.addView(continueBtn)
+
+    cardLayout.addView(titleTv)
+    cardLayout.addView(messageTv)
+    cardLayout.addView(btnRow)
+
+    dialog.setContentView(cardLayout)
+
+    dialog.window?.apply {
+        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        setLayout((resources.displayMetrics.widthPixels * 0.88).toInt(), FrameLayout.LayoutParams.WRAP_CONTENT)
+    }
+
+    dialog.show()
+}
+
 class SettingsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -351,36 +442,31 @@ class SettingsActivity : Activity() {
         }
 
         val saveTextBtn = createAnimatedButton(getString(R.string.btn_save_banner_text), Color.WHITE, accentColor, buttonHeightPx) {
-            AlertDialog.Builder(this@SettingsActivity)
-                .setTitle(getString(R.string.notice_title))
-                .setMessage(getString(R.string.notice_message))
-                .setPositiveButton(getString(R.string.btn_continue)) { dialog, _ ->
-                    dialog.dismiss()
-                    
-                    val enteredText = bannerInputEt.text.toString().trim()
-                    prefs.edit().putString("custom_banner_text", enteredText).apply()
-                    
-                    Thread {
-                        val safeText = enteredText.replace("'", "'\\''")
-                        val success = runRootCommands(listOf(
-                            "settings put global custom_oneui_banner '$safeText'",
-                            "am force-stop com.android.settings"
-                        ))
-                        
-                        runOnUiThread {
-                            if (success) {
-                                Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }.start()
+    showNoticeDialog(
+        cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+        accentColor, secondaryBtnColor, buttonHeightPx
+    ) {
+        val enteredText = bannerInputEt.text.toString().trim()
+        prefs.edit().putString("custom_banner_text", enteredText).apply()
+        
+        Thread {
+            val safeText = enteredText.replace("'", "'\\''")
+            val success = runRootCommands(listOf(
+                "settings put global custom_oneui_banner '$safeText'",
+                "am force-stop com.android.settings"
+            ))
+            
+            runOnUiThread {
+                if (success) {
+                    Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
                 }
-                .setNegativeButton(getString(R.string.btn_leave)) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
-        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+            }
+        }.start()
+    }
+}.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+
 
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")

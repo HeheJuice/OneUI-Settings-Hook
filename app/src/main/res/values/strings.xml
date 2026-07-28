@@ -55,4 +55,5 @@
     <!-- Toast Messages -->
     <string name="msg_software_update_enabled">Software Update app enabled</string>
     <string name="msg_software_update_disabled">Software Update app disabled</string>
+<string name="msg_app_not_found">App not found</string>
 </resources>

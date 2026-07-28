@@ -73,26 +73,19 @@ class SettingsActivity : Activity() {
             "1.0.0"
         }
 
-        // --- DIALOG LAUNCH SEQUENCE (DEBUG FIRST, THEN PASSWORD) ---
-        val launchPasswordCheck = {
-            showPasswordProtectionDialog(
-                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
-                accentColor, secondaryBtnColor, inputBgColor, buttonHeightPx
-            ) {
-                // Password verified -> enters main Settings UI
-            }
-        }
-
+        // --- DIALOG LAUNCH SEQUENCE (PASSWORD ONLY FOR DEBUG BUILDS) ---
         if (rawVersion.contains("Debug", ignoreCase = true)) {
             showDebugWarningDialog(
                 cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
                 redBtnColor, secondaryBtnColor, buttonHeightPx
             ) {
-                // Tapping Continue launches password check
-                launchPasswordCheck()
+                showPasswordProtectionDialog(
+                    cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                    accentColor, secondaryBtnColor, inputBgColor, buttonHeightPx
+                ) {
+                    // Password verified -> enters main Settings UI
+                }
             }
-        } else {
-            launchPasswordCheck()
         }
 
         val rootFrameLayout = FrameLayout(this).apply { setBackgroundColor(bgColor) }
@@ -167,6 +160,7 @@ class SettingsActivity : Activity() {
         card1Layout.addView(githubBtn)
         card1Layout.addView(bugBtn)
         moduleInfoLayout.addView(card1Layout)
+
         val card2Spacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         moduleInfoLayout.addView(card2Spacer)
 

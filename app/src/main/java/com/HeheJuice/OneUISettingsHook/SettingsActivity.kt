@@ -42,8 +42,11 @@ import android.widget.Toast
 import java.security.MessageDigest
 
 private fun hashPassword(input: String): String {
-    val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
-    return bytes.joinToString("") { "%02x".format(it) }
+    val bytes = java.security.MessageDigest.getInstance("SHA-256")
+        .digest(input.toByteArray(Charsets.UTF_8))
+    
+    // Mask with 0xFF to prevent negative sign expansion
+    return bytes.joinToString("") { "%02x".format(it.toInt() and 0xFF) }
 }
 
 class SettingsActivity : Activity() {
@@ -825,27 +828,28 @@ class SettingsActivity : Activity() {
         }
 
         val unlockBtn = createAnimatedButton(
-            "Unlock", 
-            Color.WHITE, 
-            accentColor, 
-            LinearLayout.LayoutParams.MATCH_PARENT
-        ) {
-            // SHA-256 Hash of "5201314"
-            val expectedHash = "811f0a2e55eb8431952e4630a9e70df446e1a49f5068a356391d84637651c6c5"
-            val enteredPin = passwordInput.text.toString().trim()
+    "Unlock", 
+    Color.WHITE, 
+    accentColor, 
+    LinearLayout.LayoutParams.MATCH_PARENT
+) {
+    // Exact SHA-256 hash of "5201314"
+    val expectedHash = "811f0a2e55eb8431952e4630a9e70df446e1a49f5068a356391d84637651c6c5"
+    val enteredPin = passwordInput.text.toString().trim()
 
-            if (hashPassword(enteredPin) == expectedHash) {
-                dialog.dismiss()
-                onSuccess()
-            } else {
-                Toast.makeText(this@SettingsActivity, "Incorrect password!", Toast.LENGTH_SHORT).show()
-                passwordInput.setText("")
-            }
-        }.apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-                marginStart = dpToPx(6f)
-            }
-        }
+    if (hashPassword(enteredPin) == expectedHash) {
+        dialog.dismiss()
+        onSuccess()
+    } else {
+        Toast.makeText(this@SettingsActivity, "Incorrect password!", Toast.LENGTH_SHORT).show()
+        passwordInput.setText("")
+    }
+}.apply {
+    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+        marginStart = dpToPx(6f)
+    }
+}
+
 
         btnRow.addView(exitBtn)
         btnRow.addView(unlockBtn)

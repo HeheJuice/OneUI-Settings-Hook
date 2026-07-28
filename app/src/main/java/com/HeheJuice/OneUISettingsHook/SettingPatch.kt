@@ -29,6 +29,9 @@ class SettingPatch : IXposedHookLoadPackage {
         // 3. Initialize Extra Battery Info patch
         ExtraBatteryInfo.applyPatch(lpparam.classLoader)
 
+        // 4. Initialize Custom Device Name patch (Hooks SecDeviceInfoUtils for UN1CA & OneUI)
+        CustomDeviceNamePatch.applyPatch(lpparam.classLoader)
+
         val targetFragmentClass = "androidx.preference.PreferenceFragmentCompat"
         
         try {

@@ -404,6 +404,82 @@ class SettingsActivity : Activity() {
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
+        // --- DISABLE SOFTWARE UPDATE CARD ---
+        val disableUpdateCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        val updateCardTitle = TextView(this).apply {
+            text = getString(R.string.disable_software_update_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(16f))
+        }
+
+        val updateBtnRowLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, buttonHeightPx)
+        }
+
+        // Enable Button
+        val enableUpdateBtn = createAnimatedButton(
+            getString(R.string.btn_enable_update),
+            primaryTextColor,
+            secondaryBtnColor,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            Thread {
+                val success = runRootCommands(listOf("pm enable com.wssyncmldm"))
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_software_update_enabled), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginEnd = dpToPx(6f) }
+        }
+
+        // Disable Button
+        val disableUpdateBtn = createAnimatedButton(
+            getString(R.string.btn_disable_update),
+            Color.WHITE,
+            redBtnColor,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            Thread {
+                val success = runRootCommands(listOf("pm disable com.wssyncmldm"))
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_software_update_disabled), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginStart = dpToPx(6f) }
+        }
+
+        updateBtnRowLayout.addView(enableUpdateBtn)
+        updateBtnRowLayout.addView(disableUpdateBtn)
+
+        disableUpdateCardLayout.addView(updateCardTitle)
+        disableUpdateCardLayout.addView(updateBtnRowLayout)
+
+        advancedLayout.addView(disableUpdateCardLayout)
+
+        val updateCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
+        advancedLayout.addView(updateCardSpacer)
 
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -552,7 +628,7 @@ class SettingsActivity : Activity() {
                 advancedPillBtn.setTextColor(primaryTextColor)
                 moduleInfoPillBtn.background = null
                 moduleInfoPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(customTextCardLayout, forceStopCardLayout))
+                applyEntranceAnimations(listOf(customTextCardLayout, disableUpdateCardLayout, forceStopCardLayout))
             }
             scrollView.scrollTo(0, 0)
         }

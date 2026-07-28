@@ -143,10 +143,10 @@ object SensitiveInfoPatch {
             "wlan", 
             "connections", 
             "network", 
-            "bluetooth"
-            "location"
-            "storage"
-            "cache"
+            "bluetooth",
+            "location",
+            "storage",
+            "cache",
             "app"
         )
 

@@ -415,6 +415,209 @@ class SettingsActivity : Activity() {
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
+        // --- CUSTOM PRODUCT NAME CARD (EXPANDABLE) ---
+        val customProductNameCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        val productNameHeaderLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val productNameTitleContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val productNameTitle = TextView(this).apply {
+            text = getString(R.string.custom_product_name_title) // e.g. "Custom Product Name"
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
+
+        val productNameSub = TextView(this).apply {
+            text = getString(R.string.custom_product_name_subtitle) // e.g. "Change global default device name"
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            setPadding(0, dpToPx(4f), 0, dpToPx(8f))
+        }
+
+        productNameTitleContainer.addView(productNameTitle)
+        productNameTitleContainer.addView(productNameSub)
+
+        val productNameExpandIconDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2.5f).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val size = dpToPx(6f).toFloat()
+                val path = Path().apply {
+                    moveTo(cx - size, cy - size / 3f)
+                    lineTo(cx, cy + size / 1.5f)
+                    lineTo(cx + size, cy - size / 3f)
+                }
+                canvas.drawPath(path, paint)
+            }
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+        }
+
+        val productNameExpandBtn = ImageView(this).apply {
+            setImageDrawable(productNameExpandIconDrawable)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(inputBgColor) 
+            }
+            isClickable = true
+            isFocusable = true
+            setPadding(dpToPx(8f), dpToPx(8f), dpToPx(8f), dpToPx(8f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(36f), dpToPx(36f)).apply {
+                marginStart = dpToPx(12f)
+            }
+        }
+
+        productNameHeaderLayout.addView(productNameTitleContainer)
+        productNameHeaderLayout.addView(productNameExpandBtn)
+        customProductNameCardLayout.addView(productNameHeaderLayout)
+
+        val productNameExpandableContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            visibility = View.GONE
+        }
+
+        val productNameDisclaimerCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(18f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dpToPx(8f)
+                bottomMargin = dpToPx(16f)
+            }
+        }
+
+        val productNameDisclaimerTitle = TextView(this).apply {
+            text = "⚠️ ${getString(R.string.disclaimer_title)}"
+            textSize = 15f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
+
+        val productNameDisclaimerContent = TextView(this).apply {
+            text = getString(R.string.disclaimer_content)
+            textSize = 13f
+            setTextColor(secondaryTextColor)
+            setLineSpacing(4f, 1.1f)
+            setPadding(0, dpToPx(6f), 0, 0)
+        }
+
+        productNameDisclaimerCard.addView(productNameDisclaimerTitle)
+        productNameDisclaimerCard.addView(productNameDisclaimerContent)
+
+        val productNameInputEt = EditText(this).apply {
+            setText(prefs.getString("custom_product_name", ""))
+            hint = getString(R.string.custom_product_name_hint)
+            setHintTextColor(secondaryTextColor)
+            setTextColor(primaryTextColor)
+            textSize = 15f
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(16f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val saveProductNameBtn = createAnimatedButton(getString(R.string.btn_save_product_name), Color.WHITE, accentColor, buttonHeightPx) {
+            showNoticeDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                accentColor, secondaryBtnColor, buttonHeightPx
+            ) {
+                val enteredText = productNameInputEt.text.toString().trim()
+                prefs.edit().putString("custom_product_name", enteredText).apply()
+                
+                Thread {
+                    val safeText = enteredText.replace("'", "'\\''")
+                    val success = runRootCommands(listOf(
+                        "settings put global default_device_name '$safeText'",
+                        "am force-stop com.android.settings"
+                    ))
+                    
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_product_name_applied), Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }.start()
+            }
+        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+
+        val resetProductNameBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
+            productNameInputEt.setText("")
+            prefs.edit().remove("custom_product_name").apply()
+            
+            Thread {
+                val success = runRootCommands(listOf(
+                    "settings delete global default_device_name",
+                    "am force-stop com.android.settings"
+                ))
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_product_name_reset), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
+
+        productNameExpandableContent.addView(productNameDisclaimerCard)
+        productNameExpandableContent.addView(productNameInputEt)
+        productNameExpandableContent.addView(saveProductNameBtn)
+        productNameExpandableContent.addView(resetProductNameBtn)
+        
+        customProductNameCardLayout.addView(productNameExpandableContent)
+
+        val toggleProductNameExpansion = {
+            val isExpanded = productNameExpandableContent.visibility == View.VISIBLE
+            if (isExpanded) {
+                collapseView(productNameExpandableContent, productNameExpandBtn)
+            } else {
+                expandView(productNameExpandableContent, productNameExpandBtn)
+            }
+        }
+
+        productNameExpandBtn.setOnClickListener { toggleProductNameExpansion() }
+        productNameHeaderLayout.setOnClickListener { toggleProductNameExpansion() }
+        productNameHeaderLayout.isClickable = true
+        
+        advancedLayout.addView(customProductNameCardLayout)
+
+        val productNameSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
+        advancedLayout.addView(productNameSpacer)
+
         // --- DISABLE SOFTWARE UPDATE CARD ---
         val disableUpdateCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -650,7 +853,7 @@ class SettingsActivity : Activity() {
                 advancedPillBtn.setTextColor(primaryTextColor)
                 moduleInfoPillBtn.background = null
                 moduleInfoPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(customTextCardLayout, disableUpdateCardLayout, forceStopCardLayout))
+                applyEntranceAnimations(listOf(customTextCardLayout, customProductNameCardLayout, disableUpdateCardLayout, forceStopCardLayout))
             }
             scrollView.scrollTo(0, 0)
         }

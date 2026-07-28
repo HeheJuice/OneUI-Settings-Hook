@@ -144,6 +144,10 @@ object SensitiveInfoPatch {
             "connections", 
             "network", 
             "bluetooth"
+            "location"
+            "storage"
+            "cache"
+            "app"
         )
 
         for (keyword in skipKeywords) {

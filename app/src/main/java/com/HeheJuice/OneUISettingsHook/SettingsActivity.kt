@@ -562,8 +562,10 @@ class SettingsActivity : Activity() {
                     val safeText = enteredText.replace("'", "'\\''")
 val success = runRootCommands(listOf(
     "settings put global default_device_name '$safeText'",
+    "setprop persist.sys.device_name '$safeText'",
     "am force-stop com.android.settings"
 ))
+
 
 
                     
@@ -585,8 +587,10 @@ val success = runRootCommands(listOf(
             Thread {
                 val success = runRootCommands(listOf(
     "settings delete global default_device_name",
+    "setprop persist.sys.device_name ''",
     "am force-stop com.android.settings"
 ))
+
 
 
                 runOnUiThread {

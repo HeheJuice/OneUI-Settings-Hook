@@ -53,4 +53,18 @@
     <string name="msg_software_update_enabled">已啟用軟件更新應用程式</string>
     <string name="msg_software_update_disabled">已停用軟件更新應用程式</string>
     <string name="msg_app_not_found">搵唔到應用程式</string>
+<!-- Lab Category -->
+    <string name="lab_title">實驗室</string>
+    <string name="lab_subtitle">實驗性功能與進階調整</string>
+    <string name="btn_open_lab">進入實驗室</string>
+    <string name="lab_warning_title">測試狀態提示</string>
+    <string name="lab_warning_message">這些功能處於測試狀態，可能會不穩定。</string>
+
+    <!-- Custom Product Name -->
+    <string name="custom_product_name_title">自訂產品名稱</string>
+    <string name="custom_product_name_subtitle">修改系統預設裝置名稱</string>
+    <string name="custom_product_name_hint">輸入產品名稱…</string>
+    <string name="btn_save_product_name">儲存產品名稱</string>
+    <string name="msg_product_name_applied">產品名稱已套用！</string>
+    <string name="msg_product_name_reset">產品名稱已重置為預設值！</string>
 </resources>

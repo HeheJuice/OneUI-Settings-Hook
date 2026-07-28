@@ -73,17 +73,26 @@ class SettingsActivity : Activity() {
             "1.0.0"
         }
 
-        // --- PASSWORD PROTECTION & DEBUG CHECK DIALOGS ---
-        showPasswordProtectionDialog(
-            cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
-            accentColor, secondaryBtnColor, inputBgColor, buttonHeightPx
-        ) {
-            if (rawVersion.contains("Debug", ignoreCase = true)) {
-                showDebugWarningDialog(
-                    cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
-                    redBtnColor, secondaryBtnColor, buttonHeightPx
-                )
+        // --- DIALOG LAUNCH SEQUENCE (DEBUG FIRST, THEN PASSWORD) ---
+        val launchPasswordCheck = {
+            showPasswordProtectionDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                accentColor, secondaryBtnColor, inputBgColor, buttonHeightPx
+            ) {
+                // Password verified -> enters main Settings UI
             }
+        }
+
+        if (rawVersion.contains("Debug", ignoreCase = true)) {
+            showDebugWarningDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                redBtnColor, secondaryBtnColor, buttonHeightPx
+            ) {
+                // Tapping Continue launches password check
+                launchPasswordCheck()
+            }
+        } else {
+            launchPasswordCheck()
         }
 
         val rootFrameLayout = FrameLayout(this).apply { setBackgroundColor(bgColor) }
@@ -158,7 +167,6 @@ class SettingsActivity : Activity() {
         card1Layout.addView(githubBtn)
         card1Layout.addView(bugBtn)
         moduleInfoLayout.addView(card1Layout)
-
         val card2Spacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         moduleInfoLayout.addView(card2Spacer)
 
@@ -285,6 +293,7 @@ class SettingsActivity : Activity() {
         customTextHeaderLayout.addView(customTextTitleContainer)
         customTextHeaderLayout.addView(expandBtn)
         customTextCardLayout.addView(customTextHeaderLayout)
+
         val expandableContentLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -411,7 +420,6 @@ class SettingsActivity : Activity() {
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
-
         // --- DISABLE SOFTWARE UPDATE CARD ---
         val disableUpdateCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -857,7 +865,8 @@ class SettingsActivity : Activity() {
         secondaryTextColor: Int,
         redBtnColor: Int,
         secondaryBtnColor: Int,
-        buttonHeightPx: Int
+        buttonHeightPx: Int,
+        onContinue: () -> Unit
     ) {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -917,6 +926,7 @@ class SettingsActivity : Activity() {
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
             dialog.dismiss()
+            onContinue()
         }.apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
                 marginStart = dpToPx(6f)

@@ -1,3 +1,5 @@
+English / [中文](READMECN.md)
+
 <h1 align="center">
   <img loading="lazy" src="Banner/Banner.png"/>
 </h1>

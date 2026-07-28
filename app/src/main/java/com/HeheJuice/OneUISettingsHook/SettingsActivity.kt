@@ -182,7 +182,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // Custom Banner Text Card
+                        // Custom Banner Text Card
         val customTextCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -191,6 +191,24 @@ class SettingsActivity : Activity() {
                 setStroke(dpToPx(1f), cardBorderColor)
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+            
+            // Enable smooth layout animations for expanding/collapsing
+            layoutTransition = android.animation.LayoutTransition().apply {
+                enableTransitionType(android.animation.LayoutTransition.CHANGING)
+                setDuration(250L) // Matches the chevron rotation speed
+            }
+        }
+
+        // --- 1. HEADER LAYOUT (Title + Subtitle + Expand Button) ---
+        val customTextHeaderLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val customTextTitleContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         val customTextTitle = TextView(this).apply {
@@ -204,10 +222,64 @@ class SettingsActivity : Activity() {
             text = getString(R.string.custom_banner_subtitle)
             textSize = 14f
             setTextColor(secondaryTextColor)
-            setPadding(0, dpToPx(4f), 0, dpToPx(16f))
+            setPadding(0, dpToPx(4f), 0, dpToPx(8f))
         }
 
-        // Disclaimer Card Layout (Nested right under custom_banner_subtitle)
+        customTextTitleContainer.addView(customTextTitle)
+        customTextTitleContainer.addView(customTextSub)
+
+        // Programmatic Chevron Drawable for the Expand Button
+        val expandIconDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2.5f).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val size = dpToPx(6f).toFloat()
+                val path = Path().apply {
+                    moveTo(cx - size, cy - size / 3f)
+                    lineTo(cx, cy + size / 1.5f)
+                    lineTo(cx + size, cy - size / 3f)
+                }
+                canvas.drawPath(path, paint)
+            }
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+        }
+
+        val expandBtn = ImageView(this).apply {
+            setImageDrawable(expandIconDrawable)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(inputBgColor) 
+            }
+            isClickable = true
+            isFocusable = true
+            setPadding(dpToPx(8f), dpToPx(8f), dpToPx(8f), dpToPx(8f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(36f), dpToPx(36f)).apply {
+                marginStart = dpToPx(12f)
+            }
+        }
+
+        customTextHeaderLayout.addView(customTextTitleContainer)
+        customTextHeaderLayout.addView(expandBtn)
+        customTextCardLayout.addView(customTextHeaderLayout)
+
+        // --- 2. EXPANDABLE CONTENT CONTAINER ---
+        val expandableContentLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            visibility = View.GONE // Default to collapsed
+        }
+
+        // Disclaimer Card Layout 
         val disclaimerCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -217,17 +289,17 @@ class SettingsActivity : Activity() {
             }
             setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dpToPx(8f)
                 bottomMargin = dpToPx(16f)
             }
         }
 
-                val disclaimerTitle = TextView(this).apply {
+        val disclaimerTitle = TextView(this).apply {
             text = "⚠️ ${getString(R.string.disclaimer_title)}"
             textSize = 15f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
         }
-
 
         val disclaimerContent = TextView(this).apply {
             text = getString(R.string.disclaimer_content)
@@ -304,12 +376,30 @@ class SettingsActivity : Activity() {
             }.start()
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
 
-        customTextCardLayout.addView(customTextTitle)
-        customTextCardLayout.addView(customTextSub)
-        customTextCardLayout.addView(disclaimerCardLayout)
-        customTextCardLayout.addView(bannerInputEt)
-        customTextCardLayout.addView(saveTextBtn)
-        customTextCardLayout.addView(resetTextBtn)
+        expandableContentLayout.addView(disclaimerCardLayout)
+        expandableContentLayout.addView(bannerInputEt)
+        expandableContentLayout.addView(saveTextBtn)
+        expandableContentLayout.addView(resetTextBtn)
+        
+        customTextCardLayout.addView(expandableContentLayout)
+
+        // --- 3. TOGGLE LOGIC ---
+        val toggleExpansion = {
+            val isExpanded = expandableContentLayout.visibility == View.VISIBLE
+            if (isExpanded) {
+                expandableContentLayout.visibility = View.GONE
+                expandBtn.animate().rotation(0f).setDuration(250L).start()
+            } else {
+                expandableContentLayout.visibility = View.VISIBLE
+                expandBtn.animate().rotation(180f).setDuration(250L).start()
+            }
+        }
+
+        // Allow clicking either the button or the whole header to toggle
+        expandBtn.setOnClickListener { toggleExpansion() }
+        customTextHeaderLayout.setOnClickListener { toggleExpansion() }
+        customTextHeaderLayout.isClickable = true
+        
         advancedLayout.addView(customTextCardLayout)
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }

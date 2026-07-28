@@ -769,7 +769,7 @@ class SettingsActivity : Activity() {
         }
 
         val titleTv = TextView(this).apply {
-            text = "Enter Passcode"
+            text = "Enter Debug Code"
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -777,7 +777,7 @@ class SettingsActivity : Activity() {
         }
 
         val subTv = TextView(this).apply {
-            text = "Please enter the password to access settings"
+            text = "Please enter Developer Debug Code"
             textSize = 14f
             setTextColor(secondaryTextColor)
             gravity = Gravity.CENTER
@@ -841,7 +841,7 @@ class SettingsActivity : Activity() {
         dialog.dismiss()
         onSuccess()
     } else {
-        Toast.makeText(this@SettingsActivity, "Incorrect password!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@SettingsActivity, "Incorrect Code", Toast.LENGTH_SHORT).show()
         passwordInput.setText("")
     }
 }.apply {
@@ -902,7 +902,7 @@ class SettingsActivity : Activity() {
         }
 
         val messageTv = TextView(this).apply {
-            text = "This is a developer Debug Build"
+            text = "Developer Debug Build 開發者測試版"
             textSize = 15f
             setTextColor(primaryTextColor)
             gravity = Gravity.CENTER

@@ -47,5 +47,10 @@
 <string name="notice_message">請確保您已閱讀並同意「免責聲明與使用須知」。</string>
 <string name="btn_leave">離開</string>
 <string name="btn_continue">繼續</string>
-
+<string name="disable_software_update_title">停用軟件更新應用程式</string>
+    <string name="btn_enable_update">啟用</string>
+    <string name="btn_disable_update">停用</string>
+    <string name="msg_software_update_enabled">已啟用軟件更新應用程式</string>
+    <string name="msg_software_update_disabled">已停用軟件更新應用程式</string>
+    <string name="msg_app_not_found">搵唔到應用程式</string>
 </resources>

@@ -3,7 +3,6 @@ package com.HeheJuice.OneUISettingsHook
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
-import de.robv.android.xposed.AndroidAppHelper
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -21,6 +20,17 @@ object CustomDeviceNamePatch {
         }
     }
 
+    // Safely gets Context via ActivityThread reflection without depending on AndroidAppHelper stubs
+    private fun getCurrentApplicationContext(): Context? {
+        return try {
+            val activityThreadClass = Class.forName("android.app.ActivityThread")
+            val activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null)
+            activityThreadClass.getMethod("getApplication").invoke(activityThread) as? Context
+        } catch (e: Throwable) {
+            null
+        }
+    }
+
     fun applyPatch(classLoader: ClassLoader) {
         val deviceNameHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -34,10 +44,10 @@ object CustomDeviceNamePatch {
                     // Ignore SharedPreferences read errors
                 }
 
-                // 2. Try fetching from Context argument or AndroidAppHelper
+                // 2. Try fetching from Context argument or ActivityThread reflection
                 if (customName.isNullOrBlank()) {
                     val context = (param.args.firstOrNull { it is Context } as? Context)
-                        ?: AndroidAppHelper.currentApplication()
+                        ?: getCurrentApplicationContext()
 
                     if (context != null) {
                         customName = Settings.Global.getString(context.contentResolver, "default_device_name")

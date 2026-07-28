@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ComponentName
 import android.content.Context
@@ -47,97 +46,6 @@ private fun hashPassword(input: String): String {
     
     // Mask with 0xFF to prevent negative sign expansion
     return bytes.joinToString("") { "%02x".format(it.toInt() and 0xFF) }
-}
-
-private fun showNoticeDialog(
-    cardBgColor: Int,
-    cardBorderColor: Int,
-    primaryTextColor: Int,
-    secondaryTextColor: Int,
-    accentColor: Int,
-    secondaryBtnColor: Int,
-    buttonHeightPx: Int,
-    onConfirm: () -> Unit
-) {
-    val dialog = Dialog(this)
-    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-
-    val cardLayout = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        background = GradientDrawable().apply {
-            setColor(cardBgColor)
-            cornerRadius = dpToPx(28f).toFloat()
-            setStroke(dpToPx(1f), cardBorderColor)
-        }
-        setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(20f))
-    }
-
-    val titleTv = TextView(this).apply {
-        text = getString(R.string.notice_title)
-        textSize = 20f
-        setTextColor(primaryTextColor)
-        setTypeface(null, Typeface.BOLD)
-        gravity = Gravity.CENTER
-    }
-
-    val messageTv = TextView(this).apply {
-        text = getString(R.string.notice_message)
-        textSize = 14f
-        setTextColor(secondaryTextColor)
-        gravity = Gravity.CENTER
-        setPadding(0, dpToPx(10f), 0, dpToPx(20f))
-    }
-
-    val btnRow = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, 
-            buttonHeightPx
-        )
-    }
-
-    val leaveBtn = createAnimatedButton(
-        getString(R.string.btn_leave), 
-        primaryTextColor, 
-        secondaryBtnColor, 
-        LinearLayout.LayoutParams.MATCH_PARENT
-    ) {
-        dialog.dismiss()
-    }.apply {
-        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-            marginEnd = dpToPx(6f)
-        }
-    }
-
-    val continueBtn = createAnimatedButton(
-        getString(R.string.btn_continue), 
-        Color.WHITE, 
-        accentColor, 
-        LinearLayout.LayoutParams.MATCH_PARENT
-    ) {
-        dialog.dismiss()
-        onConfirm()
-    }.apply {
-        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-            marginStart = dpToPx(6f)
-        }
-    }
-
-    btnRow.addView(leaveBtn)
-    btnRow.addView(continueBtn)
-
-    cardLayout.addView(titleTv)
-    cardLayout.addView(messageTv)
-    cardLayout.addView(btnRow)
-
-    dialog.setContentView(cardLayout)
-
-    dialog.window?.apply {
-        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        setLayout((resources.displayMetrics.widthPixels * 0.88).toInt(), FrameLayout.LayoutParams.WRAP_CONTENT)
-    }
-
-    dialog.show()
 }
 
 class SettingsActivity : Activity() {
@@ -202,7 +110,6 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
-
         // PAGE 1: MODULE INFO
         val moduleInfoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -442,31 +349,30 @@ class SettingsActivity : Activity() {
         }
 
         val saveTextBtn = createAnimatedButton(getString(R.string.btn_save_banner_text), Color.WHITE, accentColor, buttonHeightPx) {
-    showNoticeDialog(
-        cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
-        accentColor, secondaryBtnColor, buttonHeightPx
-    ) {
-        val enteredText = bannerInputEt.text.toString().trim()
-        prefs.edit().putString("custom_banner_text", enteredText).apply()
-        
-        Thread {
-            val safeText = enteredText.replace("'", "'\\''")
-            val success = runRootCommands(listOf(
-                "settings put global custom_oneui_banner '$safeText'",
-                "am force-stop com.android.settings"
-            ))
-            
-            runOnUiThread {
-                if (success) {
-                    Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
-                }
+            showNoticeDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                accentColor, secondaryBtnColor, buttonHeightPx
+            ) {
+                val enteredText = bannerInputEt.text.toString().trim()
+                prefs.edit().putString("custom_banner_text", enteredText).apply()
+                
+                Thread {
+                    val safeText = enteredText.replace("'", "'\\''")
+                    val success = runRootCommands(listOf(
+                        "settings put global custom_oneui_banner '$safeText'",
+                        "am force-stop com.android.settings"
+                    ))
+                    
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }.start()
             }
-        }.start()
-    }
-}.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
-
+        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
 
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")
@@ -823,11 +729,97 @@ class SettingsActivity : Activity() {
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
     }
-        // --- CLASS HELPER FUNCTIONS ---
+    // --- CLASS HELPER FUNCTIONS ---
 
-    private fun hashPassword(input: String): String {
-        val bytes = java.security.MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
-        return bytes.joinToString("") { "%02x".format(it) }
+    private fun showNoticeDialog(
+        cardBgColor: Int,
+        cardBorderColor: Int,
+        primaryTextColor: Int,
+        secondaryTextColor: Int,
+        accentColor: Int,
+        secondaryBtnColor: Int,
+        buttonHeightPx: Int,
+        onConfirm: () -> Unit
+    ) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val cardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(20f))
+        }
+
+        val titleTv = TextView(this).apply {
+            text = getString(R.string.notice_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+
+        val messageTv = TextView(this).apply {
+            text = getString(R.string.notice_message)
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            gravity = Gravity.CENTER
+            setPadding(0, dpToPx(10f), 0, dpToPx(20f))
+        }
+
+        val btnRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                buttonHeightPx
+            )
+        }
+
+        val leaveBtn = createAnimatedButton(
+            getString(R.string.btn_leave), 
+            primaryTextColor, 
+            secondaryBtnColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = dpToPx(6f)
+            }
+        }
+
+        val continueBtn = createAnimatedButton(
+            getString(R.string.btn_continue), 
+            Color.WHITE, 
+            accentColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+            onConfirm()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6f)
+            }
+        }
+
+        btnRow.addView(leaveBtn)
+        btnRow.addView(continueBtn)
+
+        cardLayout.addView(titleTv)
+        cardLayout.addView(messageTv)
+        cardLayout.addView(btnRow)
+
+        dialog.setContentView(cardLayout)
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((resources.displayMetrics.widthPixels * 0.88).toInt(), FrameLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        dialog.show()
     }
 
     private fun showPasswordProtectionDialog(
@@ -914,28 +906,27 @@ class SettingsActivity : Activity() {
         }
 
         val unlockBtn = createAnimatedButton(
-    "Unlock", 
-    Color.WHITE, 
-    accentColor, 
-    LinearLayout.LayoutParams.MATCH_PARENT
-) {
-    // Exact SHA-256 hash of "88990077"
-    val expectedHash = "cd6e0f460851e20c00c9849a70b5d97d28c13e3228ef264ffe571f451e3fbf81"
-    val enteredPin = passwordInput.text.toString().trim()
+            "Unlock", 
+            Color.WHITE, 
+            accentColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            // Exact SHA-256 hash of "88990077"
+            val expectedHash = "cd6e0f460851e20c00c9849a70b5d97d28c13e3228ef264ffe571f451e3fbf81"
+            val enteredPin = passwordInput.text.toString().trim()
 
-    if (hashPassword(enteredPin) == expectedHash) {
-        dialog.dismiss()
-        onSuccess()
-    } else {
-        Toast.makeText(this@SettingsActivity, "Incorrect Code", Toast.LENGTH_SHORT).show()
-        passwordInput.setText("")
-    }
-}.apply {
-    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-        marginStart = dpToPx(6f)
-    }
-}
-
+            if (hashPassword(enteredPin) == expectedHash) {
+                dialog.dismiss()
+                onSuccess()
+            } else {
+                Toast.makeText(this@SettingsActivity, "Incorrect Code", Toast.LENGTH_SHORT).show()
+                passwordInput.setText("")
+            }
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6f)
+            }
+        }
 
         btnRow.addView(exitBtn)
         btnRow.addView(unlockBtn)
@@ -1200,4 +1191,3 @@ class SettingsActivity : Activity() {
     private fun dpToPx(dp: Float): Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
     private fun dpToPx(dp: Int): Int = dpToPx(dp.toFloat())
 }
-

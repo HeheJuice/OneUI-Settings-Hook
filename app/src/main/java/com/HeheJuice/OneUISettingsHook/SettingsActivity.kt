@@ -1,6 +1,8 @@
 package com.HeheJuice.OneUISettingsHook
 
-import android.animation.LayoutTransition
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ComponentName
@@ -25,6 +27,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -193,11 +197,6 @@ class SettingsActivity : Activity() {
                 setStroke(dpToPx(1f), cardBorderColor)
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-            
-            layoutTransition = LayoutTransition().apply {
-                enableTransitionType(LayoutTransition.CHANGING)
-                setDuration(250L)
-            }
         }
 
         val customTextHeaderLayout = LinearLayout(this).apply {
@@ -270,7 +269,6 @@ class SettingsActivity : Activity() {
         customTextHeaderLayout.addView(customTextTitleContainer)
         customTextHeaderLayout.addView(expandBtn)
         customTextCardLayout.addView(customTextHeaderLayout)
-
         val expandableContentLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -383,11 +381,9 @@ class SettingsActivity : Activity() {
         val toggleExpansion = {
             val isExpanded = expandableContentLayout.visibility == View.VISIBLE
             if (isExpanded) {
-                expandableContentLayout.visibility = View.GONE
-                expandBtn.animate().rotation(0f).setDuration(250L).start()
+                collapseView(expandableContentLayout, expandBtn)
             } else {
-                expandableContentLayout.visibility = View.VISIBLE
-                expandBtn.animate().rotation(180f).setDuration(250L).start()
+                expandView(expandableContentLayout, expandBtn)
             }
         }
 
@@ -426,7 +422,6 @@ class SettingsActivity : Activity() {
 
         val targetPackage = "com.wssyncmldm"
 
-        // Enable Button
         val enableUpdateBtn = createAnimatedButton(
             getString(R.string.btn_enable_update),
             primaryTextColor,
@@ -452,7 +447,6 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginEnd = dpToPx(6f) }
         }
 
-        // Disable Button
         val disableUpdateBtn = createAnimatedButton(
             getString(R.string.btn_disable_update),
             Color.WHITE,
@@ -488,6 +482,7 @@ class SettingsActivity : Activity() {
 
         val updateCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(updateCardSpacer)
+
         // --- FORCE STOP SETTINGS CARD ---
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -687,7 +682,6 @@ class SettingsActivity : Activity() {
         bottomBarLayout.addView(tabPillContainer)
         bottomBarLayout.addView(searchCircleBtn)
         rootFrameLayout.addView(bottomBarLayout)
-
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             val alpha = (scrollY / dpToPx(40f).toFloat()).coerceIn(0f, 1f)
             topBarTitle.alpha = alpha
@@ -717,6 +711,63 @@ class SettingsActivity : Activity() {
     }
 
     // --- CLASS HELPER FUNCTIONS ---
+
+    private fun expandView(view: View, expandBtn: View) {
+        val parent = view.parent as? View ?: return
+        
+        val matchParentSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY)
+        val wrapContentSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        view.measure(matchParentSpec, wrapContentSpec)
+        val targetHeight = view.measuredHeight
+
+        view.layoutParams.height = 1
+        view.visibility = View.VISIBLE
+        view.alpha = 0f
+
+        val heightAnim = ValueAnimator.ofInt(1, targetHeight).apply {
+            duration = 320L
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                view.layoutParams.height = anim.animatedValue as Int
+                view.requestLayout()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    view.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+                    view.requestLayout()
+                }
+            })
+        }
+
+        view.animate().alpha(1f).setDuration(220L).start()
+        expandBtn.animate().rotation(180f).setDuration(320L)
+            .setInterpolator(AccelerateDecelerateInterpolator()).start()
+        heightAnim.start()
+    }
+
+    private fun collapseView(view: View, expandBtn: View) {
+        val initialHeight = view.height
+
+        val heightAnim = ValueAnimator.ofInt(initialHeight, 0).apply {
+            duration = 280L
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                view.layoutParams.height = anim.animatedValue as Int
+                view.requestLayout()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    view.visibility = View.GONE
+                    view.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+                }
+            })
+        }
+
+        view.animate().alpha(0f).setDuration(180L).start()
+        expandBtn.animate().rotation(0f).setDuration(280L)
+            .setInterpolator(AccelerateDecelerateInterpolator()).start()
+        heightAnim.start()
+    }
 
     private fun isPackageInstalled(packageName: String): Boolean {
         return try {
@@ -795,7 +846,7 @@ class SettingsActivity : Activity() {
                 .alpha(1f)
                 .setDuration(400)
                 .setStartDelay((index * 60).toLong())
-                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
+                .setInterpolator(DecelerateInterpolator(1.5f))
                 .start()
         }
     }

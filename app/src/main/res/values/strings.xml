@@ -56,4 +56,11 @@
     <string name="msg_software_update_enabled">Software Update app enabled</string>
     <string name="msg_software_update_disabled">Software Update app disabled</string>
 <string name="msg_app_not_found">App not found</string>
+<string name="custom_product_name_title">Custom Product Name</string>
+<string name="custom_product_name_subtitle">Modify system default device name</string>
+<string name="custom_product_name_hint">Enter product name…</string>
+<string name="btn_save_product_name">Save Product Name</string>
+<string name="msg_product_name_applied">Product name applied!</string>
+<string name="msg_product_name_reset">Product name reset to default!</string>
+
 </resources>

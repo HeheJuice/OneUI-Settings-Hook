@@ -834,7 +834,7 @@ class SettingsActivity : Activity() {
     LinearLayout.LayoutParams.MATCH_PARENT
 ) {
     // Exact SHA-256 hash of "88990077"
-    val expectedHash = "811f0a2e55eb8431952e4630a9e70df446e1a49f5068a356391d84637651c6c5"
+    val expectedHash = "cd6e0f460851e20c00c9849a70b5d97d28c13e3228ef264ffe571f451e3fbf81"
     val enteredPin = passwordInput.text.toString().trim()
 
     if (hashPassword(enteredPin) == expectedHash) {

@@ -182,7 +182,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-                // Custom Banner Text Card
+                        // Custom Banner Text Card
         val customTextCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -191,6 +191,12 @@ class SettingsActivity : Activity() {
                 setStroke(dpToPx(1f), cardBorderColor)
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+            
+            // Enable smooth layout animations for expanding/collapsing
+            layoutTransition = android.animation.LayoutTransition().apply {
+                enableTransitionType(android.animation.LayoutTransition.CHANGING)
+                setDuration(250L) // Matches the chevron rotation speed
+            }
         }
 
         // --- 1. HEADER LAYOUT (Title + Subtitle + Expand Button) ---
@@ -235,7 +241,6 @@ class SettingsActivity : Activity() {
                 val cx = bounds.exactCenterX()
                 val cy = bounds.exactCenterY()
                 val size = dpToPx(6f).toFloat()
-                // Draws a downward pointing chevron
                 val path = Path().apply {
                     moveTo(cx - size, cy - size / 3f)
                     lineTo(cx, cy + size / 1.5f)
@@ -271,7 +276,7 @@ class SettingsActivity : Activity() {
         val expandableContentLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            visibility = View.VISIBLE // Set to View.GONE if you want it collapsed by default
+            visibility = View.GONE // Default to collapsed
         }
 
         // Disclaimer Card Layout 
@@ -379,19 +384,14 @@ class SettingsActivity : Activity() {
         customTextCardLayout.addView(expandableContentLayout)
 
         // --- 3. TOGGLE LOGIC ---
-        // Rotate button initially if content is visible
-        if (expandableContentLayout.visibility == View.VISIBLE) {
-            expandBtn.rotation = 180f
-        }
-
         val toggleExpansion = {
             val isExpanded = expandableContentLayout.visibility == View.VISIBLE
             if (isExpanded) {
                 expandableContentLayout.visibility = View.GONE
-                expandBtn.animate().rotation(0f).setDuration(250).start()
+                expandBtn.animate().rotation(0f).setDuration(250L).start()
             } else {
                 expandableContentLayout.visibility = View.VISIBLE
-                expandBtn.animate().rotation(180f).setDuration(250).start()
+                expandBtn.animate().rotation(180f).setDuration(250L).start()
             }
         }
 

@@ -561,15 +561,10 @@ class SettingsActivity : Activity() {
                 Thread {
                     val safeText = enteredText.replace("'", "'\\''")
 val success = runRootCommands(listOf(
-    // Standard OneUI global key
     "settings put global default_device_name '$safeText'",
-    // UN1CA / OneUI fallback global key
-    "settings put global device_name '$safeText'",
-    // System property fallback used by custom ROMs
-    "setprop persist.sys.device_name '$safeText'",
-    // Restart settings to apply
     "am force-stop com.android.settings"
 ))
+
 
                     
                     runOnUiThread {
@@ -590,10 +585,9 @@ val success = runRootCommands(listOf(
             Thread {
                 val success = runRootCommands(listOf(
     "settings delete global default_device_name",
-    "settings delete global device_name",
-    "setprop persist.sys.device_name ''",
     "am force-stop com.android.settings"
 ))
+
 
                 runOnUiThread {
                     if (success) {

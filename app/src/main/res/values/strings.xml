@@ -62,5 +62,12 @@
 <string name="btn_save_product_name">Save Product Name</string>
 <string name="msg_product_name_applied">Product name applied!</string>
 <string name="msg_product_name_reset">Product name reset to default!</string>
+<!-- Lab Category -->
+    <string name="lab_title">Lab</string>
+    <string name="lab_subtitle">Experimental features and tweaks</string>
+    <string name="btn_open_lab">Enter Lab</string>
+    <string name="lab_warning_title">Testing State</string>
+    <string name="lab_warning_message">These features are in testing state and can be unstable.</string>
 
+   
 </resources>

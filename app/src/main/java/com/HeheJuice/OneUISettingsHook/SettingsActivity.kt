@@ -833,7 +833,7 @@ class SettingsActivity : Activity() {
     accentColor, 
     LinearLayout.LayoutParams.MATCH_PARENT
 ) {
-    // Exact SHA-256 hash of "5201314"
+    // Exact SHA-256 hash of "88990077"
     val expectedHash = "811f0a2e55eb8431952e4630a9e70df446e1a49f5068a356391d84637651c6c5"
     val enteredPin = passwordInput.text.toString().trim()
 

@@ -450,6 +450,23 @@ class SettingsActivity : Activity() {
         }
 
         // Disable Button
+private fun isPackageInstalled(packageName: String): Boolean {
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(
+                packageName, 
+                android.content.pm.PackageManager.PackageInfoFlags.of(android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES.toLong())
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES)
+        }
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
+
         val disableUpdateBtn = createAnimatedButton(
             getString(R.string.btn_disable_update),
             Color.WHITE,

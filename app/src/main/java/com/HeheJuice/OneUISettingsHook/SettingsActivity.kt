@@ -4,7 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.app.AlertDialog
+import android.app.Dialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -16,11 +16,13 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -36,6 +38,15 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import java.security.MessageDigest
+
+private fun hashPassword(input: String): String {
+    val bytes = java.security.MessageDigest.getInstance("SHA-256")
+        .digest(input.toByteArray(Charsets.UTF_8))
+    
+    // Mask with 0xFF to prevent negative sign expansion
+    return bytes.joinToString("") { "%02x".format(it.toInt() and 0xFF) }
+}
 
 class SettingsActivity : Activity() {
 
@@ -59,6 +70,8 @@ class SettingsActivity : Activity() {
         val backBtnBgColor = if (isDark) Color.parseColor("#3A3A3C") else Color.parseColor("#E5E5EA")
         val inputBgColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#F2F2F7")
 
+        val buttonHeightPx = dpToPx(54f)
+
         val deviceProtectedContext = createDeviceProtectedStorageContext()
         val prefs = deviceProtectedContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
 
@@ -66,6 +79,21 @@ class SettingsActivity : Activity() {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
         } catch (e: Exception) {
             "1.0.0"
+        }
+
+        // --- DIALOG LAUNCH SEQUENCE (PASSWORD ONLY FOR DEBUG BUILDS) ---
+        if (rawVersion.contains("Debug", ignoreCase = true)) {
+            showDebugWarningDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                redBtnColor, secondaryBtnColor, buttonHeightPx
+            ) {
+                showPasswordProtectionDialog(
+                    cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                    accentColor, secondaryBtnColor, inputBgColor, buttonHeightPx
+                ) {
+                    // Password verified -> enters main Settings UI
+                }
+            }
         }
 
         val rootFrameLayout = FrameLayout(this).apply { setBackgroundColor(bgColor) }
@@ -82,9 +110,6 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
-
-        val buttonHeightPx = dpToPx(54f)
-
         // PAGE 1: MODULE INFO
         val moduleInfoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -269,6 +294,7 @@ class SettingsActivity : Activity() {
         customTextHeaderLayout.addView(customTextTitleContainer)
         customTextHeaderLayout.addView(expandBtn)
         customTextCardLayout.addView(customTextHeaderLayout)
+
         val expandableContentLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -323,35 +349,29 @@ class SettingsActivity : Activity() {
         }
 
         val saveTextBtn = createAnimatedButton(getString(R.string.btn_save_banner_text), Color.WHITE, accentColor, buttonHeightPx) {
-            AlertDialog.Builder(this@SettingsActivity)
-                .setTitle(getString(R.string.notice_title))
-                .setMessage(getString(R.string.notice_message))
-                .setPositiveButton(getString(R.string.btn_continue)) { dialog, _ ->
-                    dialog.dismiss()
+            showNoticeDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                accentColor, secondaryBtnColor, buttonHeightPx
+            ) {
+                val enteredText = bannerInputEt.text.toString().trim()
+                prefs.edit().putString("custom_banner_text", enteredText).apply()
+                
+                Thread {
+                    val safeText = enteredText.replace("'", "'\\''")
+                    val success = runRootCommands(listOf(
+                        "settings put global custom_oneui_banner '$safeText'",
+                        "am force-stop com.android.settings"
+                    ))
                     
-                    val enteredText = bannerInputEt.text.toString().trim()
-                    prefs.edit().putString("custom_banner_text", enteredText).apply()
-                    
-                    Thread {
-                        val safeText = enteredText.replace("'", "'\\''")
-                        val success = runRootCommands(listOf(
-                            "settings put global custom_oneui_banner '$safeText'",
-                            "am force-stop com.android.settings"
-                        ))
-                        
-                        runOnUiThread {
-                            if (success) {
-                                Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
-                            }
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
                         }
-                    }.start()
-                }
-                .setNegativeButton(getString(R.string.btn_leave)) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
+                    }
+                }.start()
+            }
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
 
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
@@ -395,7 +415,6 @@ class SettingsActivity : Activity() {
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
-
         // --- DISABLE SOFTWARE UPDATE CARD ---
         val disableUpdateCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -682,6 +701,7 @@ class SettingsActivity : Activity() {
         bottomBarLayout.addView(tabPillContainer)
         bottomBarLayout.addView(searchCircleBtn)
         rootFrameLayout.addView(bottomBarLayout)
+
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             val alpha = (scrollY / dpToPx(40f).toFloat()).coerceIn(0f, 1f)
             topBarTitle.alpha = alpha
@@ -709,8 +729,316 @@ class SettingsActivity : Activity() {
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
     }
-
     // --- CLASS HELPER FUNCTIONS ---
+
+    private fun showNoticeDialog(
+        cardBgColor: Int,
+        cardBorderColor: Int,
+        primaryTextColor: Int,
+        secondaryTextColor: Int,
+        accentColor: Int,
+        secondaryBtnColor: Int,
+        buttonHeightPx: Int,
+        onConfirm: () -> Unit
+    ) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val cardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(20f))
+        }
+
+        val titleTv = TextView(this).apply {
+            text = getString(R.string.notice_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+
+        val messageTv = TextView(this).apply {
+            text = getString(R.string.notice_message)
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            gravity = Gravity.CENTER
+            setPadding(0, dpToPx(10f), 0, dpToPx(20f))
+        }
+
+        val btnRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                buttonHeightPx
+            )
+        }
+
+        val leaveBtn = createAnimatedButton(
+            getString(R.string.btn_leave), 
+            primaryTextColor, 
+            secondaryBtnColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = dpToPx(6f)
+            }
+        }
+
+        val continueBtn = createAnimatedButton(
+            getString(R.string.btn_continue), 
+            Color.WHITE, 
+            accentColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+            onConfirm()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6f)
+            }
+        }
+
+        btnRow.addView(leaveBtn)
+        btnRow.addView(continueBtn)
+
+        cardLayout.addView(titleTv)
+        cardLayout.addView(messageTv)
+        cardLayout.addView(btnRow)
+
+        dialog.setContentView(cardLayout)
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((resources.displayMetrics.widthPixels * 0.88).toInt(), FrameLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        dialog.show()
+    }
+
+    private fun showPasswordProtectionDialog(
+        cardBgColor: Int,
+        cardBorderColor: Int,
+        primaryTextColor: Int,
+        secondaryTextColor: Int,
+        accentColor: Int,
+        secondaryBtnColor: Int,
+        inputBgColor: Int,
+        buttonHeightPx: Int,
+        onSuccess: () -> Unit
+    ) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val cardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(20f))
+        }
+
+        val titleTv = TextView(this).apply {
+            text = "Enter Debug Code"
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+
+        val subTv = TextView(this).apply {
+            text = "Please enter Developer Debug Code"
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            gravity = Gravity.CENTER
+            setPadding(0, dpToPx(6f), 0, dpToPx(16f))
+        }
+
+        val passwordInput = EditText(this).apply {
+            hint = "•••••••"
+            setHintTextColor(secondaryTextColor)
+            setTextColor(primaryTextColor)
+            textSize = 16f
+            gravity = Gravity.CENTER
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(16f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        val btnRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                buttonHeightPx
+            ).apply {
+                topMargin = dpToPx(16f)
+            }
+        }
+
+        val exitBtn = createAnimatedButton(
+            "Exit", 
+            primaryTextColor, 
+            secondaryBtnColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+            finish()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = dpToPx(6f)
+            }
+        }
+
+        val unlockBtn = createAnimatedButton(
+            "Unlock", 
+            Color.WHITE, 
+            accentColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            // Exact SHA-256 hash of "88990077"
+            val expectedHash = "cd6e0f460851e20c00c9849a70b5d97d28c13e3228ef264ffe571f451e3fbf81"
+            val enteredPin = passwordInput.text.toString().trim()
+
+            if (hashPassword(enteredPin) == expectedHash) {
+                dialog.dismiss()
+                onSuccess()
+            } else {
+                Toast.makeText(this@SettingsActivity, "Incorrect Code", Toast.LENGTH_SHORT).show()
+                passwordInput.setText("")
+            }
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6f)
+            }
+        }
+
+        btnRow.addView(exitBtn)
+        btnRow.addView(unlockBtn)
+
+        cardLayout.addView(titleTv)
+        cardLayout.addView(subTv)
+        cardLayout.addView(passwordInput)
+        cardLayout.addView(btnRow)
+
+        dialog.setContentView(cardLayout)
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((resources.displayMetrics.widthPixels * 0.88).toInt(), FrameLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
+    private fun showDebugWarningDialog(
+        cardBgColor: Int,
+        cardBorderColor: Int,
+        primaryTextColor: Int,
+        secondaryTextColor: Int,
+        redBtnColor: Int,
+        secondaryBtnColor: Int,
+        buttonHeightPx: Int,
+        onContinue: () -> Unit
+    ) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val cardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(20f))
+        }
+
+        val titleTv = TextView(this).apply {
+            text = "WARNING"
+            textSize = 20f
+            setTextColor(redBtnColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+
+        val messageTv = TextView(this).apply {
+            text = "Developer Debug Build 開發者測試版"
+            textSize = 15f
+            setTextColor(primaryTextColor)
+            gravity = Gravity.CENTER
+            setPadding(0, dpToPx(10f), 0, dpToPx(20f))
+        }
+
+        val btnRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                buttonHeightPx
+            )
+        }
+
+        val leaveBtn = createAnimatedButton(
+            "Leave", 
+            primaryTextColor, 
+            secondaryBtnColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+            finish()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = dpToPx(6f)
+            }
+        }
+
+        val continueBtn = createAnimatedButton(
+            "Continue", 
+            Color.WHITE, 
+            redBtnColor, 
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ) {
+            dialog.dismiss()
+            onContinue()
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6f)
+            }
+        }
+
+        btnRow.addView(leaveBtn)
+        btnRow.addView(continueBtn)
+
+        cardLayout.addView(titleTv)
+        cardLayout.addView(messageTv)
+        cardLayout.addView(btnRow)
+
+        dialog.setContentView(cardLayout)
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((resources.displayMetrics.widthPixels * 0.88).toInt(), FrameLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        dialog.setCancelable(false)
+        dialog.show()
+    }
 
     private fun expandView(view: View, expandBtn: View) {
         val parent = view.parent as? View ?: return

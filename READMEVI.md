@@ -1,5 +1,3 @@
-## [English](README.md) / [中文](READMECN.md) / Tiếng Việt
-
 <h1 align="center">
   <img loading="lazy" src="Banner/Banner.png"/>
 </h1>

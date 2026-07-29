@@ -46,7 +46,7 @@ jobs:
 
     - name: Copy APK to Debug Folder and Push
       run: |
-        mkdir -p debug
+        mkdir -p DEV-Only/Debug
         cp app/build/outputs/apk/debug/app-debug.apk DEV-Only/Debug/OneUI-Settings-Hook.apk
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"

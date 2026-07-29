@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">Cấu hình &amp; thông tin module</string>
+    <string name="btn_back">Quay lại</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">Thông tin Galaxy của bạn</string>
+    <string name="software_details">Chi tiết phần mềm</string>
+    <string name="module_version">Phiên bản %1$s</string>
+    <string name="btn_mit_license">Xem Giấy phép MIT</string>
+    <string name="btn_star_repo">Bạn thích sản phẩm này? Hãy tặng chúng tôi một Sao</string>
+    <string name="btn_github_repo">Xem kho lưu trữ GitHub</string>
+    <string name="btn_report_bugs">Báo lỗi</string>
+    <string name="card_about_title">Về Module</string>
+    <string name="btn_developer">Nhà phát triển: HeheJuice</string>
+    <string name="btn_tg_channel">Kênh Telegram</string>
+    <string name="btn_tg_chat">Nhóm chat Telegram</string>
+    <string name="module_info_category">Thông tin Module</string>
+    <string name="module_maker_title">Người tạo Module</string>
+    <string name="module_github_title">Kho lưu trữ GitHub</string>
+    <string name="module_summary">Tùy chỉnh Cài đặt OneUI</string>
+    <string name="tab_advanced">Nâng cao</string>
+    <string name="advanced_controls">Điều khiển nâng cao</string>
+    <string name="advanced_subtitle">Các tiện ích hệ thống để áp dụng thay đổi hoặc khởi động lại Cài đặt.</string>
+    <string name="btn_force_stop_settings">Buộc dừng Cài đặt</string>
+    <string name="msg_root_permission_required">Vui lòng cấp quyền Root</string>
+    <string name="msg_settings_force_stopped">Đã buộc dừng ứng dụng Cài đặt</string>
+    <string name="card_device_image_title">Thay thế hình ảnh thiết bị</string>
+    <string name="card_device_image_sub">Chọn hoặc xóa hình ảnh thiết bị tùy chỉnh (định dạng .png)</string>
+    <string name="btn_select_image">Chọn ảnh</string>
+    <string name="btn_remove_image">Xóa ảnh</string>
+    <string name="msg_image_replaced">Thay thế hình ảnh thiết bị thành công</string>
+    <string name="msg_image_removed">Xóa hình ảnh thiết bị thành công</string>
+    <string name="msg_image_failed">Xử lý hình ảnh thất bại</string>
+    <string name="custom_banner_title">Tùy chỉnh văn bản biểu ngữ</string>
+    <string name="custom_banner_subtitle">Đặt văn bản tiêu đề tùy chỉnh trên thẻ Thông tin phần mềm (VD: OneUI 8, OneUI 9, hoặc Tiêu đề tùy chỉnh).</string>
+    <string name="custom_banner_hint">VD: OneUI 9.0</string>
+    <string name="btn_save_banner_text">Lưu văn bản</string>
+    <string name="btn_reset_default">Khôi phục mặc định</string>
+    <string name="msg_banner_text_saved">Đã lưu! Buộc dừng Cài đặt để áp dụng.</string>
+    <string name="msg_banner_text_reset">Đã khôi phục mặc định! Buộc dừng Cài đặt để áp dụng.</string>
+    <string name="msg_banner_text_applied">Đã áp dụng và Tự động khởi động lại Cài đặt</string>
+    <string name="msg_banner_text_reset_restarted">Đã khôi phục và Tự động khởi động lại Cài đặt</string>
+    <string name="disclaimer_title">Tuyên bố từ chối trách nhiệm &amp; Lưu ý sử dụng</string>
+    <string name="disclaimer_content">Module này chỉ cung cấp giao diện kỹ thuật tùy chọn. Người dùng phải tuyên bố rõ ràng rằng bất kỳ từ ngữ hoặc văn bản tùy chỉnh nào được hiển thị đều do chính họ viết ra, không có nguồn gốc từ module này hoặc nhà phát triển (HeheJuice). Nhà phát triển không chịu trách nhiệm về bất kỳ sự lạm dụng, ngôn từ không phù hợp hoặc nội dung nào được chia sẻ trên mạng xã hội.</string>
+    <string name="notice_title">Thông báo</string>
+    <string name="notice_message">Bạn nên đảm bảo rằng bạn đã đọc và đồng ý với "Tuyên bố từ chối trách nhiệm &amp; Lưu ý sử dụng".</string>
+    <string name="btn_leave">Rời đi</string>
+    <string name="btn_continue">Tiếp tục</string>
+    <!-- Disable Software Update App Card -->
+    <string name="disable_software_update_title">Tắt ứng dụng Cập nhật phần mềm</string>
+    <string name="btn_enable_update">Bật</string>
+    <string name="btn_disable_update">Tắt</string>
+    
+    <!-- Toast Messages -->
+    <string name="msg_software_update_enabled">Đã bật ứng dụng Cập nhật phần mềm</string>
+    <string name="msg_software_update_disabled">Đã tắt ứng dụng Cập nhật phần mềm</string>
+    <string name="msg_app_not_found">Không tìm thấy ứng dụng</string>
+</resources>

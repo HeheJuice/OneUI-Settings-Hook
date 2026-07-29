@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - 'README.md'
       - '**.md'
+      - '**.kt'
+      - '**.xml'
   workflow_dispatch:
 
 jobs:

@@ -58,4 +58,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: lsposed-module-debug
-        path: debug/OneUI-Settings-Hook.apk
+        path: DEV-Only/Debug/OneUI-Settings-Hook.apk

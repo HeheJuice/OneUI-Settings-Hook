@@ -7,24 +7,29 @@
     <string name="about_your_galaxy">Acerca de tu Galaxy</string>
     <string name="software_details">Detalles del software</string>
     <string name="module_version">Versión %1$s</string>
+    
     <string name="btn_mit_license">Ver licencia MIT</string>
-    <string name="btn_star_repo">¿Te gusta el proyecto? ¡Danos una estrella!</string>
-    <string name="btn_github_repo">Ver repositorio de GitHub</string>
+    <string name="btn_star_repo">¿Te gusta el producto? Danos una estrella</string>
+    <string name="btn_github_repo">Ver repositorio en GitHub</string>
     <string name="btn_report_bugs">Reportar errores</string>
     <string name="card_about_title">Acerca del módulo</string>
     <string name="btn_developer">Desarrollador: HeheJuice</string>
     <string name="btn_tg_channel">Canal de Telegram</string>
-    <string name="btn_tg_chat">Grupo de Telegram</string>
+    <string name="btn_tg_chat">Chat de Telegram</string>
     <string name="module_info_category">Información del módulo</string>
     <string name="module_maker_title">Creador del módulo</string>
-    <string name="module_github_title">Repositorio de GitHub</string>
-    <string name="module_summary">Modificando la Configuración de OneUI</string>
-<string name="tab_advanced">Avanzado</string>
-    <string name="advanced_controls">Controles Avanzados</string>
-    <string name="advanced_subtitle">Utilidades del sistema para aplicar hooks o reiniciar ajustes.</string>
+    <string name="module_github_title">Repositorio en GitHub</string>
+    <string name="module_summary">Modificando Ajustes de OneUI</string>
+
+    <string name="tab_main">Principal</string>
+    <string name="tab_advanced">Avanzado</string>
+    <string name="advanced_controls">Controles avanzados</string>
+    <string name="advanced_subtitle">Utilidades del sistema para aplicar hooks o reiniciar Ajustes.</string>
     <string name="btn_force_stop_settings">Forzar detención de Ajustes</string>
-    <string name="msg_root_permission_required">Por favor concede permisos de Root</string>
-    <string name="msg_settings_force_stopped">Aplicación de Ajustes detenida</string>
+
+    <string name="msg_root_permission_required">Por favor, concede permisos de Root</string>
+    <string name="msg_settings_force_stopped">Aplicación de Ajustes forzada a detenerse</string>
+
     <string name="card_device_image_title">Reemplazo de imagen del dispositivo</string>
     <string name="card_device_image_sub">Selecciona o elimina la imagen personalizada del dispositivo (formato .png)</string>
     <string name="btn_select_image">Seleccionar imagen</string>
@@ -32,23 +37,54 @@
     <string name="msg_image_replaced">Imagen del dispositivo reemplazada con éxito</string>
     <string name="msg_image_removed">Imagen del dispositivo eliminada con éxito</string>
     <string name="msg_image_failed">Error al procesar la imagen</string>
+
     <string name="custom_banner_title">Texto de banner personalizado</string>
-<string name="custom_banner_subtitle">Establece un texto de encabezado personalizado en la tarjeta de información de software (ej. OneUI 8, OneUI 9 o un título personalizado).</string>
-<string name="custom_banner_hint">ej. OneUI 9.0</string>
-<string name="btn_save_banner_text">Guardar texto del banner</string>
-<string name="btn_reset_default">Restablecer predeterminado</string>
-<string name="msg_banner_text_saved">¡Guardado! Forzar la detención de Ajustes para aplicar.</string>
-<string name="msg_banner_text_reset">¡Restablecido a predeterminado! Forzar la detención de Ajustes para aplicar.</string>
-<string name="disclaimer_title">Aviso legal y de uso</string>
-<string name="disclaimer_content">Este módulo proporciona únicamente una interfaz técnica opcional. Los usuarios deben declarar claramente que cualquier palabra o texto personalizado mostrado ha sido escrito enteramente por ellos mismos y no se origina en este módulo ni en su desarrollador (HeheJuice). El desarrollador no se hace responsable del mal uso, lenguaje inapropiado o contenido compartido en redes sociales.</string>
-<string name="notice_title">Aviso</string>
-<string name="notice_message">Debes asegurarte de haber leído y aceptado el \"Aviso de uso y exención de responsabilidad\".</string>
-<string name="btn_leave">Salir</string>
-<string name="btn_continue">Continuar</string>
-    <string name="disable_software_update_title">Desactivar actualización de software</string>
+    <string name="custom_banner_subtitle">Establece un texto personalizado en el banner de Información del software (p. ej., OneUI 8, OneUI 9 o un título propio).</string>
+    <string name="custom_banner_hint">p. ej. OneUI 9.0</string>
+    <string name="btn_save">Guardar</string>
+    <string name="btn_save_banner_text">Guardar texto del banner</string>
+    <string name="btn_reset_default">Restablecer valores predeterminados</string>
+    <string name="msg_applied">¡Aplicado con éxito!</string>
+    <string name="msg_reset_success">¡Restablecido a valores predeterminados!</string>
+    <string name="msg_banner_text_saved">¡Guardado! Fuerza la detención de Ajustes para aplicar.</string>
+    <string name="msg_banner_text_reset">¡Restablecido a predeterminado! Fuerza la detención de Ajustes para aplicar.</string>
+    <string name="msg_banner_text_applied">Aplicado y reiniciada la aplicación de Ajustes automáticamente</string>
+    <string name="msg_banner_text_reset_restarted">Restablecido y reiniciada la aplicación de Ajustes automáticamente</string>
+
+    <string name="disclaimer_title">Aviso de responsabilidad y uso</string>
+    <string name="disclaimer_content">Este módulo solo proporciona una interfaz técnica opcional. Los usuarios deben declarar claramente que cualquier texto o palabra personalizada mostrada ha sido escrita íntegramente por ellos mismos y no proviene de este módulo ni de su desarrollador (HeheJuice). El desarrollador no se hace responsable de ningún uso indebido, lenguaje inapropiado o contenido compartido en redes sociales.</string>
+    <string name="notice_title">Aviso</string>
+    <string name="notice_message">Asegúrate de haber leído y aceptado el \"Aviso de responsabilidad y uso\".</string>
+    <string name="btn_leave">Salir</string>
+    <string name="btn_continue">Continuar</string>
+
+    <string name="disable_software_update_title">Desactivar app de Actualización de Software</string>
     <string name="btn_enable_update">Habilitar</string>
     <string name="btn_disable_update">Deshabilitar</string>
-    <string name="msg_software_update_enabled">Actualización de software habilitada</string>
-    <string name="msg_software_update_disabled">Actualización de software deshabilitada</string>
+    <string name="msg_software_update_enabled">Aplicación de actualización de software habilitada</string>
+    <string name="msg_software_update_disabled">Aplicación de actualización de software deshabilitada</string>
     <string name="msg_app_not_found">Aplicación no encontrada</string>
+
+    <string name="disable_ota_title">Desactivar actualizaciones del sistema</string>
+    <string name="disable_ota_subtitle">Desactiva los servicios de actualización originales de OneUI</string>
+    <string name="btn_disable_ota">Desactivar actualizaciones</string>
+    <string name="msg_ota_disabled">¡Actualizaciones del sistema desactivadas!</string>
+
+    <string name="force_stop_title">Forzar detención de Ajustes</string>
+    <string name="force_stop_subtitle">Reinicia la aplicación de Ajustes para aplicar los cambios</string>
+    <string name="btn_force_stop">Forzar detención</string>
+    <string name="msg_settings_stopped">¡Aplicación de Ajustes detenida!</string>
+
+    <string name="custom_product_name_title">Nombre de producto personalizado</string>
+    <string name="custom_product_name_subtitle">Modifica el nombre predeterminado del dispositivo del sistema</string>
+    <string name="custom_product_name_hint">Ingresa el nombre del producto…</string>
+    <string name="btn_save_product_name">Guardar nombre del producto</string>
+    <string name="msg_product_name_applied">¡Nombre del producto aplicado!</string>
+    <string name="msg_product_name_reset">¡Nombre del producto restablecido a predeterminado!</string>
+
+    <string name="lab_title">Laboratorio</string>
+    <string name="lab_subtitle">Funciones experimentales y ajustes</string>
+    <string name="btn_open_lab">Entrar al laboratorio</string>
+    <string name="lab_warning_title">Estado de prueba</string>
+    <string name="lab_warning_message">Estas funciones se encuentran en fase de prueba y pueden ser inestables.</string>
 </resources>

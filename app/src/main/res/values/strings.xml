@@ -83,10 +83,6 @@
     <string name="btn_open_lab">Enter Lab</string>
     <string name="lab_warning_title">Testing State</string>
     <string name="lab_warning_message">These features are in testing state and can be unstable.</string>
-
-    <!-- ================================================================= -->
-    <!-- ADDED MISSING REFERENCES (Resolves Kotlin Compilation Errors)    -->
-    <!-- ================================================================= -->
     <string name="tab_main">Main</string>
     <string name="btn_save">Save</string>
     <string name="msg_applied">Applied successfully!</string>

@@ -87,4 +87,5 @@
     <string name="btn_open_lab">進入實驗室</string>
     <string name="lab_warning_title">測試狀態提示</string>
     <string name="lab_warning_message">這些功能處於測試狀態，可能會不穩定。</string>
+<string name="un1ca_notice">開發者使用 UN1CA（非官方 OneUI 韌體），此功能在官方 OneUI 上未經測試。如果功能異常，請隨時使用「回報 Bug」按鈕</string>
 </resources>

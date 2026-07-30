@@ -57,5 +57,5 @@
     <string name="msg_software_update_enabled">Đã bật ứng dụng Cập nhật phần mềm</string>
     <string name="msg_software_update_disabled">Đã tắt ứng dụng Cập nhật phần mềm</string>
     <string name="msg_app_not_found">Không tìm thấy ứng dụng</string>
-<string name="un1ca_notice">Nhà phát triển sử dụng UN1CA (một phần mềm OneUI không chính thức), tính năng này CHƯA ĐƯỢC KIỂM TRA trên OneUI chính thức. Vui lòng sử dụng nút ""Báo cáo lỗi"" nếu tính năng bị lỗi.</string>
+<string name="un1ca_notice">Nhà phát triển sử dụng UN1CA (một phần mềm OneUI không chính thức), tính năng này CHƯA ĐƯỢC KIỂM TRA trên OneUI chính thức. Vui lòng sử dụng nút (Báo cáo lỗi) nếu tính năng bị lỗi.</string>
 </resources>

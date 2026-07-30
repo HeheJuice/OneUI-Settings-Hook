@@ -23,6 +23,7 @@
      - Tùy chỉnh văn bản trong Cài đặt Nâng cao của Module 
           - Bạn nên đọc kỹ phần "Tuyên bố từ chối trách nhiệm & Lưu ý sử dụng" trong Cài đặt Nâng cao của Module trước khi sử dụng 
      - Hình nền thẻ Thông tin phần mềm = Hình nền màn hình chính
+- Tên sản phẩm có thể tùy chỉnh
 - Bảo vệ thông tin nhạy cảm 
      - Tự động ẩn các thông tin sau:
           - IMEI

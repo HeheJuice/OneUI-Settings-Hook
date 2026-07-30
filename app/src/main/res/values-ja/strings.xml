@@ -87,4 +87,5 @@
     <string name="btn_open_lab">ラボに入りましょう</string>
     <string name="lab_warning_title">テスト状態</string>
     <string name="lab_warning_message">これらの機能はテスト段階であり、不安定な場合があります。</string>
+<string name="un1ca_notice">開発者は UN1CA（非公式 OneUI ファームウェア）を使用しています。この機能は公式 OneUI では未テストです。機能が壊れている場合は、「バグを報告」ボタンをご利用ください。</string>
 </resources>

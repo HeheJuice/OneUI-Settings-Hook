@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">OneUI Settings Hook</string>
-    <string name="header_subtitle">モジュールの設定と詳細情報</string>
+    <string name="header_subtitle">モジュールの設定と情報</string>
     <string name="btn_back">戻る</string>
     <string name="oneui_version_format">OneUI %s</string>
     <string name="oneui_default">OneUI</string>
     <string name="about_your_galaxy">Galaxy について</string>
-    <string name="software_details">ソフトウェア情報</string>
+    <string name="software_details">ソフトウェアの詳細</string>
     <string name="module_version">バージョン %1$s</string>
+    
     <string name="btn_mit_license">MIT ライセンスを表示</string>
-    <string name="btn_star_repo">気に入ったらスターをお願いします！</string>
+    <string name="btn_star_repo">気に入っていただけましたか？Star をお願いします</string>
     <string name="btn_github_repo">GitHub リポジトリを表示</string>
     <string name="btn_report_bugs">バグを報告</string>
     <string name="card_about_title">モジュールについて</string>
@@ -16,41 +17,75 @@
     <string name="btn_tg_channel">Telegram チャンネル</string>
     <string name="btn_tg_chat">Telegram チャット</string>
     <string name="module_info_category">モジュール情報</string>
-    <string name="module_maker_title">モジュール開発者</string>
+    <string name="module_maker_title">モジュール作成者</string>
     <string name="module_github_title">GitHub リポジトリ</string>
-    <string name="module_summary">OneUI 設定の変更</string>
-<string name="tab_advanced">高度な設定</string>
+    <string name="module_summary">OneUI 設定のカスタマイズ</string>
+
+    <string name="tab_main">メイン</string>
+    <string name="tab_advanced">高度な設定</string>
     <string name="advanced_controls">高度なコントロール</string>
-    <string name="advanced_subtitle">Hook 変更を適用するために設定アプリを再起動します。</string>
-    <string name="btn_force_stop_settings">設定を強制停止</string>
+    <string name="advanced_subtitle">フックの適用や「設定」の再起動を行うシステムユーティリティ</string>
+    <string name="btn_force_stop_settings">「設定」を強制停止</string>
+
     <string name="msg_root_permission_required">Root 権限を許可してください</string>
-    <string name="msg_settings_force_stopped">設定アプリを強制停止しました</string>
-    <string name="card_device_image_title">デバイス画像の置換</string>
-    <string name="card_device_image_sub">カスタムデバイス画像（.png 形式）の選択または削除</string>
+    <string name="msg_settings_force_stopped">「設定」アプリを強制停止しました</string>
+
+    <string name="card_device_image_title">端末画像の置換</string>
+    <string name="card_device_image_sub">カスタム端末画像（.png 形式）の選択または削除</string>
     <string name="btn_select_image">画像を選択</string>
     <string name="btn_remove_image">画像を削除</string>
-    <string name="msg_image_replaced">デバイス画像を置換しました</string>
-    <string name="msg_image_removed">デバイス画像を削除しました</string>
+    <string name="msg_image_replaced">端末画像を正常に置換しました</string>
+    <string name="msg_image_removed">端末画像を正常に削除しました</string>
     <string name="msg_image_failed">画像の処理に失敗しました</string>
-<string name="custom_banner_title">カスタムバナーテキスト</string>
-<string name="custom_banner_subtitle">ソフトウェア情報カードにカスタムヘッダーテキストを設定します (例: OneUI 8、OneUI 9、またはカスタムタイトル)。</string>
-<string name="custom_banner_hint">例: OneUI 9.0</string>
-<string name="btn_save_banner_text">バナーテキストを保存</string>
-<string name="btn_reset_default">デフォルトに戻す</string>
-<string name="msg_banner_text_saved">保存しました！設定アプリを強制停止して適用してください。</string>
-<string name="msg_banner_text_reset">デフォルトにリセットしました！設定アプリを強制停止して適用してください。</string>
-<string name="msg_banner_text_applied">適用され、設定アプリが自動再起動されました</string>
-    <string name="msg_banner_text_reset_restarted">リセットされ、設定アプリが自動再起動されました</string>
-<string name="disclaimer_title">免責事項・ご利用上の注意</string>
-<string name="disclaimer_content">本モジュールはオプショナルな技術的インターフェースのみを提供します。表示されるカスタムテキストや言葉はすべてユーザー自身によって作成されたものであり、本モジュールや開発者（HeheJuice）に由来するものではないことを明記してください。開発者は、誤用、不適切な表現、またはSNS等への投稿内容について一切の責任を負いません。</string>
-<string name="notice_title">お知らせ</string>
-<string name="notice_message">「免責事項および使用上の注意」を読み、同意したことを確認してください。</string>
-<string name="btn_leave">離れる</string>
-<string name="btn_continue">続行</string>
-<string name="disable_software_update_title">ソフトウェア更新アプリの無効化</string>
+
+    <string name="custom_banner_title">カスタムバナーテキスト</string>
+    <string name="custom_banner_subtitle">ソフトウェア情報カードのヘッダーテキストを変更します (例: OneUI 8、OneUI 9 など)</string>
+    <string name="custom_banner_hint">例: OneUI 9.0</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_save_banner_text">バナーテキストを保存</string>
+    <string name="btn_reset_default">デフォルトに戻す</string>
+    <string name="msg_applied">正常に適用されました！</string>
+    <string name="msg_reset_success">デフォルトに戻しました！</string>
+    <string name="msg_banner_text_saved">保存しました！適用するには「設定」を強制停止してください。</string>
+    <string name="msg_banner_text_reset">デフォルトに戻しました！適用するには「設定」を強制停止してください。</string>
+    <string name="msg_banner_text_applied">適用し、「設定」アプリを自動再起動しました</string>
+    <string name="msg_banner_text_reset_restarted">リセットし、「設定」アプリを自動再起動しました</string>
+
+    <string name="disclaimer_title">免責事項および利用規約</string>
+    <string name="disclaimer_content">本モジュールは技術的なインターフェースのみを提供するものです。表示されるすべてのカスタムテキストはユーザー自身によって入力されたものであり、本モジュールおよび開発者（HeheJuice）に由来しないことを明確に宣言する必要があります。開発者は、誤用、不適切な表現、またはソーシャルメディア上で共有されたコンテンツについて一切の責任を負いません。</string>
+    <string name="notice_title">ご注意</string>
+    <string name="notice_message">「免責事項および利用規約」を読んで同意したことを確認してください。</string>
+    <string name="btn_leave">離れる</string>
+    <string name="btn_continue">続行</string>
+
+    <string name="disable_software_update_title">ソフトウェア更新アプリの無効化</string>
     <string name="btn_enable_update">有効化</string>
     <string name="btn_disable_update">無効化</string>
-    <string name="msg_software_update_enabled">ソフトウェア更新アプリを有効にしました</string>
-    <string name="msg_software_update_disabled">ソフトウェア更新アプリを無効にしました</string>
+    <string name="msg_software_update_enabled">ソフトウェア更新アプリを有効化しました</string>
+    <string name="msg_software_update_disabled">ソフトウェア更新アプリが無効化されました</string>
     <string name="msg_app_not_found">アプリが見つかりません</string>
+
+    <string name="disable_ota_title">システム更新を無効化</string>
+    <string name="disable_ota_subtitle">純正 OneUI アップデートサービスを無効化</string>
+    <string name="btn_disable_ota">更新を無効化</string>
+    <string name="msg_ota_disabled">システム更新が無効化されました！</string>
+
+    <string name="force_stop_title">「設定」を強制停止</string>
+    <string name="force_stop_subtitle">変更を適用するために「設定」アプリを再起動します</string>
+    <string name="btn_force_stop">強制停止</string>
+    <string name="msg_settings_stopped">「設定」アプリを停止しました！</string>
+
+    <string name="custom_product_name_title">カスタム製品名</string>
+    <string name="custom_product_name_subtitle">システムデフォルトのデバイス名を変更</string>
+    <string name="custom_product_name_hint">製品名を入力…</string>
+    <string name="btn_save_product_name">製品名を保存</string>
+    <string name="msg_product_name_applied">製品名を適用しました！</string>
+    <string name="msg_product_name_reset">製品名をデフォルトに戻しました！</string>
+
+    <string name="lab_title">ラボ</string>
+    <string name="lab_subtitle">実験的機能および調整</string>
+    <string name="btn_open_lab">ラボに入りましょう</string>
+    <string name="lab_warning_title">テスト状態</string>
+    <string name="lab_warning_message">これらの機能はテスト段階であり、不安定な場合があります。</string>
+<string name="un1ca_notice">開発者は UN1CA（非公式 OneUI ファームウェア）を使用しています。この機能は公式 OneUI では未テストです。機能が壊れている場合は、「バグを報告」ボタンをご利用ください。</string>
 </resources>

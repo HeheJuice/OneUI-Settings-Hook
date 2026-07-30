@@ -483,7 +483,7 @@ val productNameExpandBtn = ImageView(this).apply {
     setImageDrawable(productNameExpandIconDrawable)
     background = GradientDrawable().apply {
         shape = GradientDrawable.OVAL
-        setColor(inputBgColor) 
+        setColor(inputBgColor)
     }
     isClickable = true
     isFocusable = true
@@ -503,6 +503,7 @@ val productNameExpandableContent = LinearLayout(this).apply {
     visibility = View.GONE
 }
 
+// --- DISCLAIMER CARD ---
 val productNameDisclaimerCard = LinearLayout(this).apply {
     orientation = LinearLayout.VERTICAL
     background = GradientDrawable().apply {
@@ -535,20 +536,33 @@ val productNameDisclaimerContent = TextView(this).apply {
 productNameDisclaimerCard.addView(productNameDisclaimerTitle)
 productNameDisclaimerCard.addView(productNameDisclaimerContent)
 
-// --- ADDED: UN1CA usage notice ---
+// --- UN1CA NOTICE CARD (styled exactly like the disclaimer card) ---
+val productNameUn1caCard = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+    background = GradientDrawable().apply {
+        setColor(inputBgColor)
+        cornerRadius = dpToPx(18f).toFloat()
+        setStroke(dpToPx(1f), cardBorderColor)
+    }
+    setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
+    layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        topMargin = dpToPx(8f)
+        bottomMargin = dpToPx(16f)
+    }
+}
+
 val productNameUn1caNotice = TextView(this).apply {
     text = getString(R.string.un1ca_notice)
     textSize = 12f
     setTextColor(secondaryTextColor)
-    setPadding(0, dpToPx(4f), 0, dpToPx(8f))
     setLineSpacing(4f, 1.1f)
-    layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    )
 }
-// End of added block
+productNameUn1caCard.addView(productNameUn1caNotice)
 
+// --- INPUT FIELD ---
 val productNameInputEt = EditText(this).apply {
     setText(prefs.getString("custom_product_name", ""))
     hint = getString(R.string.custom_product_name_hint)
@@ -564,7 +578,13 @@ val productNameInputEt = EditText(this).apply {
     layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
 }
 
-val saveProductNameBtn = createAnimatedButton(getString(R.string.btn_save_product_name), Color.WHITE, accentColor, buttonHeightPx) {
+// --- SAVE BUTTON ---
+val saveProductNameBtn = createAnimatedButton(
+    getString(R.string.btn_save_product_name),
+    Color.WHITE,
+    accentColor,
+    buttonHeightPx
+) {
     showNoticeDialog(
         cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
         accentColor, secondaryBtnColor, buttonHeightPx
@@ -590,7 +610,13 @@ val saveProductNameBtn = createAnimatedButton(getString(R.string.btn_save_produc
     }
 }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
 
-val resetProductNameBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
+// --- RESET BUTTON ---
+val resetProductNameBtn = createAnimatedButton(
+    getString(R.string.btn_reset_default),
+    primaryTextColor,
+    secondaryBtnColor,
+    buttonHeightPx
+) {
     productNameInputEt.setText("")
     prefs.edit().remove("custom_product_name").apply()
 
@@ -608,15 +634,16 @@ val resetProductNameBtn = createAnimatedButton(getString(R.string.btn_reset_defa
     }.start()
 }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
 
-// Add all views to expandable content in order
+// --- ADD ALL VIEWS TO EXPANDABLE CONTENT (in correct order) ---
 productNameExpandableContent.addView(productNameDisclaimerCard)
-productNameExpandableContent.addView(productNameUn1caNotice)   // <--- NEW
+productNameExpandableContent.addView(productNameUn1caCard)   // <-- UN1CA card placed here
 productNameExpandableContent.addView(productNameInputEt)
 productNameExpandableContent.addView(saveProductNameBtn)
 productNameExpandableContent.addView(resetProductNameBtn)
 
 customProductNameCardLayout.addView(productNameExpandableContent)
 
+// --- EXPAND/COLLAPSE LOGIC ---
 val toggleProductNameExpansion = {
     val isExpanded = productNameExpandableContent.visibility == View.VISIBLE
     if (isExpanded) {
@@ -632,7 +659,9 @@ productNameHeaderLayout.isClickable = true
 
 advancedLayout.addView(customProductNameCardLayout)
 
-val productNameSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
+val productNameSpacer = View(this).apply {
+    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+}
 advancedLayout.addView(productNameSpacer)
 
         // --- DISABLE SOFTWARE UPDATE CARD ---

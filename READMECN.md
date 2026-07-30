@@ -11,6 +11,10 @@
 [![LSPosed Downloads](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/total?style=flat-square&color=orange&label=LSPosed總下載量)](https://github.com/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/releases)
 </div>
 
+### ❗作者本人(HeheJuice)沒有酷安
+- 本人對各位在酷安的分享表示感謝
+- 請以本頁面所提供的「功能特色」為準
+
 ### 🗺 專案概覽
 - OneUI-Settings-Hook 
 - 適用於 OneUI 7+ 的「設定」應用程式補丁

@@ -148,7 +148,8 @@ object SensitiveInfoPatch {
             "storage",
             "cache",
             "name",
-            "device_name",
+            "devicename",
+            "SAN",
             "app"
         )
 

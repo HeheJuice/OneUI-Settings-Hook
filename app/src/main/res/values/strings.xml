@@ -95,4 +95,5 @@
     <string name="force_stop_subtitle">Restart Settings app to apply changes</string>
     <string name="btn_force_stop">Force Stop</string>
     <string name="msg_settings_stopped">Settings app stopped!</string>
+<string name="un1ca_notice">Because the developer uses UN1CA (an unofficial OneUI firmware), this feature is UNTESTED on Official OneUI. Feel free to use the ""Report Bugs"" button if the feature is broken.</string>
 </resources>

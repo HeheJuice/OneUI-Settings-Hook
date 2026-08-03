@@ -22,11 +22,14 @@ object SensitiveInfoPatch {
     private val DATE_REGEX = Regex("""^\d{1,4}[./\-\s]\d{1,2}[./\-\s]\d{1,4}$""")
     private val MONTH_REGEX = Regex("""(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b""")
     
-    // Expanded to cover storage, RAM, power, network units, and common UI terms
+    // Expanded units, storage terms, and common UI words
     private val UNITS_AND_WORDS_REGEX = Regex(
         """(?i)\b(GB|MB|KB|TB|dBm|asu|Mbps|Gbps|GHz|MHz|kHz|Hz|WPA|WEP|mAh|fps|V|mA|ms|used|available|free|total|update|force|msaa)\b"""
     )
     private val VERSION_OR_IP_REGEX = Regex("""^[vV]?\d{1,4}(\.\d{1,6}){1,4}(\s?[-_a-zA-Z0-9().]+)?$""")
+    
+    // Filters out Samsung build/baseband version strings (e.g., S9010ZCU9GYJ1)
+    private val BUILD_OR_BASEBAND_REGEX = Regex("""^[A-Z0-9]{4,6}[A-Z]{3}\d[A-Z0-9]+$""")
 
     private val skipActivityCache = WeakHashMap<Activity, Boolean>()
 
@@ -53,7 +56,7 @@ object SensitiveInfoPatch {
                             if (rawInput.isNullOrBlank() || rawInput == MASK_TEXT) return
                             if (XposedHelpers.getAdditionalInstanceField(tv, FIELD_HOOK_LOCK) == true) return
 
-                            // Fast Path Exit: Most sensitive data (IMEI, Serial, Phone) falls within 8 to 40 chars.
+                            // Fast Path Exit: Most sensitive data falls within 8 to 40 chars.
                             val inputLength = rawInput.length
                             if (inputLength < 8 || inputLength > 40) return
 
@@ -64,10 +67,11 @@ object SensitiveInfoPatch {
                             val textToEvaluate = existingReal ?: rawInput
                             val trimmedText = textToEvaluate.trim()
 
-                            // Fast-exit non-sensitive patterns
+                            // Fast-exit non-sensitive patterns, versions, and Samsung build/baseband strings
                             if (UNITS_AND_WORDS_REGEX.containsMatchIn(trimmedText)) return
                             if (trimmedText.count { it == ':' } >= 2) return
                             if (trimmedText.matches(VERSION_OR_IP_REGEX)) return
+                            if (BUILD_OR_BASEBAND_REGEX.matches(trimmedText)) return
 
                             val cleanText = textToEvaluate
                                 .replace(" ", "")
@@ -78,6 +82,8 @@ object SensitiveInfoPatch {
                                 .replace(")", "")
                                 .trim()
 
+                            if (BUILD_OR_BASEBAND_REGEX.matches(cleanText)) return
+
                             val isDate = trimmedText.matches(DATE_REGEX) ||
                                          textToEvaluate.contains(MONTH_REGEX) ||
                                          isRawDate(cleanText)
@@ -86,7 +92,6 @@ object SensitiveInfoPatch {
 
                             // Refined sensitivity matching
                             val isImei = cleanText.length in 14..16 && cleanText.all { it.isDigit() } && passesLuhnCheck(cleanText)
-                            // Crucial Fix: Check raw trimmedText for serials, NOT space-stripped cleanText
                             val isSerial = isSerialNumber(trimmedText) 
                             val isPhoneNumber = (cleanText.startsWith("+") && cleanText.substring(1).all { it.isDigit() } && cleanText.length in 9..16) ||
                                                 (cleanText.all { it.isDigit() } && cleanText.length in 10..11 && (cleanText.startsWith("1") || cleanText.startsWith("0")))
@@ -132,12 +137,6 @@ object SensitiveInfoPatch {
         }
     }
 
-    /**
-     * Strict check for hardware serial numbers.
-     * - Must not contain spaces.
-     * - Length between 8 and 16 characters.
-     * - Must be strictly UPPERCASE alphanumeric (e.g., R58M123456X). Lowercase implies normal sentence text.
-     */
     private fun isSerialNumber(text: String): Boolean {
         if (text.contains(" ") || text.length !in 8..16) return false
 
@@ -149,7 +148,7 @@ object SensitiveInfoPatch {
             when (c) {
                 in '0'..'9' -> hasDigit = true
                 in 'A'..'Z' -> hasLetter = true
-                else -> return false // Immediately rejects lowercase letters (a-z) and special chars
+                else -> return false
             }
         }
 

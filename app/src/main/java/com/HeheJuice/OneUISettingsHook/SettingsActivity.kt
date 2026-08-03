@@ -1392,12 +1392,54 @@ advancedLayout.addView(productNameSpacer)
     }
 
     private val pressScaleTouchListener = View.OnTouchListener { v, event ->
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> v.animate().scaleX(0.96f).scaleY(0.96f).duration = 100
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> v.animate().scaleX(1.0f).scaleY(1.0f).duration = 150
+    // A custom interpolator that mimics that smooth, organic spring-back bounce
+    val springBackInterpolator = android.view.animation.PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f)
+
+    when (event.action) {
+        MotionEvent.ACTION_DOWN -> {
+            v.animate().cancel() // Crucial: stops the bounce-back if tapped rapidly
+            v.animate()
+                .scaleX(0.94f)
+                .scaleY(0.94f)
+                .alpha(0.85f) // Subtle dim to mimic a shadow/press state
+                .setDuration(120)
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
+                .start()
         }
-        false
+        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+            v.animate().cancel()
+            v.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .alpha(1.0f)
+                .setDuration(350) // Longer duration lets the curve breathe
+                .setInterpolator(springBackInterpolator)
+                .start()
+        }
     }
+    false // Return false so onClick still triggers normally
+}
+private fun createRippleBackground(normalColor: Int, rippleColor: Int, cornerRadiusDp: Float): Drawable {
+    val radiusPx = dpToPx(cornerRadiusDp).toFloat()
+    
+    val content = GradientDrawable().apply {
+        setColor(normalColor)
+        cornerRadius = radiusPx
+    }
+    
+    // The mask tells the ripple exactly where it's allowed to draw (so it doesn't bleed out of the rounded corners)
+    val mask = GradientDrawable().apply {
+        setColor(Color.WHITE)
+        cornerRadius = radiusPx
+    }
+    
+    return android.graphics.drawable.RippleDrawable(
+        android.content.res.ColorStateList.valueOf(rippleColor),
+        content,
+        mask
+    )
+}
+
 
     private fun createAnimatedButton(textStr: String, textColor: Int, bgColor: Int, height: Int, onClick: () -> Unit): TextView {
         return TextView(this).apply {

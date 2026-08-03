@@ -30,7 +30,7 @@ object SensitiveInfoPatch {
     private val SKIP_KEYWORDS = arrayOf(
         "battery", "wifi", "wi-fi", "wlan", "connections",
         "network", "bluetooth", "location", "storage",
-        "cache", "name", "devicename", "san", "app"
+        "cache", "name", "MSAA", "Memory", "shared", "UN1CA", "Update", "devicename", "san", "app"
     )
 
     fun applyPatch(classLoader: ClassLoader) {

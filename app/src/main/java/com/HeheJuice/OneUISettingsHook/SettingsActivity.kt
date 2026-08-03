@@ -53,8 +53,7 @@ class SettingsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
-        
-        // --- SYSTEM UI VERSION CHECK & CRASH LOGIC ---
+       
         checkSystemUiAndCrash(this)
 
         actionBar?.hide()
@@ -981,25 +980,13 @@ setContentView(rootFrameLayout)
     // --- CLASS HELPER FUNCTIONS ---
 
     private fun checkSystemUiAndCrash(context: Context) {
-        val systemUiVersion = getSystemUiVersion(context)
-        if (systemUiVersion in 0..14) {
-            throw RuntimeException("Unable to attempt Methods for values lower than 15")
-        }
+    // API 34 = Android 14, API 35 = Android 15
+    if (Build.VERSION.SDK_INT <= 34) {
+        throw RuntimeException("Unable to attempt Methods for values lower than 15")
     }
+}
 
-    private fun getSystemUiVersion(context: Context): Long {
-        return try {
-            val packageInfo = context.packageManager.getPackageInfo("com.android.systemui", 0)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode
-            } else {
-                @Suppress("DEPRECATION")
-                packageInfo.versionCode.toLong()
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-            -1L
-        }
-    }
+
 
     private fun showNoticeDialog(
         cardBgColor: Int,

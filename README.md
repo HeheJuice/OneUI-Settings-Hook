@@ -33,6 +33,7 @@
           - Phone Number 
 - Custom Fonts Detection Removed
      - Support Custom Fonts APK
+- Patch to make all app able to clone
 - Unlock Extra Battery Information
 - LSPosed Module Settings
 ### 📂 Preview

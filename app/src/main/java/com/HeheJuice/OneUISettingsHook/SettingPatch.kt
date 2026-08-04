@@ -18,6 +18,10 @@ class SettingPatch : IXposedHookLoadPackage {
     }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+if (lpparam.packageName == "com.samsung.android.da.daagent") {
+            AppCopy.applyPatch(lpparam)
+            return
+        }
         if (lpparam.packageName != "com.android.settings") return
 
         // 1. Initialize IMEI, Serial Number & Phone Number tap-to-toggle masking

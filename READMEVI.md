@@ -31,6 +31,7 @@
           - Số điện thoại 
 - Xóa bỏ cơ chế phát hiện phông chữ tùy chỉnh
      - Hỗ trợ các file APK phông chữ tùy chỉnh
+- Có khả năng sao chép tất cả các ứng dụng
 - Mở khóa thêm Thông tin chi tiết về Pin
 - Cài đặt Module LSPosed
 

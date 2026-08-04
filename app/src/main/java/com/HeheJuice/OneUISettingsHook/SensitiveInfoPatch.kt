@@ -21,16 +21,22 @@ object SensitiveInfoPatch {
 
     private val DATE_REGEX = Regex("""^\d{1,4}[./\-\s]\d{1,2}[./\-\s]\d{1,4}$""")
     private val MONTH_REGEX = Regex("""(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b""")
-    private val NETWORK_UNITS_REGEX = Regex("""(?i)(dBm|asu|mbps|gbps|ghz|mhz|wpa|wep)""")
+    
+    // Expanded units, storage terms, and common UI words
+    private val UNITS_AND_WORDS_REGEX = Regex(
+        """(?i)\b(GB|MB|KB|TB|dBm|asu|Mbps|Gbps|GHz|MHz|kHz|Hz|WPA|WEP|mAh|fps|V|mA|ms|used|available|free|total|update|force|msaa)\b"""
+    )
     private val VERSION_OR_IP_REGEX = Regex("""^[vV]?\d{1,4}(\.\d{1,6}){1,4}(\s?[-_a-zA-Z0-9().]+)?$""")
+    
+    // Filters out Samsung build/baseband version strings (e.g., S9010ZCU9GYJ1)
+    private val BUILD_OR_BASEBAND_REGEX = Regex("""^[A-Z0-9]{4,6}[A-Z]{3}\d[A-Z0-9]+$""")
 
-    // WeakHashMap cache so activity checks happen once per Activity lifecycle, eliminating UI jank
     private val skipActivityCache = WeakHashMap<Activity, Boolean>()
 
     private val SKIP_KEYWORDS = arrayOf(
         "battery", "wifi", "wi-fi", "wlan", "connections",
         "network", "bluetooth", "location", "storage",
-        "cache", "name", "devicename", "san", "app"
+        "cache", "name", "MSAA", "Memory", "shared", "UN1CA", "Update", "devicename", "san", "app"
     )
 
     fun applyPatch(classLoader: ClassLoader) {
@@ -50,8 +56,7 @@ object SensitiveInfoPatch {
                             if (rawInput.isNullOrBlank() || rawInput == MASK_TEXT) return
                             if (XposedHelpers.getAdditionalInstanceField(tv, FIELD_HOOK_LOCK) == true) return
 
-                            // Fast Path Exit: Most sensitive data (IMEI, Serial, Phone) falls within 8 to 40 chars.
-                            // Skips heavy evaluation on short labels ("OK", "Back") or long paragraphs.
+                            // Fast Path Exit: Most sensitive data falls within 8 to 40 chars.
                             val inputLength = rawInput.length
                             if (inputLength < 8 || inputLength > 40) return
 
@@ -62,9 +67,11 @@ object SensitiveInfoPatch {
                             val textToEvaluate = existingReal ?: rawInput
                             val trimmedText = textToEvaluate.trim()
 
-                            if (trimmedText.contains(NETWORK_UNITS_REGEX)) return
+                            // Fast-exit non-sensitive patterns, versions, and Samsung build/baseband strings
+                            if (UNITS_AND_WORDS_REGEX.containsMatchIn(trimmedText)) return
                             if (trimmedText.count { it == ':' } >= 2) return
                             if (trimmedText.matches(VERSION_OR_IP_REGEX)) return
+                            if (BUILD_OR_BASEBAND_REGEX.matches(trimmedText)) return
 
                             val cleanText = textToEvaluate
                                 .replace(" ", "")
@@ -75,6 +82,8 @@ object SensitiveInfoPatch {
                                 .replace(")", "")
                                 .trim()
 
+                            if (BUILD_OR_BASEBAND_REGEX.matches(cleanText)) return
+
                             val isDate = trimmedText.matches(DATE_REGEX) ||
                                          textToEvaluate.contains(MONTH_REGEX) ||
                                          isRawDate(cleanText)
@@ -83,7 +92,7 @@ object SensitiveInfoPatch {
 
                             // Refined sensitivity matching
                             val isImei = cleanText.length in 14..16 && cleanText.all { it.isDigit() } && passesLuhnCheck(cleanText)
-                            val isSerial = isSerialNumber(cleanText)
+                            val isSerial = isSerialNumber(trimmedText) 
                             val isPhoneNumber = (cleanText.startsWith("+") && cleanText.substring(1).all { it.isDigit() } && cleanText.length in 9..16) ||
                                                 (cleanText.all { it.isDigit() } && cleanText.length in 10..11 && (cleanText.startsWith("1") || cleanText.startsWith("0")))
 
@@ -115,7 +124,7 @@ object SensitiveInfoPatch {
                                 }
                             }
                         } catch (e: Throwable) {
-                            // Suppress exceptions in high-frequency hooks to avoid log spam
+                            // Suppress exceptions in high-frequency hooks
                         }
                     }
                 }
@@ -128,12 +137,8 @@ object SensitiveInfoPatch {
         }
     }
 
-    /**
-     * Single-pass, zero-allocation check for hardware serial numbers.
-     * Ensures only ASCII alphanumeric strings (10-12 chars) trigger the mask.
-     */
     private fun isSerialNumber(text: String): Boolean {
-        if (text.length !in 10..12) return false
+        if (text.contains(" ") || text.length !in 8..16) return false
 
         var hasDigit = false
         var hasLetter = false
@@ -142,8 +147,8 @@ object SensitiveInfoPatch {
             val c = text[i]
             when (c) {
                 in '0'..'9' -> hasDigit = true
-                in 'a'..'z', in 'A'..'Z' -> hasLetter = true
-                else -> return false // Immediately drops out if non-ASCII character (like Hangul/Emojis)
+                in 'A'..'Z' -> hasLetter = true
+                else -> return false
             }
         }
 
@@ -158,11 +163,8 @@ object SensitiveInfoPatch {
         return month in 1..12 && day in 1..31
     }
 
-    /**
-     * Luhn algorithm validation for 15-digit IMEIs to avoid false-positive masking on random numbers.
-     */
     private fun passesLuhnCheck(number: String): Boolean {
-        if (number.length != 15) return true // Fallback for 14-digit or 16-digit IMEISV
+        if (number.length != 15) return true
         var sum = 0
         var alternate = false
         for (i in number.length - 1 downTo 0) {

@@ -21,7 +21,7 @@
         
         <meta-data 
     android:name="xposedscope" 
-    android:value="com.android.settings,com.samsung.android.da.daagent" />
+                android:resource="@array/xposedscope" />
 <activity
     android:name=".SettingsActivity"
     android:exported="true"

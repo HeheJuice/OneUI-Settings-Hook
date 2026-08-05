@@ -6,7 +6,7 @@
 
 <div align="center">
 
-[![Telegram](https://img.shields.io/badge/Join_US-Fix_Bugs_Or_Chat_With_Developer-26A5E4?style=flat-square)](https://t.me/channelhehejuice)
+[![Telegram](https://img.shields.io/badge/Join_US-Find_Helps_Or_Chat_With_Developer-26A5E4?style=flat-square)](https://t.me/channelhehejuice)
 [![Design](https://img.shields.io/badge/OneUI-7~9-blue?style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
 [![GitHub Downloads](https://img.shields.io/github/downloads/HeheJuice/OneUI-Settings-Hook/total?color=blue&label=Downloads+from+GitHub+Source&style=flat-square)](https://github.com/HeheJuice/OneUI-Settings-Hook/releases)
 [![LSPosed Downloads](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/total?style=flat-square&color=orange&label=Downloads+From+LSPosed)](https://github.com/Xposed-Modules-Repo/com.HeheJuice.OneUISettingsHook/releases)

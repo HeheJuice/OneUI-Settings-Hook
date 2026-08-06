@@ -213,6 +213,173 @@ class SettingsActivity : Activity() {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
+        // --- DASHBOARD THEME COLOR CARD (MONET TOGGLE) ---
+        val dashboardThemeCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        val dashboardTitle = TextView(this).apply {
+            text = "Dashboard Theme Colors" // Replace with getString(R.string.dashboard_theme_title) if localized
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(16f))
+        }
+
+        val themeSelectionRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            weightSum = 2f
+        }
+
+        var isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
+
+        // Helper to draw the custom radio button mimicking 44091.jpg
+        fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
+            return object : Drawable() {
+                private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    style = Paint.Style.STROKE
+                    strokeWidth = dpToPx(2f).toFloat()
+                    color = if (isSelected) accentColor else secondaryTextColor
+                }
+                private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    style = Paint.Style.FILL
+                    color = accentColor
+                }
+                override fun draw(canvas: Canvas) {
+                    val cx = bounds.exactCenterX()
+                    val cy = bounds.exactCenterY()
+                    val radius = dpToPx(10f).toFloat()
+                    canvas.drawCircle(cx, cy, radius, strokePaint)
+                    if (isSelected) canvas.drawCircle(cx, cy, radius - dpToPx(4f).toFloat(), fillPaint)
+                }
+                override fun setAlpha(alpha: Int) {}
+                override fun setColorFilter(cf: ColorFilter?) {}
+                @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
+            }
+        }
+
+        // Left Option: Default
+        val defaultOptionLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dpToPx(8f) }
+            background = GradientDrawable().apply { setColor(inputBgColor); cornerRadius = dpToPx(16f).toFloat() }
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            isClickable = true
+            isFocusable = true
+            setOnTouchListener(pressScaleTouchListener)
+        }
+
+        val defaultIcon = ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(80f), dpToPx(60f)).apply { bottomMargin = dpToPx(12f) }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            // Attempt to load IconDefault.png
+            val resId = resources.getIdentifier("IconDefault", "drawable", packageName)
+            if (resId != 0) setImageResource(resId)
+        }
+
+        val defaultLabel = TextView(this).apply {
+            text = "Default"
+            textSize = 15f
+            setTextColor(if (!isMonetEnabled) primaryTextColor else secondaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(8f))
+        }
+
+        val defaultRadio = ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(24f), dpToPx(24f))
+            setImageDrawable(createRadioButtonDrawable(!isMonetEnabled))
+        }
+
+        defaultOptionLayout.addView(defaultIcon)
+        defaultOptionLayout.addView(defaultLabel)
+        defaultOptionLayout.addView(defaultRadio)
+
+        // Right Option: Monet
+        val monetOptionLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dpToPx(8f) }
+            background = GradientDrawable().apply { setColor(inputBgColor); cornerRadius = dpToPx(16f).toFloat() }
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            isClickable = true
+            isFocusable = true
+            setOnTouchListener(pressScaleTouchListener)
+        }
+
+        val monetIcon = ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(80f), dpToPx(60f)).apply { bottomMargin = dpToPx(12f) }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            // Attempt to load IconMonet.png
+            val resId = resources.getIdentifier("IconMonet", "drawable", packageName)
+            if (resId != 0) setImageResource(resId)
+        }
+
+        val monetLabel = TextView(this).apply {
+            text = "Monet"
+            textSize = 15f
+            setTextColor(if (isMonetEnabled) primaryTextColor else secondaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(8f))
+        }
+
+        val monetRadio = ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(24f), dpToPx(24f))
+            setImageDrawable(createRadioButtonDrawable(isMonetEnabled))
+        }
+
+        monetOptionLayout.addView(monetIcon)
+        monetOptionLayout.addView(monetLabel)
+        monetOptionLayout.addView(monetRadio)
+
+        themeSelectionRow.addView(defaultOptionLayout)
+        themeSelectionRow.addView(monetOptionLayout)
+
+        dashboardThemeCardLayout.addView(dashboardTitle)
+        dashboardThemeCardLayout.addView(themeSelectionRow)
+
+        // Handling logic for toggling the state
+        val updateThemeSelection = { toMonet: Boolean ->
+            if (isMonetEnabled != toMonet) {
+                isMonetEnabled = toMonet
+                prefs.edit().putBoolean("enable_monet_dashboard", toMonet).apply()
+
+                // Update UI visually
+                defaultRadio.setImageDrawable(createRadioButtonDrawable(!isMonetEnabled))
+                monetRadio.setImageDrawable(createRadioButtonDrawable(isMonetEnabled))
+                defaultLabel.setTextColor(if (!isMonetEnabled) primaryTextColor else secondaryTextColor)
+                monetLabel.setTextColor(if (isMonetEnabled) primaryTextColor else secondaryTextColor)
+
+                // Restart settings to apply Xposed resource changes
+                Thread {
+                    val success = runRootCommands(listOf("am force-stop com.android.settings"))
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@SettingsActivity, "Dashboard Theme applied. Settings restarted.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }.start()
+            }
+        }
+
+        defaultOptionLayout.setOnClickListener { updateThemeSelection(false) }
+        monetOptionLayout.setOnClickListener { updateThemeSelection(true) }
+
+        advancedLayout.addView(dashboardThemeCardLayout)
+
+        // Spacer below the new card
+        val dashboardThemeSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
+        advancedLayout.addView(dashboardThemeSpacer)
+
 
         // --- CUSTOM BANNER TEXT CARD (EXPANDABLE) ---
         val customTextCardLayout = LinearLayout(this).apply {

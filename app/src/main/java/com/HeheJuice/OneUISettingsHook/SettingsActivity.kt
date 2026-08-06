@@ -110,6 +110,7 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
+        
         // PAGE 1: MODULE INFO
         val moduleInfoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -415,254 +416,248 @@ class SettingsActivity : Activity() {
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
         advancedLayout.addView(textCardSpacer)
+
         // --- CUSTOM PRODUCT NAME CARD (EXPANDABLE) ---
-val customProductNameCardLayout = LinearLayout(this).apply {
-    orientation = LinearLayout.VERTICAL
-    background = GradientDrawable().apply {
-        setColor(cardBgColor)
-        cornerRadius = dpToPx(28f).toFloat()
-        setStroke(dpToPx(1f), cardBorderColor)
-    }
-    setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-}
-
-val productNameHeaderLayout = LinearLayout(this).apply {
-    orientation = LinearLayout.HORIZONTAL
-    gravity = Gravity.CENTER_VERTICAL
-    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-}
-
-val productNameTitleContainer = LinearLayout(this).apply {
-    orientation = LinearLayout.VERTICAL
-    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-}
-
-val productNameTitle = TextView(this).apply {
-    text = getString(R.string.custom_product_name_title) // e.g. "Custom Product Name"
-    textSize = 20f
-    setTextColor(primaryTextColor)
-    setTypeface(null, Typeface.BOLD)
-}
-
-val productNameSub = TextView(this).apply {
-    text = getString(R.string.custom_product_name_subtitle) // e.g. "Change global default device name"
-    textSize = 14f
-    setTextColor(secondaryTextColor)
-    setPadding(0, dpToPx(4f), 0, dpToPx(8f))
-}
-
-productNameTitleContainer.addView(productNameTitle)
-productNameTitleContainer.addView(productNameSub)
-
-val productNameExpandIconDrawable = object : Drawable() {
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = primaryTextColor
-        style = Paint.Style.STROKE
-        strokeWidth = dpToPx(2.5f).toFloat()
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
-    }
-    override fun draw(canvas: Canvas) {
-        val cx = bounds.exactCenterX()
-        val cy = bounds.exactCenterY()
-        val size = dpToPx(6f).toFloat()
-        val path = Path().apply {
-            moveTo(cx - size, cy - size / 3f)
-            lineTo(cx, cy + size / 1.5f)
-            lineTo(cx + size, cy - size / 3f)
+        val customProductNameCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
-        canvas.drawPath(path, paint)
-    }
-    override fun setAlpha(alpha: Int) { paint.alpha = alpha }
-    override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
-    @Deprecated("Deprecated in Java")
-    override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
-}
 
-val productNameExpandBtn = ImageView(this).apply {
-    setImageDrawable(productNameExpandIconDrawable)
-    background = GradientDrawable().apply {
-        shape = GradientDrawable.OVAL
-        setColor(inputBgColor)
-    }
-    isClickable = true
-    isFocusable = true
-    setPadding(dpToPx(8f), dpToPx(8f), dpToPx(8f), dpToPx(8f))
-    layoutParams = LinearLayout.LayoutParams(dpToPx(36f), dpToPx(36f)).apply {
-        marginStart = dpToPx(12f)
-    }
-}
+        val productNameHeaderLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
 
-productNameHeaderLayout.addView(productNameTitleContainer)
-productNameHeaderLayout.addView(productNameExpandBtn)
-customProductNameCardLayout.addView(productNameHeaderLayout)
+        val productNameTitleContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
 
-val productNameExpandableContent = LinearLayout(this).apply {
-    orientation = LinearLayout.VERTICAL
-    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-    visibility = View.GONE
-}
+        val productNameTitle = TextView(this).apply {
+            text = getString(R.string.custom_product_name_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
 
-// --- DISCLAIMER CARD ---
-val productNameDisclaimerCard = LinearLayout(this).apply {
-    orientation = LinearLayout.VERTICAL
-    background = GradientDrawable().apply {
-        setColor(inputBgColor)
-        cornerRadius = dpToPx(18f).toFloat()
-        setStroke(dpToPx(1f), cardBorderColor)
-    }
-    setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
-    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-        topMargin = dpToPx(8f)
-        bottomMargin = dpToPx(16f)
-    }
-}
+        val productNameSub = TextView(this).apply {
+            text = getString(R.string.custom_product_name_subtitle)
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            setPadding(0, dpToPx(4f), 0, dpToPx(8f))
+        }
 
-val productNameDisclaimerTitle = TextView(this).apply {
-    text = "⚠️ ${getString(R.string.disclaimer_title)}"
-    textSize = 15f
-    setTextColor(primaryTextColor)
-    setTypeface(null, Typeface.BOLD)
-}
+        productNameTitleContainer.addView(productNameTitle)
+        productNameTitleContainer.addView(productNameSub)
 
-val productNameDisclaimerContent = TextView(this).apply {
-    text = getString(R.string.disclaimer_content)
-    textSize = 13f
-    setTextColor(secondaryTextColor)
-    setLineSpacing(4f, 1.1f)
-    setPadding(0, dpToPx(6f), 0, 0)
-}
-
-productNameDisclaimerCard.addView(productNameDisclaimerTitle)
-productNameDisclaimerCard.addView(productNameDisclaimerContent)
-
-// --- UN1CA NOTICE CARD (styled exactly like the disclaimer card) ---
-val productNameUn1caCard = LinearLayout(this).apply {
-    orientation = LinearLayout.VERTICAL
-    background = GradientDrawable().apply {
-        setColor(inputBgColor)
-        cornerRadius = dpToPx(18f).toFloat()
-        setStroke(dpToPx(1f), cardBorderColor)
-    }
-    setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
-    layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    ).apply {
-        topMargin = dpToPx(8f)
-        bottomMargin = dpToPx(16f)
-    }
-}
-
-val productNameUn1caNotice = TextView(this).apply {
-    text = getString(R.string.un1ca_notice)
-    textSize = 12f
-    setTextColor(secondaryTextColor)
-    setLineSpacing(4f, 1.1f)
-}
-productNameUn1caCard.addView(productNameUn1caNotice)
-
-// --- INPUT FIELD ---
-val productNameInputEt = EditText(this).apply {
-    setText(prefs.getString("custom_product_name", ""))
-    hint = getString(R.string.custom_product_name_hint)
-    setHintTextColor(secondaryTextColor)
-    setTextColor(primaryTextColor)
-    textSize = 15f
-    background = GradientDrawable().apply {
-        setColor(inputBgColor)
-        cornerRadius = dpToPx(16f).toFloat()
-        setStroke(dpToPx(1f), cardBorderColor)
-    }
-    setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
-    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-}
-
-// --- SAVE BUTTON ---
-val saveProductNameBtn = createAnimatedButton(
-    getString(R.string.btn_save_product_name),
-    Color.WHITE,
-    accentColor,
-    buttonHeightPx
-) {
-    showNoticeDialog(
-        cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
-        accentColor, secondaryBtnColor, buttonHeightPx
-    ) {
-        val enteredText = productNameInputEt.text.toString().trim()
-        prefs.edit().putString("custom_product_name", enteredText).apply()
-
-        Thread {
-            val safeText = enteredText.replace("'", "'\\''")
-            val success = runRootCommands(listOf(
-                "settings put global default_device_name '$safeText'",
-                "setprop persist.sys.device_name '$safeText'",
-                "am force-stop com.android.settings"
-            ))
-            runOnUiThread {
-                if (success) {
-                    Toast.makeText(this@SettingsActivity, getString(R.string.msg_product_name_applied), Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+        val productNameExpandIconDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2.5f).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val size = dpToPx(6f).toFloat()
+                val path = Path().apply {
+                    moveTo(cx - size, cy - size / 3f)
+                    lineTo(cx, cy + size / 1.5f)
+                    lineTo(cx + size, cy - size / 3f)
                 }
+                canvas.drawPath(path, paint)
             }
-        }.start()
-    }
-}.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+        }
 
-// --- RESET BUTTON ---
-val resetProductNameBtn = createAnimatedButton(
-    getString(R.string.btn_reset_default),
-    primaryTextColor,
-    secondaryBtnColor,
-    buttonHeightPx
-) {
-    productNameInputEt.setText("")
-    prefs.edit().remove("custom_product_name").apply()
-
-    Thread {
-        val success = runRootCommands(listOf(
-            "settings delete global default_device_name",
-            "setprop persist.sys.device_name ''",
-            "am force-stop com.android.settings"
-        ))
-        runOnUiThread {
-            if (success) {
-                Toast.makeText(this@SettingsActivity, getString(R.string.msg_product_name_reset), Toast.LENGTH_SHORT).show()
+        val productNameExpandBtn = ImageView(this).apply {
+            setImageDrawable(productNameExpandIconDrawable)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(inputBgColor)
+            }
+            isClickable = true
+            isFocusable = true
+            setPadding(dpToPx(8f), dpToPx(8f), dpToPx(8f), dpToPx(8f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(36f), dpToPx(36f)).apply {
+                marginStart = dpToPx(12f)
             }
         }
-    }.start()
-}.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
 
-// --- ADD ALL VIEWS TO EXPANDABLE CONTENT (in correct order) ---
-productNameExpandableContent.addView(productNameDisclaimerCard)
-productNameExpandableContent.addView(productNameUn1caCard)   // <-- UN1CA card placed here
-productNameExpandableContent.addView(productNameInputEt)
-productNameExpandableContent.addView(saveProductNameBtn)
-productNameExpandableContent.addView(resetProductNameBtn)
+        productNameHeaderLayout.addView(productNameTitleContainer)
+        productNameHeaderLayout.addView(productNameExpandBtn)
+        customProductNameCardLayout.addView(productNameHeaderLayout)
 
-customProductNameCardLayout.addView(productNameExpandableContent)
+        val productNameExpandableContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            visibility = View.GONE
+        }
 
-// --- EXPAND/COLLAPSE LOGIC ---
-val toggleProductNameExpansion = {
-    val isExpanded = productNameExpandableContent.visibility == View.VISIBLE
-    if (isExpanded) {
-        collapseView(productNameExpandableContent, productNameExpandBtn)
-    } else {
-        expandView(productNameExpandableContent, productNameExpandBtn)
-    }
-}
+        val productNameDisclaimerCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(18f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dpToPx(8f)
+                bottomMargin = dpToPx(16f)
+            }
+        }
 
-productNameExpandBtn.setOnClickListener { toggleProductNameExpansion() }
-productNameHeaderLayout.setOnClickListener { toggleProductNameExpansion() }
-productNameHeaderLayout.isClickable = true
+        val productNameDisclaimerTitle = TextView(this).apply {
+            text = "⚠️ ${getString(R.string.disclaimer_title)}"
+            textSize = 15f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
 
-advancedLayout.addView(customProductNameCardLayout)
+        val productNameDisclaimerContent = TextView(this).apply {
+            text = getString(R.string.disclaimer_content)
+            textSize = 13f
+            setTextColor(secondaryTextColor)
+            setLineSpacing(4f, 1.1f)
+            setPadding(0, dpToPx(6f), 0, 0)
+        }
 
-val productNameSpacer = View(this).apply {
-    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
-}
-advancedLayout.addView(productNameSpacer)
+        productNameDisclaimerCard.addView(productNameDisclaimerTitle)
+        productNameDisclaimerCard.addView(productNameDisclaimerContent)
+
+        val productNameUn1caCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(18f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(8f)
+                bottomMargin = dpToPx(16f)
+            }
+        }
+
+        val productNameUn1caNotice = TextView(this).apply {
+            text = getString(R.string.un1ca_notice)
+            textSize = 12f
+            setTextColor(secondaryTextColor)
+            setLineSpacing(4f, 1.1f)
+        }
+        productNameUn1caCard.addView(productNameUn1caNotice)
+
+        val productNameInputEt = EditText(this).apply {
+            setText(prefs.getString("custom_product_name", ""))
+            hint = getString(R.string.custom_product_name_hint)
+            setHintTextColor(secondaryTextColor)
+            setTextColor(primaryTextColor)
+            textSize = 15f
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(16f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val saveProductNameBtn = createAnimatedButton(
+            getString(R.string.btn_save_product_name),
+            Color.WHITE,
+            accentColor,
+            buttonHeightPx
+        ) {
+            showNoticeDialog(
+                cardBgColor, cardBorderColor, primaryTextColor, secondaryTextColor,
+                accentColor, secondaryBtnColor, buttonHeightPx
+            ) {
+                val enteredText = productNameInputEt.text.toString().trim()
+                prefs.edit().putString("custom_product_name", enteredText).apply()
+
+                Thread {
+                    val safeText = enteredText.replace("'", "'\\''")
+                    val success = runRootCommands(listOf(
+                        "settings put global default_device_name '$safeText'",
+                        "setprop persist.sys.device_name '$safeText'",
+                        "am force-stop com.android.settings"
+                    ))
+                    runOnUiThread {
+                        if (success) {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_product_name_applied), Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }.start()
+            }
+        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
+
+        val resetProductNameBtn = createAnimatedButton(
+            getString(R.string.btn_reset_default),
+            primaryTextColor,
+            secondaryBtnColor,
+            buttonHeightPx
+        ) {
+            productNameInputEt.setText("")
+            prefs.edit().remove("custom_product_name").apply()
+
+            Thread {
+                val success = runRootCommands(listOf(
+                    "settings delete global default_device_name",
+                    "setprop persist.sys.device_name ''",
+                    "am force-stop com.android.settings"
+                ))
+                runOnUiThread {
+                    if (success) {
+                        Toast.makeText(this@SettingsActivity, getString(R.string.msg_product_name_reset), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
+
+        productNameExpandableContent.addView(productNameDisclaimerCard)
+        productNameExpandableContent.addView(productNameUn1caCard)
+        productNameExpandableContent.addView(productNameInputEt)
+        productNameExpandableContent.addView(saveProductNameBtn)
+        productNameExpandableContent.addView(resetProductNameBtn)
+
+        customProductNameCardLayout.addView(productNameExpandableContent)
+
+        val toggleProductNameExpansion = {
+            val isExpanded = productNameExpandableContent.visibility == View.VISIBLE
+            if (isExpanded) {
+                collapseView(productNameExpandableContent, productNameExpandBtn)
+            } else {
+                expandView(productNameExpandableContent, productNameExpandBtn)
+            }
+        }
+
+        productNameExpandBtn.setOnClickListener { toggleProductNameExpansion() }
+        productNameHeaderLayout.setOnClickListener { toggleProductNameExpansion() }
+        productNameHeaderLayout.isClickable = true
+
+        advancedLayout.addView(customProductNameCardLayout)
+
+        val productNameSpacer = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        }
+        advancedLayout.addView(productNameSpacer)
 
         // --- DISABLE SOFTWARE UPDATE CARD ---
         val disableUpdateCardLayout = LinearLayout(this).apply {
@@ -841,19 +836,29 @@ advancedLayout.addView(productNameSpacer)
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply { bottomMargin = dpToPx(16f) }
         }
 
-        val tabPillContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dpToPx(4f), dpToPx(4f), dpToPx(4f), dpToPx(4f))
+        val tabPillContainer = FrameLayout(this).apply {
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = dpToPx(100f).toFloat()
                 setColor(cardBgColor)
                 setStroke(dpToPx(1f), cardBorderColor)
             }
+            setPadding(dpToPx(4f), dpToPx(4f), dpToPx(4f), dpToPx(4f))
         }
 
         val activeTabBg = GradientDrawable().apply { setColor(secondaryBtnColor); cornerRadius = dpToPx(100f).toFloat() }
+
+        // Sliding background pill indicator
+        val slidingPillView = View(this).apply {
+            background = activeTabBg
+            layoutParams = FrameLayout.LayoutParams(0, dpToPx(44f))
+        }
+
+        val tabButtonsLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        }
 
         val moduleInfoPillBtn = TextView(this).apply {
             text = getString(R.string.module_info_category)
@@ -861,12 +866,8 @@ advancedLayout.addView(productNameSpacer)
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
-            background = activeTabBg
             setPadding(dpToPx(16f), 0, dpToPx(16f), 0)
-            isClickable = true
-            isFocusable = true
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dpToPx(44f))
-            setOnTouchListener(pressScaleTouchListener)
         }
 
         val advancedPillBtn = TextView(this).apply {
@@ -875,39 +876,146 @@ advancedLayout.addView(productNameSpacer)
             setTextColor(secondaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
-            background = null
             setPadding(dpToPx(16f), 0, dpToPx(16f), 0)
-            isClickable = true
-            isFocusable = true
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dpToPx(44f))
-            setOnTouchListener(pressScaleTouchListener)
         }
 
-        val switchTab = { isModuleTab: Boolean ->
-            if (isModuleTab) {
-                moduleInfoLayout.visibility = View.VISIBLE
-                advancedLayout.visibility = View.GONE
-                moduleInfoPillBtn.background = activeTabBg
-                moduleInfoPillBtn.setTextColor(primaryTextColor)
-                advancedPillBtn.background = null
-                advancedPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
-            } else {
-                moduleInfoLayout.visibility = View.GONE
-                advancedLayout.visibility = View.VISIBLE
-                advancedPillBtn.background = activeTabBg
-                advancedPillBtn.setTextColor(primaryTextColor)
-                moduleInfoPillBtn.background = null
-                moduleInfoPillBtn.setTextColor(secondaryTextColor)
-                applyEntranceAnimations(listOf(customTextCardLayout, customProductNameCardLayout, disableUpdateCardLayout, forceStopCardLayout))
+        tabButtonsLayout.addView(moduleInfoPillBtn)
+        tabButtonsLayout.addView(advancedPillBtn)
+
+        tabPillContainer.addView(slidingPillView)
+        tabPillContainer.addView(tabButtonsLayout)
+
+        var isModuleTabActive = true
+
+        val switchTab: (Boolean) -> Unit = { isModuleTab ->
+            if (isModuleTabActive != isModuleTab) {
+                isModuleTabActive = isModuleTab
+                if (isModuleTab) {
+                    moduleInfoLayout.visibility = View.VISIBLE
+                    advancedLayout.visibility = View.GONE
+                    applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
+                } else {
+                    moduleInfoLayout.visibility = View.GONE
+                    advancedLayout.visibility = View.VISIBLE
+                    applyEntranceAnimations(listOf(customTextCardLayout, customProductNameCardLayout, disableUpdateCardLayout, forceStopCardLayout))
+                }
+                scrollView.scrollTo(0, 0)
             }
-            scrollView.scrollTo(0, 0)
         }
 
-        moduleInfoPillBtn.setOnClickListener { switchTab(true) }
-        advancedPillBtn.setOnClickListener { switchTab(false) }
-        tabPillContainer.addView(moduleInfoPillBtn)
-        tabPillContainer.addView(advancedPillBtn)
+        // Measure text-based tab widths and set initial pill dimensions
+        tabPillContainer.post {
+            slidingPillView.layoutParams = slidingPillView.layoutParams.apply { width = moduleInfoPillBtn.width }
+            slidingPillView.translationX = moduleInfoPillBtn.left.toFloat()
+            slidingPillView.requestLayout()
+        }
+
+        // Interpolates pill position & width based on each tab's text length (0.0 = Left tab, 1.0 = Right tab)
+        val updatePillPosition: (Float) -> Unit = { progress ->
+            val p = progress.coerceIn(0f, 1f)
+            val x0 = moduleInfoPillBtn.left.toFloat()
+            val x1 = advancedPillBtn.left.toFloat()
+            val w0 = moduleInfoPillBtn.width.toFloat()
+            val w1 = advancedPillBtn.width.toFloat()
+
+            val currentX = x0 + (x1 - x0) * p
+            val currentW = (w0 + (w1 - w0) * p).toInt()
+
+            slidingPillView.translationX = currentX
+            if (slidingPillView.layoutParams.width != currentW && currentW > 0) {
+                slidingPillView.layoutParams = slidingPillView.layoutParams.apply { width = currentW }
+                slidingPillView.requestLayout()
+            }
+
+            if (p < 0.5f) {
+                moduleInfoPillBtn.setTextColor(primaryTextColor)
+                advancedPillBtn.setTextColor(secondaryTextColor)
+            } else {
+                moduleInfoPillBtn.setTextColor(secondaryTextColor)
+                advancedPillBtn.setTextColor(primaryTextColor)
+            }
+        }
+
+        var pillAnimator: ValueAnimator? = null
+
+        val animatePillTo: (Float, () -> Unit) -> Unit = { targetProgress, onEnd ->
+            pillAnimator?.cancel()
+            val x0 = moduleInfoPillBtn.left.toFloat()
+            val x1 = advancedPillBtn.left.toFloat()
+            val currentX = slidingPillView.translationX
+            val currentProgress = if (x1 > x0) ((currentX - x0) / (x1 - x0)).coerceIn(0f, 1f) else 0f
+
+            pillAnimator = ValueAnimator.ofFloat(currentProgress, targetProgress).apply {
+                duration = 220L
+                interpolator = android.view.animation.PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f)
+                addUpdateListener { anim ->
+                    updatePillPosition(anim.animatedValue as Float)
+                }
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        onEnd()
+                    }
+                })
+                start()
+            }
+        }
+
+        tabPillContainer.setOnTouchListener { view, event ->
+            val x0 = moduleInfoPillBtn.left.toFloat() + (moduleInfoPillBtn.width / 2f)
+            val x1 = advancedPillBtn.left.toFloat() + (advancedPillBtn.width / 2f)
+
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    pillAnimator?.cancel()
+                    view.animate().cancel()
+                    view.animate()
+                        .scaleX(0.95f)
+                        .scaleY(0.95f)
+                        .alpha(0.9f)
+                        .setDuration(120)
+                        .setInterpolator(DecelerateInterpolator(1.5f))
+                        .start()
+
+                    val touchX = event.x - tabPillContainer.paddingLeft
+                    val progress = if (x1 > x0) ((touchX - x0) / (x1 - x0)).coerceIn(0f, 1f) else 0f
+                    updatePillPosition(progress)
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    val touchX = event.x - tabPillContainer.paddingLeft
+                    val progress = if (x1 > x0) ((touchX - x0) / (x1 - x0)).coerceIn(0f, 1f) else 0f
+                    updatePillPosition(progress)
+                    true
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val touchX = event.x - tabPillContainer.paddingLeft
+                    val midPoint = (x0 + x1) / 2f
+                    val targetIsModule = touchX < midPoint
+                    val targetProgress = if (targetIsModule) 0f else 1f
+
+                    // Smoothly animate pill size and position to target tab, then trigger page switch
+                    animatePillTo(targetProgress) {
+                        switchTab(targetIsModule)
+                    }
+
+                    view.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+
+                    view.animate().cancel()
+                    view.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .alpha(1.0f)
+                        .setDuration(350)
+                        .setInterpolator(android.view.animation.PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f))
+                        .start()
+                    true
+                }
+                else -> false
+            }
+        }
 
         val searchIconDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -978,6 +1086,7 @@ advancedLayout.addView(productNameSpacer)
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
     }
+
     // --- CLASS HELPER FUNCTIONS ---
 
     private fun showNoticeDialog(
@@ -1392,54 +1501,52 @@ advancedLayout.addView(productNameSpacer)
     }
 
     private val pressScaleTouchListener = View.OnTouchListener { v, event ->
-    // A custom interpolator that mimics that smooth, organic spring-back bounce
-    val springBackInterpolator = android.view.animation.PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f)
+        val springBackInterpolator = android.view.animation.PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f)
 
-    when (event.action) {
-        MotionEvent.ACTION_DOWN -> {
-            v.animate().cancel() // Crucial: stops the bounce-back if tapped rapidly
-            v.animate()
-                .scaleX(0.94f)
-                .scaleY(0.94f)
-                .alpha(0.85f) // Subtle dim to mimic a shadow/press state
-                .setDuration(120)
-                .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
-                .start()
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                v.animate().cancel()
+                v.animate()
+                    .scaleX(0.94f)
+                    .scaleY(0.94f)
+                    .alpha(0.85f)
+                    .setDuration(120)
+                    .setInterpolator(android.view.animation.DecelerateInterpolator(1.5f))
+                    .start()
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                v.animate().cancel()
+                v.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .alpha(1.0f)
+                    .setDuration(350)
+                    .setInterpolator(springBackInterpolator)
+                    .start()
+            }
         }
-        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-            v.animate().cancel()
-            v.animate()
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .alpha(1.0f)
-                .setDuration(350) // Longer duration lets the curve breathe
-                .setInterpolator(springBackInterpolator)
-                .start()
-        }
+        false
     }
-    false // Return false so onClick still triggers normally
-}
-private fun createRippleBackground(normalColor: Int, rippleColor: Int, cornerRadiusDp: Float): Drawable {
-    val radiusPx = dpToPx(cornerRadiusDp).toFloat()
-    
-    val content = GradientDrawable().apply {
-        setColor(normalColor)
-        cornerRadius = radiusPx
-    }
-    
-    // The mask tells the ripple exactly where it's allowed to draw (so it doesn't bleed out of the rounded corners)
-    val mask = GradientDrawable().apply {
-        setColor(Color.WHITE)
-        cornerRadius = radiusPx
-    }
-    
-    return android.graphics.drawable.RippleDrawable(
-        android.content.res.ColorStateList.valueOf(rippleColor),
-        content,
-        mask
-    )
-}
 
+    private fun createRippleBackground(normalColor: Int, rippleColor: Int, cornerRadiusDp: Float): Drawable {
+        val radiusPx = dpToPx(cornerRadiusDp).toFloat()
+        
+        val content = GradientDrawable().apply {
+            setColor(normalColor)
+            cornerRadius = radiusPx
+        }
+        
+        val mask = GradientDrawable().apply {
+            setColor(Color.WHITE)
+            cornerRadius = radiusPx
+        }
+        
+        return android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(rippleColor),
+            content,
+            mask
+        )
+    }
 
     private fun createAnimatedButton(textStr: String, textColor: Int, bgColor: Int, height: Int, onClick: () -> Unit): TextView {
         return TextView(this).apply {

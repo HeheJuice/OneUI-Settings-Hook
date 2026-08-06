@@ -277,13 +277,14 @@ class SettingsActivity : Activity() {
             setOnTouchListener(pressScaleTouchListener)
         }
 
-        val defaultIcon = ImageView(this).apply {
+                val defaultIcon = ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(80f), dpToPx(60f)).apply { bottomMargin = dpToPx(12f) }
             scaleType = ImageView.ScaleType.FIT_CENTER
-            // Attempt to load IconDefault.png
-            val resId = resources.getIdentifier("IconDefault", "drawable", packageName)
+            // Load the XML vector drawable (icon_default.xml)
+            val resId = resources.getIdentifier("icon_default", "drawable", packageName)
             if (resId != 0) setImageResource(resId)
         }
+
 
         val defaultLabel = TextView(this).apply {
             text = "Default"
@@ -314,13 +315,14 @@ class SettingsActivity : Activity() {
             setOnTouchListener(pressScaleTouchListener)
         }
 
-        val monetIcon = ImageView(this).apply {
+                val monetIcon = ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(80f), dpToPx(60f)).apply { bottomMargin = dpToPx(12f) }
             scaleType = ImageView.ScaleType.FIT_CENTER
-            // Attempt to load IconMonet.png
-            val resId = resources.getIdentifier("IconMonet", "drawable", packageName)
+            // Load the XML vector drawable (icon_monet.xml)
+            val resId = resources.getIdentifier("icon_monet", "drawable", packageName)
             if (resId != 0) setImageResource(resId)
         }
+
 
         val monetLabel = TextView(this).apply {
             text = "Monet"

@@ -22,10 +22,8 @@ object DashboardColorPatch {
             }
 
             // Get a Resources object for your module
-            val appContext = XposedHelpers.callStaticMethod(
-                "android.app.ActivityThread",
-                "currentApplication"
-            ) as Context
+            val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
+            val appContext = XposedHelpers.callStaticMethod(activityThreadClass, "currentApplication") as Context
             val moduleContext = appContext.createPackageContext(
                 MODULE_PACKAGE_NAME,
                 Context.CONTEXT_IGNORE_SECURITY

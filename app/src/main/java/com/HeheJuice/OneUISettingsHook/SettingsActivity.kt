@@ -1210,7 +1210,7 @@ class SettingsActivity : Activity() {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(0, dpToPx(160f), 1f).apply {
+            layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
                 marginStart = dpToPx(6f)
                 marginEnd = dpToPx(6f)
             }
@@ -1227,7 +1227,7 @@ class SettingsActivity : Activity() {
 
             // Icon
             val icon = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(dpToPx(50f), dpToPx(40f)).apply {
+                layoutParams = LinearLayout.LayoutParams(dpToPx(45f), dpToPx(40f)).apply {
                     gravity = Gravity.CENTER
                     weight = 1f
                 }
@@ -1239,7 +1239,7 @@ class SettingsActivity : Activity() {
             // Label
             val labelView = TextView(context).apply {
                 text = label
-                textSize = 13f
+                textSize = 12f
                 setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
                 setTypeface(null, Typeface.BOLD)
                 gravity = Gravity.CENTER

@@ -58,4 +58,9 @@
     <string name="msg_software_update_disabled">Đã tắt ứng dụng Cập nhật phần mềm</string>
     <string name="msg_app_not_found">Không tìm thấy ứng dụng</string>
 <string name="un1ca_notice">Nhà phát triển sử dụng UN1CA (một phần mềm OneUI không chính thức), tính năng này CHƯA ĐƯỢC KIỂM TRA trên OneUI chính thức. Vui lòng sử dụng nút (Báo cáo lỗi) nếu tính năng bị lỗi.</string>
+<string name="dashboard_theme_title">Màu chủ đề bảng điều khiển</string>
+<string name="dashboard_option_default">Mặc định</string>
+<string name="dashboard_option_monet">Monet</string>
+<string name="msg_dashboard_theme_applied">Đã áp dụng chủ đề bảng điều khiển. Cài đặt đã khởi động lại.</string>
+<string name="debug_incorrect_code">Mã không đúng</string>
 </resources>

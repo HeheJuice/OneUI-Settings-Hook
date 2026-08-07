@@ -307,7 +307,7 @@ class SettingsActivity : Activity() {
     return LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
-        // Increase height to 150dp for better visibility
+        // Use a fixed height for consistency
         layoutParams = LinearLayout.LayoutParams(0, dpToPx(150f), 1f).apply {
             marginStart = dpToPx(6f)
             marginEnd = dpToPx(6f)
@@ -321,14 +321,17 @@ class SettingsActivity : Activity() {
         isFocusable = true
         setOnTouchListener(pressScaleTouchListener)
 
+        // Icon – centered horizontally
         val icon = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(70f), dpToPx(60f)).apply {
                 bottomMargin = dpToPx(10f)
-                gravity = Gravity.CENTER
             }
             scaleType = ImageView.ScaleType.FIT_CENTER
             setImageResource(iconResId)
         }
+        addView(icon)
+
+        // Label – single line, centered, prevents wrapping
         val labelView = TextView(context).apply {
             text = label
             textSize = 14f
@@ -336,24 +339,24 @@ class SettingsActivity : Activity() {
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             textAlignment = View.TEXT_ALIGNMENT_CENTER
+            // Force single line to keep height consistent
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
             setPadding(0, 0, 0, dpToPx(8f))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
+        addView(labelView)
+
+        // Radio button – centered horizontally, will be at the bottom due to layout order
         val radio = ImageView(context).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(22f), dpToPx(22f))
             scaleType = ImageView.ScaleType.FIT_CENTER
             setImageDrawable(createRadioButtonDrawable(isSelected))
         }
-        addView(icon)
-        addView(labelView)
         addView(radio)
-
-        // Add a small spacer view at the bottom to ensure the radio is not cut off
-        // (optional, but can help with alignment)
-        // addView(View(context).apply { layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, dpToPx(4f)) })
 
         setOnClickListener {
             if (currentStyle != styleValue) {
@@ -1283,20 +1286,29 @@ class SettingsActivity : Activity() {
     }
 
     // ---------- UPDATE STYLE UI ----------
-    private fun updateStyleUI() {
-    for (i in 0 until themeSelectionRow.childCount) {
-        val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
-        val radio = optionLayout.getChildAt(2) as ImageView
-        val label = optionLayout.getChildAt(1) as TextView
-        val labelText = label.text.toString()
-        val isSelected = when (labelText) {
-            getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
-            "Monet" -> currentStyle == STYLE_MONET
-            "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
-            else -> false
+    private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
+    return object : Drawable() {
+        private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = dpToPx(2.5f).toFloat()
+            color = if (isSelected) accentColor else secondaryTextColor
         }
-        radio.setImageDrawable(createRadioButtonDrawable(isSelected))
-        label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+        private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+            color = accentColor
+        }
+        override fun draw(canvas: Canvas) {
+            val cx = bounds.exactCenterX()
+            val cy = bounds.exactCenterY()
+            val radius = dpToPx(12f).toFloat()
+            canvas.drawCircle(cx, cy, radius, strokePaint)
+            if (isSelected) {
+                canvas.drawCircle(cx, cy, radius - dpToPx(5f).toFloat(), fillPaint)
+            }
+        }
+        override fun setAlpha(alpha: Int) {}
+        override fun setColorFilter(cf: ColorFilter?) {}
+        @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
     }
 }
     private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {

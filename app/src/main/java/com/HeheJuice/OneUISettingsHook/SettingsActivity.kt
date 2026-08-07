@@ -1337,7 +1337,7 @@ class SettingsActivity : Activity() {
         Thread {
             runRootCommands(listOf("am force-stop com.android.settings"))
             runOnUiThread {
-                Toast.makeText(this, "Dashboard style applied. Settings restarted.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.msg_dashboard_theme_applied), Toast.LENGTH_SHORT).show()
             }
         }.start()
     }

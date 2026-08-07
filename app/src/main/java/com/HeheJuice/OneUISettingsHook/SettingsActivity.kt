@@ -72,8 +72,8 @@ class SettingsActivity : Activity() {
 
         val buttonHeightPx = dpToPx(54f)
 
-        val deviceProtectedContext = createDeviceProtectedStorageContext()
-        val prefs = deviceProtectedContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+        // FIX: Use normal shared preferences (not device-protected)
+        val prefs = getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
 
         val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"

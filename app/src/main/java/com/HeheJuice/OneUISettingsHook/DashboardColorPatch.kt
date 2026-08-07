@@ -1,6 +1,5 @@
 package com.HeheJuice.OneUISettingsHook
 
-import android.content.ContentResolver
 import android.content.res.Resources
 import android.provider.Settings
 import android.util.Log
@@ -16,10 +15,17 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // Get a ContentResolver from the system context
             val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
-            val systemContext = XposedHelpers.callStaticMethod(activityThreadClass, "getSystemContext") as android.content.Context
-            val contentResolver = systemContext.contentResolver
+            
+            // Get the Application context of the current process (Settings app)
+            val appContext = XposedHelpers.callStaticMethod(activityThreadClass, "currentApplication") as? android.app.Application
+            if (appContext == null) {
+                Log.e(TAG, "currentApplication returned null – aborting.")
+                return
+            }
+            Log.d(TAG, "Got application context: $appContext")
+
+            val contentResolver = appContext.contentResolver
 
             // Read from Settings.Global
             val enabled = Settings.Global.getInt(contentResolver, GLOBAL_KEY, 0) == 1
@@ -31,7 +37,7 @@ object DashboardColorPatch {
             }
 
             // Get module resources
-            val moduleContext = systemContext.createPackageContext(
+            val moduleContext = appContext.createPackageContext(
                 MODULE_PACKAGE_NAME,
                 android.content.Context.CONTEXT_IGNORE_SECURITY
             )

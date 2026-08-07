@@ -1,6 +1,8 @@
 package com.HeheJuice.OneUISettingsHook
 
+import android.content.ContentResolver
 import android.content.res.Resources
+import android.provider.Settings
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -8,15 +10,20 @@ import de.robv.android.xposed.XposedHelpers
 object DashboardColorPatch {
     private const val TAG = "OneUISettingsHook"
     private const val MODULE_PACKAGE_NAME = "com.HeheJuice.OneUISettingsHook"
+    private const val GLOBAL_KEY = "oneui_hook_monet"
 
     fun applyPatch(classLoader: ClassLoader) {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // Read system property using reflection
-            val propertyClass = XposedHelpers.findClass("android.os.SystemProperties", classLoader)
-            val enabled = XposedHelpers.callStaticMethod(propertyClass, "getBoolean", "persist.sys.oneui_hook.monet", false) as Boolean
-            Log.d(TAG, "enable_monet_dashboard (from system property) = $enabled")
+            // Get a ContentResolver from the system context
+            val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
+            val systemContext = XposedHelpers.callStaticMethod(activityThreadClass, "getSystemContext") as android.content.Context
+            val contentResolver = systemContext.contentResolver
+
+            // Read from Settings.Global
+            val enabled = Settings.Global.getInt(contentResolver, GLOBAL_KEY, 0) == 1
+            Log.d(TAG, "enable_monet_dashboard (from Settings.Global) = $enabled")
 
             if (!enabled) {
                 Log.d(TAG, "Dashboard drawable replacement is disabled.")
@@ -24,8 +31,6 @@ object DashboardColorPatch {
             }
 
             // Get module resources
-            val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
-            val systemContext = XposedHelpers.callStaticMethod(activityThreadClass, "getSystemContext") as android.content.Context
             val moduleContext = systemContext.createPackageContext(
                 MODULE_PACKAGE_NAME,
                 android.content.Context.CONTEXT_IGNORE_SECURITY

@@ -88,7 +88,7 @@
     <string name="lab_warning_title">测试状态提示</string>
     <string name="lab_warning_message">这些功能处于测试状态，可能会不稳定。</string>
 <string name="un1ca_notice">开发者使用 UN1CA（非官方 OneUI 固件），此功能在官方 OneUI 上未经过测试。如果功能异常，请随时使用“反馈 Bug”按钮!</string>
-<string name="dashboard_theme_title">仪表板主题颜色</string>
+<string name="dashboard_theme_title">仪表板主题</string>
 <string name="dashboard_option_default">默认</string>
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">已应用仪表板主题。设置已重启。</string>

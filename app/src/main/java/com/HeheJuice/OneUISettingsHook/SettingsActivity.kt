@@ -1286,36 +1286,11 @@ class SettingsActivity : Activity() {
     }
 
     // ---------- UPDATE STYLE UI ----------
-    private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
+    private fun private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
     return object : Drawable() {
         private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
             strokeWidth = dpToPx(2.5f).toFloat()
-            color = if (isSelected) accentColor else secondaryTextColor
-        }
-        private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            color = accentColor
-        }
-        override fun draw(canvas: Canvas) {
-            val cx = bounds.exactCenterX()
-            val cy = bounds.exactCenterY()
-            val radius = dpToPx(12f).toFloat()
-            canvas.drawCircle(cx, cy, radius, strokePaint)
-            if (isSelected) {
-                canvas.drawCircle(cx, cy, radius - dpToPx(5f).toFloat(), fillPaint)
-            }
-        }
-        override fun setAlpha(alpha: Int) {}
-        override fun setColorFilter(cf: ColorFilter?) {}
-        @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
-    }
-}
-    private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
-    return object : Drawable() {
-        private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = dpToPx(2.5f).toFloat() // slightly thicker
             color = if (isSelected) accentColor else secondaryTextColor
         }
         private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

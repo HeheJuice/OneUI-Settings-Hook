@@ -280,78 +280,7 @@ class SettingsActivity : Activity() {
 
        
 
-        fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
-    val isSelected = currentStyle == styleValue
-    return LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        gravity = Gravity.CENTER_HORIZONTAL
-        // Fixed height – increase if needed
-        layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
-            marginStart = dpToPx(6f)
-            marginEnd = dpToPx(6f)
-        }
-        background = GradientDrawable().apply {
-            setColor(inputBgColor)
-            cornerRadius = dpToPx(16f).toFloat()
-        }
-        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
-        isClickable = true
-        isFocusable = true
-        setOnTouchListener(pressScaleTouchListener)
-
-        // Use weightSum to distribute space evenly
-        weightSum = 3f
-
-        // 1. Icon (weight=1) – centered horizontally
-        val icon = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(60f), dpToPx(50f)).apply {
-                gravity = Gravity.CENTER
-                // weight will be applied below
-                weight = 1f
-            }
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            setImageResource(iconResId)
-        }
-        addView(icon)
-
-        // 2. Label – allow up to 2 lines, centered
-        val labelView = TextView(context).apply {
-            text = label
-            textSize = 14f
-            setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-            maxLines = 2          // allow wrapping to two lines
-            ellipsize = null      // no ellipsis
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        }
-        addView(labelView)
-
-        // 3. Radio button (weight=1) – centered horizontally, at the bottom
-        val radio = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(22f), dpToPx(22f)).apply {
-                gravity = Gravity.CENTER
-                weight = 1f
-            }
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            setImageDrawable(createRadioButtonDrawable(isSelected))
-        }
-        addView(radio)
-
-        setOnClickListener {
-            if (currentStyle != styleValue) {
-                currentStyle = styleValue
-                updateStyleUI()
-                saveStyle(styleValue)
-                applyStyle()
-            }
-        }
-    }
+        
         }
         val defaultOption = createStyleOption(
     getString(R.string.dashboard_option_default),
@@ -406,7 +335,77 @@ class SettingsActivity : Activity() {
             textSize = 14f
             setTextColor(secondaryTextColor)
             setPadding(0, dpToPx(4f), 0, dpToPx(8f))
+        fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
+    val isSelected = currentStyle == styleValue
+    return LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        // Fixed height – adjust if needed
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(160f), 1f).apply {
+            marginStart = dpToPx(6f)
+            marginEnd = dpToPx(6f)
         }
+        background = GradientDrawable().apply {
+            setColor(inputBgColor)
+            cornerRadius = dpToPx(16f).toFloat()
+        }
+        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
+        isClickable = true
+        isFocusable = true
+        setOnTouchListener(pressScaleTouchListener)
+
+        // Use weight sum to distribute space
+        weightSum = 3f
+
+        // 1. Icon – smaller, centered
+        val icon = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(50f), dpToPx(40f)).apply {
+                gravity = Gravity.CENTER
+                weight = 1f
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageResource(iconResId)
+        }
+        addView(icon)
+
+        // 2. Label – allow up to 2 lines, centered
+        val labelView = TextView(context).apply {
+            text = label
+            textSize = 13f  // slightly smaller to fit
+            setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+            maxLines = 2
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        }
+        addView(labelView)
+
+        // 3. Radio button – at the bottom, centered
+        val radio = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(20f), dpToPx(20f)).apply {
+                gravity = Gravity.CENTER
+                weight = 1f
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageDrawable(createRadioButtonDrawable(isSelected))
+        }
+        addView(radio)
+
+        setOnClickListener {
+            if (currentStyle != styleValue) {
+                currentStyle = styleValue
+                updateStyleUI()
+                saveStyle(styleValue)
+                applyStyle()
+            }
+        }
+    }
+}
 
         customTextTitleContainer.addView(customTextTitle)
         customTextTitleContainer.addView(customTextSub)
@@ -1288,7 +1287,7 @@ private fun updateStyleUI() {
 }
 
 // ---------- RADIO BUTTON DRAWABLE ----------
-private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
+ private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
     return object : Drawable() {
         private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
@@ -1302,10 +1301,10 @@ private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
         override fun draw(canvas: Canvas) {
             val cx = bounds.exactCenterX()
             val cy = bounds.exactCenterY()
-            val radius = dpToPx(12f).toFloat()
+            val radius = dpToPx(10f).toFloat()   // slightly smaller
             canvas.drawCircle(cx, cy, radius, strokePaint)
             if (isSelected) {
-                canvas.drawCircle(cx, cy, radius - dpToPx(5f).toFloat(), fillPaint)
+                canvas.drawCircle(cx, cy, radius - dpToPx(4f).toFloat(), fillPaint)
             }
         }
         override fun setAlpha(alpha: Int) {}
@@ -1313,7 +1312,6 @@ private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
         @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
     }
 }
-
 // ---------- SAVE AND APPLY STYLE ----------
 private fun saveStyle(style: Int) {
     getSharedPreferences("mod_settings", Context.MODE_PRIVATE).edit().putInt("dashboard_style", style).apply()

@@ -76,7 +76,7 @@ class SettingsActivity : Activity() {
 
         // Use normal shared preferences (not device-protected)
         val prefs = getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
-        makePrefsWorldReadable()   // ensure file is readable by the system process
+        makePrefsWorldReadable()
 
         val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
@@ -241,12 +241,8 @@ class SettingsActivity : Activity() {
             weightSum = 2f
         }
 
-        // Read initial state from system property (fallback to SharedPreferences)
+        // Read initial state from SharedPreferences only (system property will be set on toggle)
         var isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
-        // If property not set, read from prefs
-        if (!SystemProperties.get("persist.sys.oneui_hook.monet", "").isNotEmpty()) {
-            isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
-        }
 
         // Helper to draw the custom radio button mimicking 44091.jpg
         fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
@@ -361,7 +357,7 @@ class SettingsActivity : Activity() {
                 isMonetEnabled = toMonet
                 prefs.edit().putBoolean("enable_monet_dashboard", toMonet).apply()
                 makePrefsWorldReadable()
-                setMonetProperty(toMonet)   // Set the system property
+                setMonetProperty(toMonet)   // Set system property via shell
 
                 // Update UI visually
                 defaultRadio.setImageDrawable(createRadioButtonDrawable(!isMonetEnabled))
@@ -1285,16 +1281,20 @@ class SettingsActivity : Activity() {
         }
     }
 
-    // --- HELPER to set system property for toggle state ---
+    // --- HELPER to set system property via shell ---
     private fun setMonetProperty(enabled: Boolean) {
-    try {
-        val value = if (enabled) "true" else "false"
-        runRootCommands(listOf("setprop persist.sys.oneui_hook.monet $value"))
-        Log.d("OneUISettingsHook", "Set property via shell to $value")
-    } catch (e: Exception) {
-        Log.e("OneUISettingsHook", "Failed to set system property", e)
+        try {
+            val value = if (enabled) "true" else "false"
+            val success = runRootCommands(listOf("setprop persist.sys.oneui_hook.monet $value"))
+            if (success) {
+                Log.d("OneUISettingsHook", "Set property via shell to $value")
+            } else {
+                Log.e("OneUISettingsHook", "Failed to set property via shell")
+            }
+        } catch (e: Exception) {
+            Log.e("OneUISettingsHook", "Exception setting property", e)
+        }
     }
-}
 
     // --- CLASS HELPER FUNCTIONS ---
 

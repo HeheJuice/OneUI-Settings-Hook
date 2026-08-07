@@ -88,4 +88,9 @@
     <string name="lab_warning_title">測試狀態提示</string>
     <string name="lab_warning_message">這些功能處於測試狀態，可能會不穩定。</string>
 <string name="un1ca_notice">開發者使用 UN1CA（非官方 OneUI 韌體），此功能在官方 OneUI 上未經測試。如果功能出現問題，請隨時使用「回報 Bug」按鈕</string>
+<string name="dashboard_theme_title">儀表板主題顏色</string>
+<string name="dashboard_option_default">預設</string>
+<string name="dashboard_option_monet">Monet</string>
+<string name="msg_dashboard_theme_applied">已套用儀表板主題。設定已重新啟動。</string>
+<string name="debug_incorrect_code">驗證碼錯誤</string>
 </resources>

@@ -1210,7 +1210,7 @@ class SettingsActivity : Activity() {
     return LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
-        layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(160f), 1f).apply {
             marginStart = dpToPx(6f)
             marginEnd = dpToPx(6f)
         }
@@ -1253,7 +1253,7 @@ class SettingsActivity : Activity() {
 
         // Radio button – smaller size
         val radio = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(16f), dpToPx(16f)).apply {  // was 20f
+            layoutParams = LinearLayout.LayoutParams(dpToPx(18f), dpToPx(18f)).apply {  // was 20f
                 gravity = Gravity.CENTER
                 weight = 1f
             }

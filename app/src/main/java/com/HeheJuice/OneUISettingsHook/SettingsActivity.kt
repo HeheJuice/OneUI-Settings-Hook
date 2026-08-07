@@ -22,7 +22,6 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemProperties
 import android.text.InputType
 import android.util.Log
 import android.util.TypedValue
@@ -243,7 +242,7 @@ class SettingsActivity : Activity() {
         }
 
         // Read initial state from system property (fallback to SharedPreferences)
-        var isMonetEnabled = SystemProperties.getBoolean("persist.sys.oneui_hook.monet", false)
+        var isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
         // If property not set, read from prefs
         if (!SystemProperties.get("persist.sys.oneui_hook.monet", "").isNotEmpty()) {
             isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
@@ -1288,13 +1287,14 @@ class SettingsActivity : Activity() {
 
     // --- HELPER to set system property for toggle state ---
     private fun setMonetProperty(enabled: Boolean) {
-        try {
-            SystemProperties.set("persist.sys.oneui_hook.monet", if (enabled) "true" else "false")
-            Log.d("OneUISettingsHook", "Set property to ${if (enabled) "true" else "false"}")
-        } catch (e: Exception) {
-            Log.e("OneUISettingsHook", "Failed to set system property", e)
-        }
+    try {
+        val value = if (enabled) "true" else "false"
+        runRootCommands(listOf("setprop persist.sys.oneui_hook.monet $value"))
+        Log.d("OneUISettingsHook", "Set property via shell to $value")
+    } catch (e: Exception) {
+        Log.e("OneUISettingsHook", "Failed to set system property", e)
     }
+}
 
     // --- CLASS HELPER FUNCTIONS ---
 

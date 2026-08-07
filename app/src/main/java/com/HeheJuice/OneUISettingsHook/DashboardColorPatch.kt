@@ -12,6 +12,8 @@ object DashboardColorPatch {
 
     fun applyPatch(classLoader: ClassLoader) {
         try {
+            Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
+
             // Get module context and read preference
             val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
             val appContext = XposedHelpers.callStaticMethod(activityThreadClass, "currentApplication") as Context
@@ -20,12 +22,17 @@ object DashboardColorPatch {
                 Context.CONTEXT_IGNORE_SECURITY
             )
             val prefs = moduleContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
-            if (!prefs.getBoolean("enable_monet_dashboard", false)) {
+            val enabled = prefs.getBoolean("enable_monet_dashboard", false)
+            Log.d(TAG, "enable_monet_dashboard = $enabled")
+
+            if (!enabled) {
                 Log.d(TAG, "Dashboard drawable replacement is disabled.")
                 return
             }
 
             val moduleResources = moduleContext.resources
+            Log.d(TAG, "Module Resources loaded: ${moduleResources}")
+
             val resourcesClass = Resources::class.java
 
             // ---- Hook Resources.getDrawable(int) ----
@@ -39,6 +46,7 @@ object DashboardColorPatch {
                     }
                 }
             )
+            Log.d(TAG, "Hooked Resources.getDrawable(int)")
 
             // ---- Hook Resources.getDrawable(int, Theme) ----
             XposedHelpers.findAndHookMethod(
@@ -53,6 +61,7 @@ object DashboardColorPatch {
                     }
                 }
             )
+            Log.d(TAG, "Hooked Resources.getDrawable(int, Theme)")
 
             // ---- Hook Resources.getDrawableForDensity(int, int) ----
             XposedHelpers.findAndHookMethod(
@@ -67,6 +76,7 @@ object DashboardColorPatch {
                     }
                 }
             )
+            Log.d(TAG, "Hooked Resources.getDrawableForDensity(int, int)")
 
             // ---- Hook Resources.getDrawableForDensity(int, int, Theme) ----
             XposedHelpers.findAndHookMethod(
@@ -83,8 +93,9 @@ object DashboardColorPatch {
                     }
                 }
             )
+            Log.d(TAG, "Hooked Resources.getDrawableForDensity(int, int, Theme)")
 
-            Log.d(TAG, "Dashboard drawable replacement patch applied successfully.")
+            Log.d(TAG, "=== DashboardColorPatch.applyPatch() END (success) ===")
 
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to apply Dashboard drawable patch", e)
@@ -101,18 +112,29 @@ object DashboardColorPatch {
             val res = param.thisObject as Resources
             val id = param.args[0] as Int
 
-            // Only replace drawables that belong to Settings
-            val packageName = res.getResourcePackageName(id)
-            if (packageName != "com.android.settings") return
+            // Get resource info for logging
+            val packageName = try { res.getResourcePackageName(id) } catch (_: Throwable) { "unknown" }
+            val entryName = try { res.getResourceEntryName(id) } catch (_: Throwable) { "unknown" }
 
-            val entryName = res.getResourceEntryName(id)
+            // Log everything to see what's being loaded
+            if (packageName == "com.android.settings") {
+                Log.v(TAG, "Settings drawable requested: $entryName (id=$id, package=$packageName)")
+            } else {
+                // Log only if you want to see all, maybe comment out for less noise
+                // Log.v(TAG, "Drawable requested: $entryName (id=$id, package=$packageName)")
+            }
+
+            // Only replace drawables that belong to Settings
+            if (packageName != "com.android.settings") return
 
             // Check if we have a drawable with the same name in our module
             val moduleId = moduleResources.getIdentifier(entryName, "drawable", MODULE_PACKAGE_NAME)
             if (moduleId == 0) {
-                Log.v(TAG, "No replacement found for drawable: $entryName")
+                Log.v(TAG, "No replacement found for drawable: $entryName (module resource missing)")
                 return
             }
+
+            Log.d(TAG, "Found replacement for $entryName in module (moduleId=$moduleId)")
 
             // Load the replacement drawable with the same parameters
             val replacement = when {
@@ -130,8 +152,12 @@ object DashboardColorPatch {
                 }
             }
 
-            param.result = replacement
-            Log.d(TAG, "✅ Replaced drawable: $entryName (ID: $id)")
+            if (replacement != null) {
+                param.result = replacement
+                Log.d(TAG, "✅ REPLACED drawable: $entryName (id=$id) with module resource")
+            } else {
+                Log.w(TAG, "Failed to load replacement drawable for $entryName")
+            }
 
         } catch (e: Throwable) {
             Log.e(TAG, "Error replacing drawable", e)

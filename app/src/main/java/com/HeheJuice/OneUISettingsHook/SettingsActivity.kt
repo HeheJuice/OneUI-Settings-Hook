@@ -23,6 +23,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -38,6 +39,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import java.io.File
 import java.security.MessageDigest
 
 private fun hashPassword(input: String): String {
@@ -72,8 +74,9 @@ class SettingsActivity : Activity() {
 
         val buttonHeightPx = dpToPx(54f)
 
-        // FIX: Use normal shared preferences (not device-protected)
+        // Use normal shared preferences (not device-protected)
         val prefs = getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+        makePrefsWorldReadable()   // ensure file is readable by the system process
 
         val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
@@ -352,6 +355,7 @@ class SettingsActivity : Activity() {
             if (isMonetEnabled != toMonet) {
                 isMonetEnabled = toMonet
                 prefs.edit().putBoolean("enable_monet_dashboard", toMonet).apply()
+                makePrefsWorldReadable()   // ensure file is readable after writing
 
                 // Update UI visually
                 defaultRadio.setImageDrawable(createRadioButtonDrawable(!isMonetEnabled))
@@ -525,6 +529,7 @@ class SettingsActivity : Activity() {
             ) {
                 val enteredText = bannerInputEt.text.toString().trim()
                 prefs.edit().putString("custom_banner_text", enteredText).apply()
+                makePrefsWorldReadable()
                 
                 Thread {
                     val safeText = enteredText.replace("'", "'\\''")
@@ -547,6 +552,7 @@ class SettingsActivity : Activity() {
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")
             prefs.edit().remove("custom_banner_text").apply()
+            makePrefsWorldReadable()
             
             Thread {
                 val success = runRootCommands(listOf(
@@ -758,6 +764,7 @@ class SettingsActivity : Activity() {
             ) {
                 val enteredText = productNameInputEt.text.toString().trim()
                 prefs.edit().putString("custom_product_name", enteredText).apply()
+                makePrefsWorldReadable()
 
                 Thread {
                     val safeText = enteredText.replace("'", "'\\''")
@@ -785,6 +792,7 @@ class SettingsActivity : Activity() {
         ) {
             productNameInputEt.setText("")
             prefs.edit().remove("custom_product_name").apply()
+            makePrefsWorldReadable()
 
             Thread {
                 val success = runRootCommands(listOf(
@@ -1254,6 +1262,21 @@ class SettingsActivity : Activity() {
 
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
+    }
+
+    // --- HELPER to make preferences file world-readable ---
+    private fun makePrefsWorldReadable() {
+        try {
+            val prefsFile = File(getApplicationInfo().dataDir, "shared_prefs/mod_settings.xml")
+            if (prefsFile.exists()) {
+                prefsFile.setReadable(true, false) // world-readable
+                Log.d("OneUISettingsHook", "Set prefs file world-readable")
+            } else {
+                Log.w("OneUISettingsHook", "Prefs file does not exist yet")
+            }
+        } catch (e: Exception) {
+            Log.e("OneUISettingsHook", "Failed to set prefs readable", e)
+        }
     }
 
     // --- CLASS HELPER FUNCTIONS ---

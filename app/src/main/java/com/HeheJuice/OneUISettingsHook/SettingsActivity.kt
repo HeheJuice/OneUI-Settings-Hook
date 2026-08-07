@@ -51,16 +51,16 @@ private fun hashPassword(input: String): String {
 class SettingsActivity : Activity() {
 
     companion object {
-        private var primaryTextColor: Int = 0
-private var secondaryTextColor: Int = 0
-private var accentColor: Int = 0
+        private const val STYLE_DEFAULT = 0
+        private const val STYLE_MONET = 1
+        private const val STYLE_ONEUI6 = 2
     }
 
     private lateinit var themeSelectionRow: LinearLayout
     private var currentStyle = STYLE_DEFAULT
-    private var primaryTextColor: Int
-    private var secondaryTextColor: Int
-    private var accentColor: Int
+    private var primaryTextColor: Int = 0
+    private var secondaryTextColor: Int = 0
+    private var accentColor: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)

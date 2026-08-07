@@ -96,4 +96,9 @@
     <string name="btn_force_stop">Force Stop</string>
     <string name="msg_settings_stopped">Settings app stopped!</string>
 <string name="un1ca_notice">Because the developer uses UN1CA (an unofficial OneUI firmware), this feature is UNTESTED on Official OneUI. Feel free to use the ""Report Bugs"" button if the feature is broken.</string>
+<string name="dashboard_theme_title">Dashboard Theme</string>
+<string name="dashboard_option_default">Default</string>
+<string name="dashboard_option_monet">Monet</string>
+<string name="msg_dashboard_theme_applied">Dashboard Theme applied. Settings restarted.</string>
+<string name="debug_incorrect_code">Incorrect Code</string>
 </resources>

@@ -23,6 +23,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -38,42 +39,60 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import java.io.File
 import java.security.MessageDigest
 
 private fun hashPassword(input: String): String {
     val bytes = java.security.MessageDigest.getInstance("SHA-256")
         .digest(input.toByteArray(Charsets.UTF_8))
-    
-    // Mask with 0xFF to prevent negative sign expansion
     return bytes.joinToString("") { "%02x".format(it.toInt() and 0xFF) }
 }
 
 class SettingsActivity : Activity() {
+
+    companion object {
+        private const val STYLE_DEFAULT = 0
+        private const val STYLE_MONET = 1
+        private const val STYLE_ONEUI6 = 2
+    }
+
+    private lateinit var themeSelectionRow: LinearLayout
+    private var currentStyle = STYLE_DEFAULT
+    private var primaryTextColor: Int = 0
+    private var secondaryTextColor: Int = 0
+    private var accentColor: Int = 0
+    private var inputBgColor: Int = 0
+    private var cardBgColor: Int = 0
+    private var cardBorderColor: Int = 0
+    private var secondaryBtnColor: Int = 0
+    private var redBtnColor: Int = 0
+    private var backBtnBgColor: Int = 0
+    private var buttonHeightPx: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
         actionBar?.hide()
 
-        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == 
-                     android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
 
         val bgColor = if (isDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
-        val cardBgColor = if (isDark) Color.parseColor("#1C1C1E") else Color.parseColor("#FFFFFF")
-        val cardBorderColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
-        val primaryTextColor = if (isDark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
-        val secondaryTextColor = if (isDark) Color.parseColor("#8E8E93") else Color.parseColor("#6C6C70")
-        val accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
-        val secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
+        cardBgColor = if (isDark) Color.parseColor("#1C1C1E") else Color.parseColor("#FFFFFF")
+        cardBorderColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
+        primaryTextColor = if (isDark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
+        secondaryTextColor = if (isDark) Color.parseColor("#8E8E93") else Color.parseColor("#6C6C70")
+        accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
+        secondaryBtnColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
         val starBtnColor = if (isDark) Color.parseColor("#FF9F0A") else Color.parseColor("#FF9500")
-        val redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
-        val backBtnBgColor = if (isDark) Color.parseColor("#3A3A3C") else Color.parseColor("#E5E5EA")
-        val inputBgColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#F2F2F7")
+        redBtnColor = if (isDark) Color.parseColor("#FF453A") else Color.parseColor("#FF3B30")
+        backBtnBgColor = if (isDark) Color.parseColor("#3A3A3C") else Color.parseColor("#E5E5EA")
+        inputBgColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#F2F2F7")
 
-        val buttonHeightPx = dpToPx(54f)
+        buttonHeightPx = dpToPx(54f)
 
-        val deviceProtectedContext = createDeviceProtectedStorageContext()
-        val prefs = deviceProtectedContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+        makePrefsWorldReadable()
 
         val rawVersion = try {
             packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
@@ -110,13 +129,14 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
-        
-        // PAGE 1: MODULE INFO
+
+        // ---------- PAGE 1: MODULE INFO ----------
         val moduleInfoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
+        // Header Card
         val headerCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -126,16 +146,26 @@ class SettingsActivity : Activity() {
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
-
-        val headerTitle = TextView(this).apply { text = getString(R.string.app_name); textSize = 28f; setTextColor(primaryTextColor) }
-        val headerSub = TextView(this).apply { text = getString(R.string.header_subtitle); textSize = 15f; setTextColor(secondaryTextColor); setPadding(0, dpToPx(4f), 0, 0) }
+        val headerTitle = TextView(this).apply {
+            text = getString(R.string.app_name)
+            textSize = 28f
+            setTextColor(primaryTextColor)
+        }
+        val headerSub = TextView(this).apply {
+            text = getString(R.string.header_subtitle)
+            textSize = 15f
+            setTextColor(secondaryTextColor)
+            setPadding(0, dpToPx(4f), 0, 0)
+        }
         headerCardLayout.addView(headerTitle)
         headerCardLayout.addView(headerSub)
         moduleInfoLayout.addView(headerCardLayout)
 
-        val headerSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
-        moduleInfoLayout.addView(headerSpacer)
+        moduleInfoLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
 
+        // Card 1 – Module Actions
         val card1Layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -145,19 +175,21 @@ class SettingsActivity : Activity() {
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
-
-        val versionTv = TextView(this).apply { text = getString(R.string.module_version, rawVersion); textSize = 17f; setTextColor(primaryTextColor); setPadding(0, 0, 0, dpToPx(18f)) }
+        val versionTv = TextView(this).apply {
+            text = getString(R.string.module_version, rawVersion)
+            textSize = 17f
+            setTextColor(primaryTextColor)
+            setPadding(0, 0, 0, dpToPx(18f))
+        }
         val licenseBtn = createAnimatedButton(getString(R.string.btn_mit_license), Color.WHITE, accentColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/blob/main/LICENSE")))
         }
         val starBtn = createAnimatedButton(getString(R.string.btn_star_repo), Color.WHITE, starBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
-
         val githubBtn = createAnimatedButton(getString(R.string.btn_github_repo), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook")))
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
-
         val bugBtn = createAnimatedButton(getString(R.string.btn_report_bugs), Color.WHITE, redBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/issues")))
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(12f) }
@@ -169,9 +201,11 @@ class SettingsActivity : Activity() {
         card1Layout.addView(bugBtn)
         moduleInfoLayout.addView(card1Layout)
 
-        val card2Spacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
-        moduleInfoLayout.addView(card2Spacer)
+        moduleInfoLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
 
+        // Card 2 – About
         val card2Layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -181,25 +215,35 @@ class SettingsActivity : Activity() {
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
-
-        val aboutTitle = TextView(this).apply { text = getString(R.string.card_about_title); textSize = 18f; setTextColor(primaryTextColor); setPadding(0, 0, 0, dpToPx(18f)) }
+        val aboutTitle = TextView(this).apply {
+            text = getString(R.string.card_about_title)
+            textSize = 18f
+            setTextColor(primaryTextColor)
+            setPadding(0, 0, 0, dpToPx(18f))
+        }
         val makerBtn = createAnimatedButton(getString(R.string.btn_developer), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice")))
         }
-
         val tgRowLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, buttonHeightPx).apply { topMargin = dpToPx(12f) }
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, buttonHeightPx).apply {
+                topMargin = dpToPx(12f)
+            }
         }
-
         val tgChannelBtn = createAnimatedButton(getString(R.string.btn_tg_channel), primaryTextColor, secondaryBtnColor, LinearLayout.LayoutParams.MATCH_PARENT) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/channelhehejuice")))
-        }.apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginEnd = dpToPx(6f) } }
-
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginEnd = dpToPx(6f)
+            }
+        }
         val tgChatBtn = createAnimatedButton(getString(R.string.btn_tg_chat), primaryTextColor, secondaryBtnColor, LinearLayout.LayoutParams.MATCH_PARENT) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/sechehe")))
-        }.apply { layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply { marginStart = dpToPx(6f) } }
-
+        }.apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+                marginStart = dpToPx(6f)
+            }
+        }
         tgRowLayout.addView(tgChannelBtn)
         tgRowLayout.addView(tgChatBtn)
         card2Layout.addView(aboutTitle)
@@ -207,14 +251,62 @@ class SettingsActivity : Activity() {
         card2Layout.addView(tgRowLayout)
         moduleInfoLayout.addView(card2Layout)
 
-        // PAGE 2: ADVANCED CONTAINER
+        // ---------- PAGE 2: ADVANCED ----------
         val advancedLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // --- CUSTOM BANNER TEXT CARD (EXPANDABLE) ---
+        // ----- Dashboard Style Card (3 options) -----
+        val dashboardStyleCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        val dashboardTitle = TextView(this).apply {
+            text = getString(R.string.dashboard_theme_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(16f))
+        }
+
+        themeSelectionRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            weightSum = 3f
+        }
+
+        currentStyle = prefs.getInt("dashboard_style", STYLE_DEFAULT)
+
+        // Create the three options using the member function createStyleOption
+        val defaultOption = createStyleOption(
+            getString(R.string.dashboard_option_default),
+            R.drawable.icon_default,
+            STYLE_DEFAULT
+        )
+        val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
+        val oneui6Option = createStyleOption("OneUI 6 Monet", R.drawable.icon_oneui6, STYLE_ONEUI6)
+
+        themeSelectionRow.addView(defaultOption)
+        themeSelectionRow.addView(monetOption)
+        themeSelectionRow.addView(oneui6Option)
+
+        dashboardStyleCardLayout.addView(dashboardTitle)
+        dashboardStyleCardLayout.addView(themeSelectionRow)
+        advancedLayout.addView(dashboardStyleCardLayout)
+
+        advancedLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
+
+        // ----- CUSTOM BANNER TEXT CARD (EXPANDABLE) -----
         val customTextCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -274,15 +366,14 @@ class SettingsActivity : Activity() {
             }
             override fun setAlpha(alpha: Int) { paint.alpha = alpha }
             override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
-            @Deprecated("Deprecated in Java")
-            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
         }
 
         val expandBtn = ImageView(this).apply {
             setImageDrawable(expandIconDrawable)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(inputBgColor) 
+                setColor(inputBgColor)
             }
             isClickable = true
             isFocusable = true
@@ -356,14 +447,15 @@ class SettingsActivity : Activity() {
             ) {
                 val enteredText = bannerInputEt.text.toString().trim()
                 prefs.edit().putString("custom_banner_text", enteredText).apply()
-                
+                makePrefsWorldReadable()
+
                 Thread {
                     val safeText = enteredText.replace("'", "'\\''")
                     val success = runRootCommands(listOf(
                         "settings put global custom_oneui_banner '$safeText'",
                         "am force-stop com.android.settings"
                     ))
-                    
+
                     runOnUiThread {
                         if (success) {
                             Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
@@ -378,7 +470,8 @@ class SettingsActivity : Activity() {
         val resetTextBtn = createAnimatedButton(getString(R.string.btn_reset_default), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             bannerInputEt.setText("")
             prefs.edit().remove("custom_banner_text").apply()
-            
+            makePrefsWorldReadable()
+
             Thread {
                 val success = runRootCommands(listOf(
                     "settings delete global custom_oneui_banner",
@@ -396,7 +489,7 @@ class SettingsActivity : Activity() {
         expandableContentLayout.addView(bannerInputEt)
         expandableContentLayout.addView(saveTextBtn)
         expandableContentLayout.addView(resetTextBtn)
-        
+
         customTextCardLayout.addView(expandableContentLayout)
 
         val toggleExpansion = {
@@ -411,13 +504,14 @@ class SettingsActivity : Activity() {
         expandBtn.setOnClickListener { toggleExpansion() }
         customTextHeaderLayout.setOnClickListener { toggleExpansion() }
         customTextHeaderLayout.isClickable = true
-        
+
         advancedLayout.addView(customTextCardLayout)
 
-        val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
-        advancedLayout.addView(textCardSpacer)
+        advancedLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
 
-        // --- CUSTOM PRODUCT NAME CARD (EXPANDABLE) ---
+        // ----- CUSTOM PRODUCT NAME CARD (EXPANDABLE) -----
         val customProductNameCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -477,8 +571,7 @@ class SettingsActivity : Activity() {
             }
             override fun setAlpha(alpha: Int) { paint.alpha = alpha }
             override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
-            @Deprecated("Deprecated in Java")
-            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
         }
 
         val productNameExpandBtn = ImageView(this).apply {
@@ -589,6 +682,7 @@ class SettingsActivity : Activity() {
             ) {
                 val enteredText = productNameInputEt.text.toString().trim()
                 prefs.edit().putString("custom_product_name", enteredText).apply()
+                makePrefsWorldReadable()
 
                 Thread {
                     val safeText = enteredText.replace("'", "'\\''")
@@ -616,6 +710,7 @@ class SettingsActivity : Activity() {
         ) {
             productNameInputEt.setText("")
             prefs.edit().remove("custom_product_name").apply()
+            makePrefsWorldReadable()
 
             Thread {
                 val success = runRootCommands(listOf(
@@ -654,12 +749,11 @@ class SettingsActivity : Activity() {
 
         advancedLayout.addView(customProductNameCardLayout)
 
-        val productNameSpacer = View(this).apply {
+        advancedLayout.addView(View(this).apply {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
-        }
-        advancedLayout.addView(productNameSpacer)
+        })
 
-        // --- DISABLE SOFTWARE UPDATE CARD ---
+        // ----- DISABLE SOFTWARE UPDATE CARD -----
         val disableUpdateCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -743,10 +837,11 @@ class SettingsActivity : Activity() {
 
         advancedLayout.addView(disableUpdateCardLayout)
 
-        val updateCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
-        advancedLayout.addView(updateCardSpacer)
+        advancedLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
 
-        // --- FORCE STOP SETTINGS CARD ---
+        // ----- FORCE STOP SETTINGS CARD -----
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -757,38 +852,52 @@ class SettingsActivity : Activity() {
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
 
-        val advancedTitle = TextView(this).apply { text = getString(R.string.advanced_controls); textSize = 22f; setTextColor(primaryTextColor); setTypeface(null, Typeface.BOLD) }
-        val advancedSub = TextView(this).apply { text = getString(R.string.advanced_subtitle); textSize = 14f; setTextColor(secondaryTextColor); setPadding(0, dpToPx(4f), 0, dpToPx(20f)) }
-        val forceStopBtn = createAnimatedButton(getString(R.string.btn_force_stop_settings), Color.WHITE, redBtnColor, buttonHeightPx) { forceStopSettings() }
+        val advancedTitle = TextView(this).apply {
+            text = getString(R.string.advanced_controls)
+            textSize = 22f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
+        val advancedSub = TextView(this).apply {
+            text = getString(R.string.advanced_subtitle)
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            setPadding(0, dpToPx(4f), 0, dpToPx(20f))
+        }
+        val forceStopBtn = createAnimatedButton(getString(R.string.btn_force_stop_settings), Color.WHITE, redBtnColor, buttonHeightPx) {
+            forceStopSettings()
+        }
 
         forceStopCardLayout.addView(advancedTitle)
         forceStopCardLayout.addView(advancedSub)
         forceStopCardLayout.addView(forceStopBtn)
         advancedLayout.addView(forceStopCardLayout)
 
+        // Add both layouts to scroll content
         scrollContent.addView(moduleInfoLayout)
         scrollContent.addView(advancedLayout)
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
 
-        // FLOATING TOP BAR
+        // ---------- TOP BAR ----------
         val topBarLayout = FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
             setPadding(dpToPx(16f), statusBarHeight + dpToPx(12f), dpToPx(16f), dpToPx(12f))
         }
-
         val topBarTitle = TextView(this).apply {
             text = getString(R.string.app_name)
             textSize = 16f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
-            background = GradientDrawable().apply { setColor(backBtnBgColor); cornerRadius = dpToPx(100f).toFloat() }
+            background = GradientDrawable().apply {
+                setColor(backBtnBgColor)
+                cornerRadius = dpToPx(100f).toFloat()
+            }
             setPadding(dpToPx(20f), 0, dpToPx(20f), 0)
             alpha = 0f
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, dpToPx(48f), Gravity.CENTER)
         }
-
         val backArrowDrawable = object : Drawable() {
             private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
@@ -810,13 +919,14 @@ class SettingsActivity : Activity() {
             }
             override fun setAlpha(alpha: Int) { paint.alpha = alpha }
             override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
-            @Deprecated("Deprecated in Java")
-            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
         }
-
         val backBtn = ImageView(this).apply {
             setImageDrawable(backArrowDrawable)
-            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(backBtnBgColor) }
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(backBtnBgColor)
+            }
             contentDescription = getString(R.string.btn_back)
             isClickable = true
             isFocusable = true
@@ -824,16 +934,17 @@ class SettingsActivity : Activity() {
             setOnClickListener { finish() }
             setOnTouchListener(pressScaleTouchListener)
         }
-
         topBarLayout.addView(topBarTitle)
         topBarLayout.addView(backBtn)
         rootFrameLayout.addView(topBarLayout)
 
-        // BOTTOM BAR
+        // ---------- BOTTOM BAR (Tabs + Search) ----------
         val bottomBarLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply { bottomMargin = dpToPx(16f) }
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply {
+                bottomMargin = dpToPx(16f)
+            }
         }
 
         val tabPillContainer = FrameLayout(this).apply {
@@ -846,9 +957,10 @@ class SettingsActivity : Activity() {
             setPadding(dpToPx(4f), dpToPx(4f), dpToPx(4f), dpToPx(4f))
         }
 
-        val activeTabBg = GradientDrawable().apply { setColor(secondaryBtnColor); cornerRadius = dpToPx(100f).toFloat() }
-
-        // Sliding background pill indicator
+        val activeTabBg = GradientDrawable().apply {
+            setColor(secondaryBtnColor)
+            cornerRadius = dpToPx(100f).toFloat()
+        }
         val slidingPillView = View(this).apply {
             background = activeTabBg
             layoutParams = FrameLayout.LayoutParams(0, dpToPx(44f))
@@ -898,20 +1010,21 @@ class SettingsActivity : Activity() {
                 } else {
                     moduleInfoLayout.visibility = View.GONE
                     advancedLayout.visibility = View.VISIBLE
-                    applyEntranceAnimations(listOf(customTextCardLayout, customProductNameCardLayout, disableUpdateCardLayout, forceStopCardLayout))
+                    applyEntranceAnimations(listOf(
+                        dashboardStyleCardLayout, customTextCardLayout,
+                        customProductNameCardLayout, disableUpdateCardLayout, forceStopCardLayout
+                    ))
                 }
                 scrollView.scrollTo(0, 0)
             }
         }
 
-        // Measure text-based tab widths and set initial pill dimensions
         tabPillContainer.post {
             slidingPillView.layoutParams = slidingPillView.layoutParams.apply { width = moduleInfoPillBtn.width }
             slidingPillView.translationX = moduleInfoPillBtn.left.toFloat()
             slidingPillView.requestLayout()
         }
 
-        // Interpolates pill position & width based on each tab's text length (0.0 = Left tab, 1.0 = Right tab)
         val updatePillPosition: (Float) -> Unit = { progress ->
             val p = progress.coerceIn(0f, 1f)
             val x0 = moduleInfoPillBtn.left.toFloat()
@@ -996,7 +1109,6 @@ class SettingsActivity : Activity() {
                     val targetIsModule = touchX < midPoint
                     val targetProgress = if (targetIsModule) 0f else 1f
 
-                    // Smoothly animate pill size and position to target tab, then trigger page switch
                     animatePillTo(targetProgress) {
                         switchTab(targetIsModule)
                     }
@@ -1035,17 +1147,22 @@ class SettingsActivity : Activity() {
             }
             override fun setAlpha(alpha: Int) { paint.alpha = alpha }
             override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
-            @Deprecated("Deprecated in Java")
-            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
         }
 
         val searchCircleBtn = ImageView(this).apply {
             setImageDrawable(searchIconDrawable)
-            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(cardBgColor); setStroke(dpToPx(1f), cardBorderColor) }
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(cardBgColor)
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
             contentDescription = "Search"
             isClickable = true
             isFocusable = true
-            layoutParams = LinearLayout.LayoutParams(dpToPx(52f), dpToPx(52f)).apply { marginStart = dpToPx(8f) }
+            layoutParams = LinearLayout.LayoutParams(dpToPx(52f), dpToPx(52f)).apply {
+                marginStart = dpToPx(8f)
+            }
             setOnClickListener {
                 val intent = Intent().apply {
                     component = ComponentName("com.android.settings.intelligence", "com.android.settings.intelligence.search.SearchActivity")
@@ -1087,8 +1204,151 @@ class SettingsActivity : Activity() {
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
     }
 
-    // --- CLASS HELPER FUNCTIONS ---
+    // ---------- HELPER: Create a style option card ----------
+    private fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
+    val isSelected = currentStyle == styleValue
+    return LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
+            marginStart = dpToPx(6f)
+            marginEnd = dpToPx(6f)
+        }
+        background = GradientDrawable().apply {
+            setColor(inputBgColor)
+            cornerRadius = dpToPx(16f).toFloat()
+        }
+        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
+        isClickable = true
+        isFocusable = true
+        setOnTouchListener(pressScaleTouchListener)
 
+        weightSum = 3f
+
+        val icon = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(45f), dpToPx(40f)).apply {
+                gravity = Gravity.CENTER
+                weight = 1f
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageResource(iconResId)
+        }
+        addView(icon)
+
+        val labelView = TextView(context).apply {
+            text = label
+            textSize = 12f
+            setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+            maxLines = 2
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        }
+        addView(labelView)
+
+        // Radio button – smaller size
+        val radio = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(18f), dpToPx(18f)).apply {  // was 20f
+                gravity = Gravity.CENTER
+                weight = 1f
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageDrawable(createRadioButtonDrawable(isSelected))
+        }
+        addView(radio)
+
+        setOnClickListener {
+            if (currentStyle != styleValue) {
+                currentStyle = styleValue
+                updateStyleUI()
+                saveStyle(styleValue)
+                applyStyle()
+            }
+        }
+    }
+}
+    // ---------- UPDATE STYLE UI ----------
+    private fun updateStyleUI() {
+        for (i in 0 until themeSelectionRow.childCount) {
+            val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
+            val radio = optionLayout.getChildAt(2) as ImageView
+            val label = optionLayout.getChildAt(1) as TextView
+            val labelText = label.text.toString()
+            val isSelected = when (labelText) {
+                getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
+                "Monet" -> currentStyle == STYLE_MONET
+                "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
+                else -> false
+            }
+            radio.setImageDrawable(createRadioButtonDrawable(isSelected))
+            label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+        }
+    }
+
+    // ---------- RADIO BUTTON DRAWABLE ----------
+    private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
+    return object : Drawable() {
+        private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = dpToPx(2f).toFloat()   // slightly thinner stroke
+            color = if (isSelected) accentColor else secondaryTextColor
+        }
+        private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+            color = accentColor
+        }
+        override fun draw(canvas: Canvas) {
+            val cx = bounds.exactCenterX()
+            val cy = bounds.exactCenterY()
+            val radius = dpToPx(8f).toFloat()    // smaller radius (was 10f)
+            canvas.drawCircle(cx, cy, radius, strokePaint)
+            if (isSelected) {
+                canvas.drawCircle(cx, cy, radius - dpToPx(3f).toFloat(), fillPaint)
+            }
+        }
+        override fun setAlpha(alpha: Int) {}
+        override fun setColorFilter(cf: ColorFilter?) {}
+        @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
+    }
+}
+
+    // ---------- SAVE AND APPLY STYLE ----------
+    private fun saveStyle(style: Int) {
+        getSharedPreferences("mod_settings", Context.MODE_PRIVATE).edit().putInt("dashboard_style", style).apply()
+        makePrefsWorldReadable()
+        Thread {
+            runRootCommands(listOf("settings put global oneui_hook_dashboard_style $style"))
+        }.start()
+    }
+
+    private fun applyStyle() {
+        Thread {
+            runRootCommands(listOf("am force-stop com.android.settings"))
+            runOnUiThread {
+                Toast.makeText(this, getString(R.string.msg_dashboard_theme_applied), Toast.LENGTH_SHORT).show()
+            }
+        }.start()
+    }
+
+    // ---------- MAKE PREFS WORLD-READABLE ----------
+    private fun makePrefsWorldReadable() {
+        try {
+            val prefsFile = File(getApplicationInfo().dataDir, "shared_prefs/mod_settings.xml")
+            if (prefsFile.exists()) {
+                prefsFile.setReadable(true, false)
+                Log.d("OneUISettingsHook", "Set prefs file world-readable")
+            }
+        } catch (e: Exception) {
+            Log.e("OneUISettingsHook", "Failed to set prefs readable", e)
+        }
+    }
+
+    // ---------- NOTICE DIALOG ----------
     private fun showNoticeDialog(
         cardBgColor: Int,
         cardBorderColor: Int,
@@ -1131,15 +1391,15 @@ class SettingsActivity : Activity() {
         val btnRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 buttonHeightPx
             )
         }
 
         val leaveBtn = createAnimatedButton(
-            getString(R.string.btn_leave), 
-            primaryTextColor, 
-            secondaryBtnColor, 
+            getString(R.string.btn_leave),
+            primaryTextColor,
+            secondaryBtnColor,
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
             dialog.dismiss()
@@ -1150,9 +1410,9 @@ class SettingsActivity : Activity() {
         }
 
         val continueBtn = createAnimatedButton(
-            getString(R.string.btn_continue), 
-            Color.WHITE, 
-            accentColor, 
+            getString(R.string.btn_continue),
+            Color.WHITE,
+            accentColor,
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
             dialog.dismiss()
@@ -1180,6 +1440,7 @@ class SettingsActivity : Activity() {
         dialog.show()
     }
 
+    // ---------- PASSWORD PROTECTION DIALOG ----------
     private fun showPasswordProtectionDialog(
         cardBgColor: Int,
         cardBorderColor: Int,
@@ -1234,7 +1495,7 @@ class SettingsActivity : Activity() {
             }
             setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
             layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
@@ -1242,7 +1503,7 @@ class SettingsActivity : Activity() {
         val btnRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 buttonHeightPx
             ).apply {
                 topMargin = dpToPx(16f)
@@ -1250,9 +1511,9 @@ class SettingsActivity : Activity() {
         }
 
         val exitBtn = createAnimatedButton(
-            "Exit", 
-            primaryTextColor, 
-            secondaryBtnColor, 
+            "Exit",
+            primaryTextColor,
+            secondaryBtnColor,
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
             dialog.dismiss()
@@ -1264,12 +1525,11 @@ class SettingsActivity : Activity() {
         }
 
         val unlockBtn = createAnimatedButton(
-            "Unlock", 
-            Color.WHITE, 
-            accentColor, 
+            "Unlock",
+            Color.WHITE,
+            accentColor,
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
-            // Exact SHA-256 hash of "88990077"
             val expectedHash = "cd6e0f460851e20c00c9849a70b5d97d28c13e3228ef264ffe571f451e3fbf81"
             val enteredPin = passwordInput.text.toString().trim()
 
@@ -1305,6 +1565,7 @@ class SettingsActivity : Activity() {
         dialog.show()
     }
 
+    // ---------- DEBUG WARNING DIALOG ----------
     private fun showDebugWarningDialog(
         cardBgColor: Int,
         cardBorderColor: Int,
@@ -1347,15 +1608,15 @@ class SettingsActivity : Activity() {
         val btnRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 buttonHeightPx
             )
         }
 
         val leaveBtn = createAnimatedButton(
-            "Leave", 
-            primaryTextColor, 
-            secondaryBtnColor, 
+            "Leave",
+            primaryTextColor,
+            secondaryBtnColor,
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
             dialog.dismiss()
@@ -1367,9 +1628,9 @@ class SettingsActivity : Activity() {
         }
 
         val continueBtn = createAnimatedButton(
-            "Continue", 
-            Color.WHITE, 
-            redBtnColor, 
+            "Continue",
+            Color.WHITE,
+            redBtnColor,
             LinearLayout.LayoutParams.MATCH_PARENT
         ) {
             dialog.dismiss()
@@ -1398,9 +1659,10 @@ class SettingsActivity : Activity() {
         dialog.show()
     }
 
+    // ---------- EXPAND / COLLAPSE ANIMATIONS ----------
     private fun expandView(view: View, expandBtn: View) {
         val parent = view.parent as? View ?: return
-        
+
         val matchParentSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY)
         val wrapContentSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         view.measure(matchParentSpec, wrapContentSpec)
@@ -1455,11 +1717,12 @@ class SettingsActivity : Activity() {
         heightAnim.start()
     }
 
+    // ---------- PACKAGE INSTALL CHECK ----------
     private fun isPackageInstalled(packageName: String): Boolean {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.getPackageInfo(
-                    packageName, 
+                    packageName,
                     PackageManager.PackageInfoFlags.of(PackageManager.MATCH_UNINSTALLED_PACKAGES.toLong())
                 )
             } else {
@@ -1472,6 +1735,7 @@ class SettingsActivity : Activity() {
         }
     }
 
+    // ---------- FORCE STOP SETTINGS ----------
     private fun forceStopSettings() {
         Thread {
             val success = runRootCommands(listOf("am force-stop com.android.settings"))
@@ -1485,6 +1749,7 @@ class SettingsActivity : Activity() {
         }.start()
     }
 
+    // ---------- RUN ROOT COMMANDS ----------
     private fun runRootCommands(commands: List<String>): Boolean {
         return try {
             val script = commands.joinToString(" ; ")
@@ -1500,6 +1765,7 @@ class SettingsActivity : Activity() {
         }
     }
 
+    // ---------- PRESS SCALE TOUCH LISTENER ----------
     private val pressScaleTouchListener = View.OnTouchListener { v, event ->
         val springBackInterpolator = android.view.animation.PathInterpolator(0.22f, 1.0f, 0.36f, 1.0f)
 
@@ -1528,26 +1794,7 @@ class SettingsActivity : Activity() {
         false
     }
 
-    private fun createRippleBackground(normalColor: Int, rippleColor: Int, cornerRadiusDp: Float): Drawable {
-        val radiusPx = dpToPx(cornerRadiusDp).toFloat()
-        
-        val content = GradientDrawable().apply {
-            setColor(normalColor)
-            cornerRadius = radiusPx
-        }
-        
-        val mask = GradientDrawable().apply {
-            setColor(Color.WHITE)
-            cornerRadius = radiusPx
-        }
-        
-        return android.graphics.drawable.RippleDrawable(
-            android.content.res.ColorStateList.valueOf(rippleColor),
-            content,
-            mask
-        )
-    }
-
+    // ---------- CREATE ANIMATED BUTTON ----------
     private fun createAnimatedButton(textStr: String, textColor: Int, bgColor: Int, height: Int, onClick: () -> Unit): TextView {
         return TextView(this).apply {
             text = textStr
@@ -1563,6 +1810,7 @@ class SettingsActivity : Activity() {
         }
     }
 
+    // ---------- ENTRANCE ANIMATIONS ----------
     private fun applyEntranceAnimations(views: List<View>) {
         views.forEachIndexed { index, view ->
             view.translationY = dpToPx(40f).toFloat()
@@ -1577,15 +1825,18 @@ class SettingsActivity : Activity() {
         }
     }
 
+    // ---------- STATUS BAR HEIGHT ----------
     private fun getStatusBarHeight(): Int {
         val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
         return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else dpToPx(36f)
     }
 
-    private fun dpToPx(context: Context, dp: Float): Int {
-        return Math.round(dp * context.resources.displayMetrics.density)
-    }
+    // ---------- DP TO PX CONVERTERS ----------
+    private fun dpToPx(dp: Float): Int =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
 
-    private fun dpToPx(dp: Float): Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
     private fun dpToPx(dp: Int): Int = dpToPx(dp.toFloat())
+
+    private fun dpToPx(context: Context, dp: Float): Int =
+        Math.round(dp * context.resources.displayMetrics.density)
 }

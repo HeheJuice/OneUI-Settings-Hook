@@ -35,6 +35,7 @@ if (lpparam.packageName == "com.samsung.android.da.daagent") {
 
         // 4. Initialize Custom Device Name patch (Hooks SecDeviceInfoUtils for UN1CA & OneUI)
         CustomDeviceNamePatch.applyPatch(lpparam.classLoader)
+DashboardColorPatch.applyPatch(lpparam.classLoader)
 
         val targetFragmentClass = "androidx.preference.PreferenceFragmentCompat"
         

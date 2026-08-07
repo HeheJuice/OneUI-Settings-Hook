@@ -278,29 +278,7 @@ class SettingsActivity : Activity() {
 
         currentStyle = prefs.getInt("dashboard_style", STYLE_DEFAULT)
 
-        fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
-            return object : Drawable() {
-                private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    style = Paint.Style.STROKE
-                    strokeWidth = dpToPx(2f).toFloat()
-                    color = if (isSelected) accentColor else secondaryTextColor
-                }
-                private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    style = Paint.Style.FILL
-                    color = accentColor
-                }
-                override fun draw(canvas: Canvas) {
-                    val cx = bounds.exactCenterX()
-                    val cy = bounds.exactCenterY()
-                    val radius = dpToPx(10f).toFloat()
-                    canvas.drawCircle(cx, cy, radius, strokePaint)
-                    if (isSelected) canvas.drawCircle(cx, cy, radius - dpToPx(4f).toFloat(), fillPaint)
-                }
-                override fun setAlpha(alpha: Int) {}
-                override fun setColorFilter(cf: ColorFilter?) {}
-                @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
-            }
-        }
+       
 
         fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
     val isSelected = currentStyle == styleValue
@@ -1284,9 +1262,26 @@ class SettingsActivity : Activity() {
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
     }
+// ---------- UPDATE STYLE UI ----------
+private fun updateStyleUI() {
+    for (i in 0 until themeSelectionRow.childCount) {
+        val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
+        val radio = optionLayout.getChildAt(2) as ImageView
+        val label = optionLayout.getChildAt(1) as TextView
+        val labelText = label.text.toString()
+        val isSelected = when (labelText) {
+            getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
+            "Monet" -> currentStyle == STYLE_MONET
+            "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
+            else -> false
+        }
+        radio.setImageDrawable(createRadioButtonDrawable(isSelected))
+        label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+    }
+}
 
-    // ---------- UPDATE STYLE UI ----------
-    private fun private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
+// ---------- RADIO BUTTON DRAWABLE ----------
+private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
     return object : Drawable() {
         private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
@@ -1311,39 +1306,24 @@ class SettingsActivity : Activity() {
         @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
     }
 }
-    // ---------- SAVE AND APPLY STYLE ----------
-private fun updateStyleUI() {
-    for (i in 0 until themeSelectionRow.childCount) {
-        val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
-        val radio = optionLayout.getChildAt(2) as ImageView
-        val label = optionLayout.getChildAt(1) as TextView
-        val labelText = label.text.toString()
-        val isSelected = when (labelText) {
-            getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
-            "Monet" -> currentStyle == STYLE_MONET
-            "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
-            else -> false
-        }
-        radio.setImageDrawable(createRadioButtonDrawable(isSelected))
-        label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
-    }
-}
-    private fun saveStyle(style: Int) {
-        getSharedPreferences("mod_settings", Context.MODE_PRIVATE).edit().putInt("dashboard_style", style).apply()
-        makePrefsWorldReadable()
-        Thread {
-            runRootCommands(listOf("settings put global oneui_hook_dashboard_style $style"))
-        }.start()
-    }
 
-    private fun applyStyle() {
-        Thread {
-            runRootCommands(listOf("am force-stop com.android.settings"))
-            runOnUiThread {
-                Toast.makeText(this, getString(R.string.msg_dashboard_theme_applied), Toast.LENGTH_SHORT).show()
-            }
-        }.start()
-    }
+// ---------- SAVE AND APPLY STYLE ----------
+private fun saveStyle(style: Int) {
+    getSharedPreferences("mod_settings", Context.MODE_PRIVATE).edit().putInt("dashboard_style", style).apply()
+    makePrefsWorldReadable()
+    Thread {
+        runRootCommands(listOf("settings put global oneui_hook_dashboard_style $style"))
+    }.start()
+}
+
+private fun applyStyle() {
+    Thread {
+        runRootCommands(listOf("am force-stop com.android.settings"))
+        runOnUiThread {
+            Toast.makeText(this, getString(R.string.msg_dashboard_theme_applied), Toast.LENGTH_SHORT).show()
+        }
+    }.start()
+}
 
     // ---------- MAKE PREFS WORLD-READABLE ----------
     private fun makePrefsWorldReadable() {

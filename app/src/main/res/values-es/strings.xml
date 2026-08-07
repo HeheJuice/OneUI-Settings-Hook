@@ -87,4 +87,9 @@
     <string name="btn_open_lab">Entrar al laboratorio</string>
     <string name="lab_warning_title">Estado de prueba</string>
     <string name="lab_warning_message">Estas funciones se encuentran en fase de prueba y pueden ser inestables.</string>
+<string name="dashboard_theme_title">Colores del tema del panel</string>
+<string name="dashboard_option_default">Predeterminado</string>
+<string name="dashboard_option_monet">Monet</string>
+<string name="msg_dashboard_theme_applied">Tema del panel aplicado. Configuración reiniciada.</string>
+<string name="debug_incorrect_code">Código incorrecto</string>
 </resources>

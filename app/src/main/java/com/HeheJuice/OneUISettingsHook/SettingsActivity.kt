@@ -1312,6 +1312,22 @@ class SettingsActivity : Activity() {
     }
 }
     // ---------- SAVE AND APPLY STYLE ----------
+private fun updateStyleUI() {
+    for (i in 0 until themeSelectionRow.childCount) {
+        val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
+        val radio = optionLayout.getChildAt(2) as ImageView
+        val label = optionLayout.getChildAt(1) as TextView
+        val labelText = label.text.toString()
+        val isSelected = when (labelText) {
+            getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
+            "Monet" -> currentStyle == STYLE_MONET
+            "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
+            else -> false
+        }
+        radio.setImageDrawable(createRadioButtonDrawable(isSelected))
+        label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+    }
+}
     private fun saveStyle(style: Int) {
         getSharedPreferences("mod_settings", Context.MODE_PRIVATE).edit().putInt("dashboard_style", style).apply()
         makePrefsWorldReadable()

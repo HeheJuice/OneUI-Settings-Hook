@@ -1,5 +1,6 @@
 package com.HeheJuice.OneUISettingsHook
 
+import android.content.Context
 import android.content.res.Resources
 import android.provider.Settings
 import android.util.Log
@@ -17,15 +18,22 @@ object DashboardColorPatch {
 
             val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
             
-            // Get the Application context of the current process (Settings app)
-            val appContext = XposedHelpers.callStaticMethod(activityThreadClass, "currentApplication") as? android.app.Application
-            if (appContext == null) {
-                Log.e(TAG, "currentApplication returned null – aborting.")
+            // Get the current ActivityThread instance
+            val activityThread = XposedHelpers.callStaticMethod(activityThreadClass, "currentActivityThread")
+            if (activityThread == null) {
+                Log.e(TAG, "currentActivityThread returned null – aborting.")
                 return
             }
-            Log.d(TAG, "Got application context: $appContext")
 
-            val contentResolver = appContext.contentResolver
+            // Get system context from ActivityThread (always available)
+            val systemContext = XposedHelpers.callMethod(activityThread, "getSystemContext") as? Context
+            if (systemContext == null) {
+                Log.e(TAG, "getSystemContext returned null – aborting.")
+                return
+            }
+            Log.d(TAG, "Got system context: $systemContext")
+
+            val contentResolver = systemContext.contentResolver
 
             // Read from Settings.Global
             val enabled = Settings.Global.getInt(contentResolver, GLOBAL_KEY, 0) == 1
@@ -37,9 +45,9 @@ object DashboardColorPatch {
             }
 
             // Get module resources
-            val moduleContext = appContext.createPackageContext(
+            val moduleContext = systemContext.createPackageContext(
                 MODULE_PACKAGE_NAME,
-                android.content.Context.CONTEXT_IGNORE_SECURITY
+                Context.CONTEXT_IGNORE_SECURITY
             )
             val moduleResources = moduleContext.resources
             val resourcesClass = Resources::class.java

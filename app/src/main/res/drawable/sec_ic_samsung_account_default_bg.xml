@@ -7,13 +7,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt">
     <path
-        android:fillColor="@android:color/system_accent1_500"
+        android:fillColor="@android:color/system_accent1_300"
         android:pathData="M0,30a30,30 0,1 0,60 0a30,30 0,1 0,-60 0z"
         android:strokeColor="#00000000"
         android:strokeWidth="1.0"
         android:fillType="nonZero" />
     <path
-        android:fillColor="@android:color/system_accent1_500"
+        android:fillColor="@android:color/system_accent1_300"
         android:pathData="M60,30C60.01,21.9 56.732,14.142 50.917,8.5C41.932,13.083 42.6,28.532 27.4,38.425C19.3,43.7 11.2,45.443 4.392,45.635C9.292,53.65 17.86,59.185 27.75,59.917L32.25,59.917C47.765,58.768 60,45.807 60,30Z"
         android:strokeColor="#00000000"
         android:strokeWidth="1.0"

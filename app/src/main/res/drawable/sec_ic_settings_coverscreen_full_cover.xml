@@ -6,7 +6,7 @@
     android:viewportHeight="144.0"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <path
-        android:fillColor="@android:color/system_accent1_500"
+        android:fillColor="@android:color/system_accent1_300"
         android:pathData="M72,72m-72,0a72,72 0,1 1,144 0a72,72 0,1 1,-144 0"
         android:strokeColor="#00000000"
         android:strokeWidth="1.0"

@@ -51,9 +51,9 @@ private fun hashPassword(input: String): String {
 class SettingsActivity : Activity() {
 
     companion object {
-        private const val STYLE_DEFAULT = 0
-        private const val STYLE_MONET = 1
-        private const val STYLE_ONEUI6 = 2
+        private var primaryTextColor: Int = 0
+private var secondaryTextColor: Int = 0
+private var accentColor: Int = 0
     }
 
     private lateinit var themeSelectionRow: LinearLayout

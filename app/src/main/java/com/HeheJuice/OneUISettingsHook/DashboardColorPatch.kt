@@ -3,8 +3,8 @@ package com.HeheJuice.OneUISettingsHook
 import android.content.Context
 import android.content.res.Resources
 import android.util.Log
+import androidx.appcompat.content.res.AppCompatResources
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedHelpers
 
 object DashboardColorPatch {
@@ -13,26 +13,23 @@ object DashboardColorPatch {
 
     fun applyPatch(classLoader: ClassLoader) {
         try {
-            val prefs = XSharedPreferences(MODULE_PACKAGE_NAME, "mod_settings")
-            prefs.makeWorldReadable()
-
-            if (!prefs.getBoolean("enable_monet_dashboard", false)) {
-                Log.d(TAG, "Dashboard drawable replacement is disabled.")
-                return
-            }
-
-            // Get a Resources object for your module
+            // Get module context and read preference
             val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
             val appContext = XposedHelpers.callStaticMethod(activityThreadClass, "currentApplication") as Context
             val moduleContext = appContext.createPackageContext(
                 MODULE_PACKAGE_NAME,
                 Context.CONTEXT_IGNORE_SECURITY
             )
-            val moduleResources = moduleContext.resources
+            val prefs = moduleContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("enable_monet_dashboard", false)) {
+                Log.d(TAG, "Dashboard drawable replacement is disabled.")
+                return
+            }
 
+            val moduleResources = moduleContext.resources
             val resourcesClass = Resources::class.java
 
-            // ---- Hook getDrawable(int) ----
+            // ---- Hook Resources.getDrawable(int) ----
             XposedHelpers.findAndHookMethod(
                 resourcesClass,
                 "getDrawable",
@@ -44,7 +41,7 @@ object DashboardColorPatch {
                 }
             )
 
-            // ---- Hook getDrawable(int, Theme) ----
+            // ---- Hook Resources.getDrawable(int, Theme) ----
             XposedHelpers.findAndHookMethod(
                 resourcesClass,
                 "getDrawable",
@@ -58,7 +55,7 @@ object DashboardColorPatch {
                 }
             )
 
-            // ---- Hook getDrawableForDensity(int, int) ----
+            // ---- Hook Resources.getDrawableForDensity(int, int) ----
             XposedHelpers.findAndHookMethod(
                 resourcesClass,
                 "getDrawableForDensity",
@@ -72,7 +69,7 @@ object DashboardColorPatch {
                 }
             )
 
-            // ---- Hook getDrawableForDensity(int, int, Theme) ----
+            // ---- Hook Resources.getDrawableForDensity(int, int, Theme) ----
             XposedHelpers.findAndHookMethod(
                 resourcesClass,
                 "getDrawableForDensity",
@@ -88,7 +85,40 @@ object DashboardColorPatch {
                 }
             )
 
-            Log.d(TAG, "Dashboard drawable replacement patch applied.")
+            // ---- Hook Context.getDrawable(int) ----
+            XposedHelpers.findAndHookMethod(
+                Context::class.java,
+                "getDrawable",
+                Int::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        // This will eventually call Resources methods; we can also handle it directly
+                        // But our Resources hooks should catch it anyway.
+                    }
+                }
+            )
+
+            // ---- Hook AppCompatResources.getDrawable(Context, int) ----
+            try {
+                val appCompatResourcesClass = XposedHelpers.findClass(
+                    "androidx.appcompat.content.res.AppCompatResources",
+                    classLoader
+                )
+                XposedHelpers.findAndHookMethod(
+                    appCompatResourcesClass,
+                    "getDrawable",
+                    Context::class.java,
+                    Int::class.java,
+                    object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            // We can't easily replace the drawable here because we don't have the Resources object
+                            // But we can let Resources hooks handle it.
+                        }
+                    }
+                )
+            } catch (_: Throwable) {}
+
+            Log.d(TAG, "Dashboard drawable replacement patch applied successfully.")
 
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to apply Dashboard drawable patch", e)
@@ -107,13 +137,20 @@ object DashboardColorPatch {
 
             // Only replace drawables that belong to Settings
             val packageName = res.getResourcePackageName(id)
-            if (packageName != "com.android.settings") return
+            if (packageName != "com.android.settings") {
+                // Log if you want to see what's being called
+                // Log.v(TAG, "Drawable from $packageName: ${res.getResourceEntryName(id)}")
+                return
+            }
 
             val entryName = res.getResourceEntryName(id)
 
             // Check if we have a drawable with the same name in our module
             val moduleId = moduleResources.getIdentifier(entryName, "drawable", MODULE_PACKAGE_NAME)
-            if (moduleId == 0) return
+            if (moduleId == 0) {
+                Log.v(TAG, "No replacement found for drawable: $entryName")
+                return
+            }
 
             // Load the replacement drawable with the same parameters
             val replacement = when {
@@ -132,7 +169,7 @@ object DashboardColorPatch {
             }
 
             param.result = replacement
-            Log.d(TAG, "Replaced drawable: $entryName")
+            Log.d(TAG, "✅ Replaced drawable: $entryName (ID: $id) with module drawable")
 
         } catch (e: Throwable) {
             Log.e(TAG, "Error replacing drawable", e)

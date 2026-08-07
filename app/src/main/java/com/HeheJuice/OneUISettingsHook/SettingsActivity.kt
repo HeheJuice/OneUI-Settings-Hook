@@ -1283,18 +1283,18 @@ class SettingsActivity : Activity() {
 
     // --- HELPER to set system property via shell ---
     private fun setMonetProperty(enabled: Boolean) {
-        try {
-            val value = if (enabled) "true" else "false"
-            val success = runRootCommands(listOf("setprop persist.sys.oneui_hook.monet $value"))
-            if (success) {
-                Log.d("OneUISettingsHook", "Set property via shell to $value")
-            } else {
-                Log.e("OneUISettingsHook", "Failed to set property via shell")
-            }
-        } catch (e: Exception) {
-            Log.e("OneUISettingsHook", "Exception setting property", e)
+    try {
+        val value = if (enabled) "1" else "0"
+        val success = runRootCommands(listOf("settings put global oneui_hook_monet $value"))
+        if (success) {
+            Log.d("OneUISettingsHook", "Set Settings.Global oneui_hook_monet = $value")
+        } else {
+            Log.e("OneUISettingsHook", "Failed to set Settings.Global")
         }
+    } catch (e: Exception) {
+        Log.e("OneUISettingsHook", "Exception setting Settings.Global", e)
     }
+}
 
     // --- CLASS HELPER FUNCTIONS ---
 

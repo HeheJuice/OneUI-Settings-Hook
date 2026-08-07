@@ -5,6 +5,7 @@ import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedHelpers
+import java.io.File
 
 object DashboardColorPatch {
     private const val TAG = "OneUISettingsHook"
@@ -14,9 +15,15 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // Use XSharedPreferences to read the module's own preferences
+            // Use XSharedPreferences with explicit path logging
             val prefs = XSharedPreferences(MODULE_PACKAGE_NAME, "mod_settings")
-            prefs.makeWorldReadable()   // Ensure the file is readable by the system process
+            prefs.makeWorldReadable()
+            prefs.reload() // Force reload from disk
+
+            // Log file info
+            val prefsFile = File("/data/data/$MODULE_PACKAGE_NAME/shared_prefs/mod_settings.xml")
+            Log.d(TAG, "Prefs file exists: ${prefsFile.exists()}, readable: ${prefsFile.canRead()}, size: ${prefsFile.length()}")
+
             val enabled = prefs.getBoolean("enable_monet_dashboard", false)
             Log.d(TAG, "enable_monet_dashboard = $enabled")
 
@@ -25,8 +32,7 @@ object DashboardColorPatch {
                 return
             }
 
-            // We still need a Resources object for our module to load drawables.
-            // Use the system context to create a package context for our module.
+            // Get module resources
             val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
             val systemContext = XposedHelpers.callStaticMethod(activityThreadClass, "getSystemContext") as android.content.Context
             val moduleContext = systemContext.createPackageContext(
@@ -34,7 +40,6 @@ object DashboardColorPatch {
                 android.content.Context.CONTEXT_IGNORE_SECURITY
             )
             val moduleResources = moduleContext.resources
-
             val resourcesClass = Resources::class.java
 
             // Hook all drawable methods

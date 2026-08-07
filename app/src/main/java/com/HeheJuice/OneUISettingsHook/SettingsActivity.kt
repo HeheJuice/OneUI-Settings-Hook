@@ -365,7 +365,11 @@ class SettingsActivity : Activity() {
         }
     }
 }
-        val defaultOption = createStyleOption("Default", R.drawable.icon_default, STYLE_DEFAULT)
+        val defaultOption = createStyleOption(
+    getString(R.string.dashboard_option_default),
+    R.drawable.icon_default,
+    STYLE_DEFAULT
+)
         val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
         val oneui6Option = createStyleOption("OneUI 6 Monet", R.drawable.icon_oneui6, STYLE_ONEUI6)
 
@@ -1286,18 +1290,15 @@ class SettingsActivity : Activity() {
         val label = optionLayout.getChildAt(1) as TextView
         val labelText = label.text.toString()
         val isSelected = when (labelText) {
-            "Default" -> currentStyle == STYLE_DEFAULT
+            getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
             "Monet" -> currentStyle == STYLE_MONET
             "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
             else -> false
         }
-        // Force a new drawable and redraw
         radio.setImageDrawable(createRadioButtonDrawable(isSelected))
-        radio.invalidate()
         label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
     }
 }
-
     private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
     return object : Drawable() {
         private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -1353,10 +1354,6 @@ class SettingsActivity : Activity() {
             Log.e("OneUISettingsHook", "Failed to set prefs readable", e)
         }
     }
-
-    // ---------- ALL OTHER HELPER FUNCTIONS (unchanged from your original file) ----------
-    // Copy these from your existing SettingsActivity; they are unchanged.
-    // For completeness, I'm including them here – but if you already have them, you can keep yours.
 
     private fun showNoticeDialog(
         cardBgColor: Int,

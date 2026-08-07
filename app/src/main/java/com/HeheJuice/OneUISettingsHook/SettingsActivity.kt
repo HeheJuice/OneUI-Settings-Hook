@@ -285,8 +285,8 @@ class SettingsActivity : Activity() {
     return LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
-        // Use a fixed height for consistency
-        layoutParams = LinearLayout.LayoutParams(0, dpToPx(150f), 1f).apply {
+        // Fixed height – increase if needed
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
             marginStart = dpToPx(6f)
             marginEnd = dpToPx(6f)
         }
@@ -294,22 +294,27 @@ class SettingsActivity : Activity() {
             setColor(inputBgColor)
             cornerRadius = dpToPx(16f).toFloat()
         }
-        setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
         isClickable = true
         isFocusable = true
         setOnTouchListener(pressScaleTouchListener)
 
-        // Icon – centered horizontally
+        // Use weightSum to distribute space evenly
+        weightSum = 3f
+
+        // 1. Icon (weight=1) – centered horizontally
         val icon = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(70f), dpToPx(60f)).apply {
-                bottomMargin = dpToPx(10f)
+            layoutParams = LinearLayout.LayoutParams(dpToPx(60f), dpToPx(50f)).apply {
+                gravity = Gravity.CENTER
+                // weight will be applied below
+                weight = 1f
             }
             scaleType = ImageView.ScaleType.FIT_CENTER
             setImageResource(iconResId)
         }
         addView(icon)
 
-        // Label – single line, centered, prevents wrapping
+        // 2. Label – allow up to 2 lines, centered
         val labelView = TextView(context).apply {
             text = label
             textSize = 14f
@@ -317,20 +322,22 @@ class SettingsActivity : Activity() {
             setTypeface(null, Typeface.BOLD)
             gravity = Gravity.CENTER
             textAlignment = View.TEXT_ALIGNMENT_CENTER
-            // Force single line to keep height consistent
-            maxLines = 1
-            ellipsize = android.text.TextUtils.TruncateAt.END
-            setPadding(0, 0, 0, dpToPx(8f))
+            maxLines = 2          // allow wrapping to two lines
+            ellipsize = null      // no ellipsis
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                0,
+                1f
             )
         }
         addView(labelView)
 
-        // Radio button – centered horizontally, will be at the bottom due to layout order
+        // 3. Radio button (weight=1) – centered horizontally, at the bottom
         val radio = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(22f), dpToPx(22f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(22f), dpToPx(22f)).apply {
+                gravity = Gravity.CENTER
+                weight = 1f
+            }
             scaleType = ImageView.ScaleType.FIT_CENTER
             setImageDrawable(createRadioButtonDrawable(isSelected))
         }
@@ -345,7 +352,7 @@ class SettingsActivity : Activity() {
             }
         }
     }
-}
+        }
         val defaultOption = createStyleOption(
     getString(R.string.dashboard_option_default),
     R.drawable.icon_default,

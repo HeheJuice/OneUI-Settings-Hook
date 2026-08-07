@@ -306,23 +306,24 @@ class SettingsActivity : Activity() {
     val isSelected = currentStyle == styleValue
     return LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        gravity = Gravity.CENTER_HORIZONTAL  // center children horizontally
-        layoutParams = LinearLayout.LayoutParams(0, dpToPx(120f), 1f).apply {
-            marginStart = dpToPx(4f)
-            marginEnd = dpToPx(4f)
+        gravity = Gravity.CENTER_HORIZONTAL
+        // Increase height to 150dp for better visibility
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(150f), 1f).apply {
+            marginStart = dpToPx(6f)
+            marginEnd = dpToPx(6f)
         }
         background = GradientDrawable().apply {
             setColor(inputBgColor)
             cornerRadius = dpToPx(16f).toFloat()
         }
-        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
+        setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
         isClickable = true
         isFocusable = true
         setOnTouchListener(pressScaleTouchListener)
 
         val icon = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(60f), dpToPx(50f)).apply {
-                bottomMargin = dpToPx(8f)
+            layoutParams = LinearLayout.LayoutParams(dpToPx(70f), dpToPx(60f)).apply {
+                bottomMargin = dpToPx(10f)
                 gravity = Gravity.CENTER
             }
             scaleType = ImageView.ScaleType.FIT_CENTER
@@ -342,7 +343,7 @@ class SettingsActivity : Activity() {
             )
         }
         val radio = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(20f), dpToPx(20f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(22f), dpToPx(22f))
             scaleType = ImageView.ScaleType.FIT_CENTER
             setImageDrawable(createRadioButtonDrawable(isSelected))
         }
@@ -350,10 +351,13 @@ class SettingsActivity : Activity() {
         addView(labelView)
         addView(radio)
 
+        // Add a small spacer view at the bottom to ensure the radio is not cut off
+        // (optional, but can help with alignment)
+        // addView(View(context).apply { layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, dpToPx(4f)) })
+
         setOnClickListener {
             if (currentStyle != styleValue) {
                 currentStyle = styleValue
-                // Update UI immediately without recreating options
                 updateStyleUI()
                 saveStyle(styleValue)
                 applyStyle()
@@ -361,7 +365,6 @@ class SettingsActivity : Activity() {
         }
     }
 }
-
         val defaultOption = createStyleOption("Default", R.drawable.icon_default, STYLE_DEFAULT)
         val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
         val oneui6Option = createStyleOption("OneUI 6 Monet", R.drawable.icon_oneui6, STYLE_ONEUI6)
@@ -1296,29 +1299,30 @@ class SettingsActivity : Activity() {
 }
 
     private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
-        return object : Drawable() {
-            private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                strokeWidth = dpToPx(2f).toFloat()
-                color = if (isSelected) accentColor else secondaryTextColor
-            }
-            private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.FILL
-                color = accentColor
-            }
-            override fun draw(canvas: Canvas) {
-                val cx = bounds.exactCenterX()
-                val cy = bounds.exactCenterY()
-                val radius = dpToPx(10f).toFloat()
-                canvas.drawCircle(cx, cy, radius, strokePaint)
-                if (isSelected) canvas.drawCircle(cx, cy, radius - dpToPx(4f).toFloat(), fillPaint)
-            }
-            override fun setAlpha(alpha: Int) {}
-            override fun setColorFilter(cf: ColorFilter?) {}
-            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
+    return object : Drawable() {
+        private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = dpToPx(2.5f).toFloat() // slightly thicker
+            color = if (isSelected) accentColor else secondaryTextColor
         }
+        private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+            color = accentColor
+        }
+        override fun draw(canvas: Canvas) {
+            val cx = bounds.exactCenterX()
+            val cy = bounds.exactCenterY()
+            val radius = dpToPx(12f).toFloat()
+            canvas.drawCircle(cx, cy, radius, strokePaint)
+            if (isSelected) {
+                canvas.drawCircle(cx, cy, radius - dpToPx(5f).toFloat(), fillPaint)
+            }
+        }
+        override fun setAlpha(alpha: Int) {}
+        override fun setColorFilter(cf: ColorFilter?) {}
+        @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
     }
-
+}
     // ---------- SAVE AND APPLY STYLE ----------
     private fun saveStyle(style: Int) {
         getSharedPreferences("mod_settings", Context.MODE_PRIVATE).edit().putInt("dashboard_style", style).apply()

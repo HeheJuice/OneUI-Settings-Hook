@@ -58,9 +58,9 @@ class SettingsActivity : Activity() {
 
     private lateinit var themeSelectionRow: LinearLayout
     private var currentStyle = STYLE_DEFAULT
-    private lateinit var primaryTextColor: Int
-    private lateinit var secondaryTextColor: Int
-    private lateinit var accentColor: Int
+    private var primaryTextColor: Int
+    private var secondaryTextColor: Int
+    private var accentColor: Int
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)

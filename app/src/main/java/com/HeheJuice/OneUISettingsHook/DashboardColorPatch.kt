@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 object DashboardColorPatch {
@@ -14,14 +15,23 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            val context = getModuleContext(classLoader)
-            if (context == null) {
+            // Get the module's own Application Context via XposedBridge
+            // This is the most reliable way to access your module's shared preferences.
+            val moduleAppContext = try {
+                XposedBridge.getModuleContext()
+            } catch (e: Throwable) {
+                Log.e(TAG, "XposedBridge.getModuleContext() failed", e)
+                null
+            }
+
+            if (moduleAppContext == null) {
                 Log.e(TAG, "Failed to get module context – aborting.")
                 return
             }
-            Log.d(TAG, "Got module context: $context")
 
-            val prefs = context.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+            Log.d(TAG, "Got module context: $moduleAppContext")
+
+            val prefs = moduleAppContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
             val enabled = prefs.getBoolean("enable_monet_dashboard", false)
             Log.d(TAG, "enable_monet_dashboard = $enabled")
 
@@ -30,7 +40,7 @@ object DashboardColorPatch {
                 return
             }
 
-            val moduleResources = context.resources
+            val moduleResources = moduleAppContext.resources
             val resourcesClass = Resources::class.java
 
             // Hook all variants
@@ -97,43 +107,6 @@ object DashboardColorPatch {
         }
     }
 
-    private fun getModuleContext(classLoader: ClassLoader): Context? {
-        try {
-            val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
-            
-            // Attempt 1: get ActivityThread instance and then getSystemContext()
-            try {
-                val activityThread = XposedHelpers.callStaticMethod(activityThreadClass, "currentActivityThread")
-                if (activityThread != null) {
-                    val sysCtx = XposedHelpers.callMethod(activityThread, "getSystemContext") as? Context
-                    if (sysCtx != null) {
-                        Log.d(TAG, "Using ActivityThread.getSystemContext()")
-                        return sysCtx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
-                    }
-                }
-            } catch (e: Throwable) {
-                Log.w(TAG, "Failed to get context via currentActivityThread", e)
-            }
-
-            // Attempt 2: currentApplication()
-            try {
-                val appCtx = XposedHelpers.callStaticMethod(activityThreadClass, "currentApplication") as? Context
-                if (appCtx != null) {
-                    Log.d(TAG, "Using currentApplication()")
-                    return appCtx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
-                }
-            } catch (e: Throwable) {
-                Log.w(TAG, "currentApplication() failed", e)
-            }
-
-            Log.e(TAG, "All attempts to get context failed.")
-            return null
-        } catch (e: Throwable) {
-            Log.e(TAG, "Exception in getModuleContext", e)
-            return null
-        }
-    }
-
     private fun replaceDrawable(
         param: XC_MethodHook.MethodHookParam,
         moduleResources: Resources,
@@ -147,7 +120,6 @@ object DashboardColorPatch {
             val packageName = try { res.getResourcePackageName(id) } catch (_: Throwable) { "unknown" }
             val entryName = try { res.getResourceEntryName(id) } catch (_: Throwable) { "unknown" }
 
-            // Only replace drawables from Settings
             if (packageName != "com.android.settings") return
 
             Log.v(TAG, "Settings drawable requested: $entryName (id=$id)")

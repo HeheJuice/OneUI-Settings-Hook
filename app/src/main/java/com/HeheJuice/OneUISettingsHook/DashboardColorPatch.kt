@@ -3,7 +3,6 @@ package com.HeheJuice.OneUISettingsHook
 import android.content.Context
 import android.content.res.Resources
 import android.util.Log
-import androidx.appcompat.content.res.AppCompatResources
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 
@@ -85,39 +84,6 @@ object DashboardColorPatch {
                 }
             )
 
-            // ---- Hook Context.getDrawable(int) ----
-            XposedHelpers.findAndHookMethod(
-                Context::class.java,
-                "getDrawable",
-                Int::class.java,
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        // This will eventually call Resources methods; we can also handle it directly
-                        // But our Resources hooks should catch it anyway.
-                    }
-                }
-            )
-
-            // ---- Hook AppCompatResources.getDrawable(Context, int) ----
-            try {
-                val appCompatResourcesClass = XposedHelpers.findClass(
-                    "androidx.appcompat.content.res.AppCompatResources",
-                    classLoader
-                )
-                XposedHelpers.findAndHookMethod(
-                    appCompatResourcesClass,
-                    "getDrawable",
-                    Context::class.java,
-                    Int::class.java,
-                    object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            // We can't easily replace the drawable here because we don't have the Resources object
-                            // But we can let Resources hooks handle it.
-                        }
-                    }
-                )
-            } catch (_: Throwable) {}
-
             Log.d(TAG, "Dashboard drawable replacement patch applied successfully.")
 
         } catch (e: Throwable) {
@@ -137,11 +103,7 @@ object DashboardColorPatch {
 
             // Only replace drawables that belong to Settings
             val packageName = res.getResourcePackageName(id)
-            if (packageName != "com.android.settings") {
-                // Log if you want to see what's being called
-                // Log.v(TAG, "Drawable from $packageName: ${res.getResourceEntryName(id)}")
-                return
-            }
+            if (packageName != "com.android.settings") return
 
             val entryName = res.getResourceEntryName(id)
 
@@ -169,7 +131,7 @@ object DashboardColorPatch {
             }
 
             param.result = replacement
-            Log.d(TAG, "✅ Replaced drawable: $entryName (ID: $id) with module drawable")
+            Log.d(TAG, "✅ Replaced drawable: $entryName (ID: $id)")
 
         } catch (e: Throwable) {
             Log.e(TAG, "Error replacing drawable", e)

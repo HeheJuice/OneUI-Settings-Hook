@@ -22,6 +22,7 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemProperties
 import android.text.InputType
 import android.util.Log
 import android.util.TypedValue
@@ -241,7 +242,12 @@ class SettingsActivity : Activity() {
             weightSum = 2f
         }
 
-        var isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
+        // Read initial state from system property (fallback to SharedPreferences)
+        var isMonetEnabled = SystemProperties.getBoolean("persist.sys.oneui_hook.monet", false)
+        // If property not set, read from prefs
+        if (!SystemProperties.get("persist.sys.oneui_hook.monet", "").isNotEmpty()) {
+            isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
+        }
 
         // Helper to draw the custom radio button mimicking 44091.jpg
         fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
@@ -355,7 +361,8 @@ class SettingsActivity : Activity() {
             if (isMonetEnabled != toMonet) {
                 isMonetEnabled = toMonet
                 prefs.edit().putBoolean("enable_monet_dashboard", toMonet).apply()
-                makePrefsWorldReadable()   // ensure file is readable after writing
+                makePrefsWorldReadable()
+                setMonetProperty(toMonet)   // Set the system property
 
                 // Update UI visually
                 defaultRadio.setImageDrawable(createRadioButtonDrawable(!isMonetEnabled))
@@ -1276,6 +1283,16 @@ class SettingsActivity : Activity() {
             }
         } catch (e: Exception) {
             Log.e("OneUISettingsHook", "Failed to set prefs readable", e)
+        }
+    }
+
+    // --- HELPER to set system property for toggle state ---
+    private fun setMonetProperty(enabled: Boolean) {
+        try {
+            SystemProperties.set("persist.sys.oneui_hook.monet", if (enabled) "true" else "false")
+            Log.d("OneUISettingsHook", "Set property to ${if (enabled) "true" else "false"}")
+        } catch (e: Exception) {
+            Log.e("OneUISettingsHook", "Failed to set system property", e)
         }
     }
 

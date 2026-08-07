@@ -1,11 +1,10 @@
 package com.HeheJuice.OneUISettingsHook
 
 import android.content.res.Resources
+import android.os.SystemProperties
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedHelpers
-import java.io.File
 
 object DashboardColorPatch {
     private const val TAG = "OneUISettingsHook"
@@ -15,17 +14,9 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // Use XSharedPreferences with explicit path logging
-            val prefs = XSharedPreferences(MODULE_PACKAGE_NAME, "mod_settings")
-            prefs.makeWorldReadable()
-            prefs.reload() // Force reload from disk
-
-            // Log file info
-            val prefsFile = File("/data/data/$MODULE_PACKAGE_NAME/shared_prefs/mod_settings.xml")
-            Log.d(TAG, "Prefs file exists: ${prefsFile.exists()}, readable: ${prefsFile.canRead()}, size: ${prefsFile.length()}")
-
-            val enabled = prefs.getBoolean("enable_monet_dashboard", false)
-            Log.d(TAG, "enable_monet_dashboard = $enabled")
+            // Read the system property set by the module's SettingsActivity
+            val enabled = SystemProperties.getBoolean("persist.sys.oneui_hook.monet", false)
+            Log.d(TAG, "enable_monet_dashboard (from system property) = $enabled")
 
             if (!enabled) {
                 Log.d(TAG, "Dashboard drawable replacement is disabled.")

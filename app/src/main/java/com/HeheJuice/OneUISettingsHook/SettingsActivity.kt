@@ -1210,7 +1210,7 @@ class SettingsActivity : Activity() {
     return LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
-        layoutParams = LinearLayout.LayoutParams(0, dpToPx(160f), 1f).apply {
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
             marginStart = dpToPx(6f)
             marginEnd = dpToPx(6f)
         }

@@ -303,53 +303,64 @@ class SettingsActivity : Activity() {
         }
 
         fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
-            val isSelected = currentStyle == styleValue
-            return LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
+    val isSelected = currentStyle == styleValue
+    return LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL  // center children horizontally
+        layoutParams = LinearLayout.LayoutParams(0, dpToPx(120f), 1f).apply {
+            marginStart = dpToPx(4f)
+            marginEnd = dpToPx(4f)
+        }
+        background = GradientDrawable().apply {
+            setColor(inputBgColor)
+            cornerRadius = dpToPx(16f).toFloat()
+        }
+        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
+        isClickable = true
+        isFocusable = true
+        setOnTouchListener(pressScaleTouchListener)
+
+        val icon = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(60f), dpToPx(50f)).apply {
+                bottomMargin = dpToPx(8f)
                 gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                    marginStart = dpToPx(4f)
-                    marginEnd = dpToPx(4f)
-                }
-                background = GradientDrawable().apply {
-                    setColor(inputBgColor)
-                    cornerRadius = dpToPx(16f).toFloat()
-                }
-                setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
-                isClickable = true
-                isFocusable = true
-                setOnTouchListener(pressScaleTouchListener)
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageResource(iconResId)
+        }
+        val labelView = TextView(context).apply {
+            text = label
+            textSize = 14f
+            setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+            setPadding(0, 0, 0, dpToPx(8f))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val radio = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(dpToPx(20f), dpToPx(20f))
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setImageDrawable(createRadioButtonDrawable(isSelected))
+        }
+        addView(icon)
+        addView(labelView)
+        addView(radio)
 
-                val icon = ImageView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(dpToPx(70f), dpToPx(50f)).apply { bottomMargin = dpToPx(8f) }
-                    scaleType = ImageView.ScaleType.FIT_CENTER
-                    setImageResource(iconResId)
-                }
-                val labelView = TextView(context).apply {
-                    text = label
-                    textSize = 14f
-                    setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
-                    setTypeface(null, Typeface.BOLD)
-                    setPadding(0, 0, 0, dpToPx(8f))
-                }
-                val radio = ImageView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(dpToPx(20f), dpToPx(20f))
-                    setImageDrawable(createRadioButtonDrawable(isSelected))
-                }
-                addView(icon)
-                addView(labelView)
-                addView(radio)
-
-                setOnClickListener {
-                    if (currentStyle != styleValue) {
-                        currentStyle = styleValue
-                        updateStyleUI()
-                        saveStyle(styleValue)
-                        applyStyle()
-                    }
-                }
+        setOnClickListener {
+            if (currentStyle != styleValue) {
+                currentStyle = styleValue
+                // Update UI immediately without recreating options
+                updateStyleUI()
+                saveStyle(styleValue)
+                applyStyle()
             }
         }
+    }
+}
 
         val defaultOption = createStyleOption("Default", R.drawable.icon_default, STYLE_DEFAULT)
         val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
@@ -1266,21 +1277,23 @@ class SettingsActivity : Activity() {
 
     // ---------- UPDATE STYLE UI ----------
     private fun updateStyleUI() {
-        for (i in 0 until themeSelectionRow.childCount) {
-            val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
-            val radio = optionLayout.getChildAt(2) as ImageView
-            val label = optionLayout.getChildAt(1) as TextView
-            val labelText = label.text.toString()
-            val isSelected = when (labelText) {
-                "Default" -> currentStyle == STYLE_DEFAULT
-                "Monet" -> currentStyle == STYLE_MONET
-                "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
-                else -> false
-            }
-            radio.setImageDrawable(createRadioButtonDrawable(isSelected))
-            label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+    for (i in 0 until themeSelectionRow.childCount) {
+        val optionLayout = themeSelectionRow.getChildAt(i) as LinearLayout
+        val radio = optionLayout.getChildAt(2) as ImageView
+        val label = optionLayout.getChildAt(1) as TextView
+        val labelText = label.text.toString()
+        val isSelected = when (labelText) {
+            "Default" -> currentStyle == STYLE_DEFAULT
+            "Monet" -> currentStyle == STYLE_MONET
+            "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
+            else -> false
         }
+        // Force a new drawable and redraw
+        radio.setImageDrawable(createRadioButtonDrawable(isSelected))
+        radio.invalidate()
+        label.setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
     }
+}
 
     private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
         return object : Drawable() {

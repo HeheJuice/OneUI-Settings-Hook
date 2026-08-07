@@ -263,7 +263,7 @@ class SettingsActivity : Activity() {
         }
 
         val dashboardTitle = TextView(this).apply {
-            text = "Dashboard Theme"
+    text = getString(R.string.dashboard_theme_title)
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)

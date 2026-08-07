@@ -406,6 +406,61 @@ class SettingsActivity : Activity() {
         }
     }
 }
+        val defaultOption = createStyleOption(
+    getString(R.string.dashboard_option_default),
+    R.drawable.icon_default,
+    STYLE_DEFAULT
+)
+        val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
+        val oneui6Option = createStyleOption("OneUI 6 Monet", R.drawable.icon_oneui6, STYLE_ONEUI6)
+
+        themeSelectionRow.addView(defaultOption)
+        themeSelectionRow.addView(monetOption)
+        themeSelectionRow.addView(oneui6Option)
+
+        dashboardStyleCardLayout.addView(dashboardTitle)
+        dashboardStyleCardLayout.addView(themeSelectionRow)
+        advancedLayout.addView(dashboardStyleCardLayout)
+
+        advancedLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
+        // ----- CUSTOM BANNER TEXT CARD (EXPANDABLE) -----
+        val customTextCardLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        val customTextHeaderLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val customTextTitleContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        val customTextTitle = TextView(this).apply {
+            text = getString(R.string.custom_banner_title)
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+        }
+
+        val customTextSub = TextView(this).apply {
+            text = getString(R.string.custom_banner_subtitle)
+            textSize = 14f
+            setTextColor(secondaryTextColor)
+            setPadding(0, dpToPx(4f), 0, dpToPx(8f))
+        }
+}
 
         customTextTitleContainer.addView(customTextTitle)
         customTextTitleContainer.addView(customTextSub)

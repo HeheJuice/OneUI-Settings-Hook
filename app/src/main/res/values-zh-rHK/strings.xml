@@ -92,5 +92,5 @@
 <string name="dashboard_option_default">預設</string>
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">已套用儀表板主題。設定已重新啟動。</string>
-<string name="debug_incorrect_code">驗證碼錯誤</string>
+<string name="debug_incorrect_code">錯誤</string>
 </resources>

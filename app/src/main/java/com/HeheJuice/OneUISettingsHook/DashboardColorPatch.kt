@@ -1,10 +1,9 @@
 package com.HeheJuice.OneUISettingsHook
 
-import android.content.Context
 import android.content.res.Resources
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedHelpers
 
 object DashboardColorPatch {
@@ -15,23 +14,9 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // Get the module's own Application Context via XposedBridge
-            // This is the most reliable way to access your module's shared preferences.
-            val moduleAppContext = try {
-                XposedBridge.getModuleContext()
-            } catch (e: Throwable) {
-                Log.e(TAG, "XposedBridge.getModuleContext() failed", e)
-                null
-            }
-
-            if (moduleAppContext == null) {
-                Log.e(TAG, "Failed to get module context – aborting.")
-                return
-            }
-
-            Log.d(TAG, "Got module context: $moduleAppContext")
-
-            val prefs = moduleAppContext.getSharedPreferences("mod_settings", Context.MODE_PRIVATE)
+            // Use XSharedPreferences to read the module's own preferences
+            val prefs = XSharedPreferences(MODULE_PACKAGE_NAME, "mod_settings")
+            prefs.makeWorldReadable()   // Ensure the file is readable by the system process
             val enabled = prefs.getBoolean("enable_monet_dashboard", false)
             Log.d(TAG, "enable_monet_dashboard = $enabled")
 
@@ -40,10 +25,19 @@ object DashboardColorPatch {
                 return
             }
 
-            val moduleResources = moduleAppContext.resources
+            // We still need a Resources object for our module to load drawables.
+            // Use the system context to create a package context for our module.
+            val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
+            val systemContext = XposedHelpers.callStaticMethod(activityThreadClass, "getSystemContext") as android.content.Context
+            val moduleContext = systemContext.createPackageContext(
+                MODULE_PACKAGE_NAME,
+                android.content.Context.CONTEXT_IGNORE_SECURITY
+            )
+            val moduleResources = moduleContext.resources
+
             val resourcesClass = Resources::class.java
 
-            // Hook all variants
+            // Hook all drawable methods
             XposedHelpers.findAndHookMethod(
                 resourcesClass,
                 "getDrawable",

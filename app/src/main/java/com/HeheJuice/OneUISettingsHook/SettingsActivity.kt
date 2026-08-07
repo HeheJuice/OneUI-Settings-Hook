@@ -45,7 +45,7 @@ import java.security.MessageDigest
 private fun hashPassword(input: String): String {
     val bytes = java.security.MessageDigest.getInstance("SHA-256")
         .digest(input.toByteArray(Charsets.UTF_8))
-    
+
     // Mask with 0xFF to prevent negative sign expansion
     return bytes.joinToString("") { "%02x".format(it.toInt() and 0xFF) }
 }
@@ -113,7 +113,7 @@ class SettingsActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
-        
+
         // PAGE 1: MODULE INFO
         val moduleInfoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -228,7 +228,7 @@ class SettingsActivity : Activity() {
         }
 
         val dashboardTitle = TextView(this).apply {
-            text = "Dashboard Theme Colors" // Replace with getString(R.string.dashboard_theme_title) if localized
+            text = getString(R.string.dashboard_theme_title)
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -244,7 +244,7 @@ class SettingsActivity : Activity() {
         // Read initial state from SharedPreferences only (system property will be set on toggle)
         var isMonetEnabled = prefs.getBoolean("enable_monet_dashboard", false)
 
-        // Helper to draw the custom radio button mimicking 44091.jpg
+        // Helper to draw the custom radio button
         fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
             return object : Drawable() {
                 private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -281,17 +281,15 @@ class SettingsActivity : Activity() {
             setOnTouchListener(pressScaleTouchListener)
         }
 
-                val defaultIcon = ImageView(this).apply {
+        val defaultIcon = ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(80f), dpToPx(60f)).apply { bottomMargin = dpToPx(12f) }
             scaleType = ImageView.ScaleType.FIT_CENTER
-            // Load the XML vector drawable (icon_default.xml)
             val resId = resources.getIdentifier("icon_default", "drawable", packageName)
             if (resId != 0) setImageResource(resId)
         }
 
-
         val defaultLabel = TextView(this).apply {
-            text = "Default"
+            text = getString(R.string.dashboard_option_default)
             textSize = 15f
             setTextColor(if (!isMonetEnabled) primaryTextColor else secondaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -319,17 +317,15 @@ class SettingsActivity : Activity() {
             setOnTouchListener(pressScaleTouchListener)
         }
 
-                val monetIcon = ImageView(this).apply {
+        val monetIcon = ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(80f), dpToPx(60f)).apply { bottomMargin = dpToPx(12f) }
             scaleType = ImageView.ScaleType.FIT_CENTER
-            // Load the XML vector drawable (icon_monet.xml)
             val resId = resources.getIdentifier("icon_monet", "drawable", packageName)
             if (resId != 0) setImageResource(resId)
         }
 
-
         val monetLabel = TextView(this).apply {
-            text = "Monet"
+            text = getString(R.string.dashboard_option_monet)
             textSize = 15f
             setTextColor(if (isMonetEnabled) primaryTextColor else secondaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -357,7 +353,7 @@ class SettingsActivity : Activity() {
                 isMonetEnabled = toMonet
                 prefs.edit().putBoolean("enable_monet_dashboard", toMonet).apply()
                 makePrefsWorldReadable()
-                setMonetProperty(toMonet)   // Set system property via shell
+                setMonetProperty(toMonet)   // Set via Settings.Global
 
                 // Update UI visually
                 defaultRadio.setImageDrawable(createRadioButtonDrawable(!isMonetEnabled))
@@ -370,9 +366,17 @@ class SettingsActivity : Activity() {
                     val success = runRootCommands(listOf("am force-stop com.android.settings"))
                     runOnUiThread {
                         if (success) {
-                            Toast.makeText(this@SettingsActivity, "Dashboard Theme applied. Settings restarted.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@SettingsActivity,
+                                getString(R.string.msg_dashboard_theme_applied),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
-                            Toast.makeText(this@SettingsActivity, getString(R.string.msg_root_permission_required), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@SettingsActivity,
+                                getString(R.string.msg_root_permission_required),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }.start()
@@ -532,14 +536,14 @@ class SettingsActivity : Activity() {
                 val enteredText = bannerInputEt.text.toString().trim()
                 prefs.edit().putString("custom_banner_text", enteredText).apply()
                 makePrefsWorldReadable()
-                
+
                 Thread {
                     val safeText = enteredText.replace("'", "'\\''")
                     val success = runRootCommands(listOf(
                         "settings put global custom_oneui_banner '$safeText'",
                         "am force-stop com.android.settings"
                     ))
-                    
+
                     runOnUiThread {
                         if (success) {
                             Toast.makeText(this@SettingsActivity, getString(R.string.msg_banner_text_applied), Toast.LENGTH_SHORT).show()
@@ -555,7 +559,7 @@ class SettingsActivity : Activity() {
             bannerInputEt.setText("")
             prefs.edit().remove("custom_banner_text").apply()
             makePrefsWorldReadable()
-            
+
             Thread {
                 val success = runRootCommands(listOf(
                     "settings delete global custom_oneui_banner",
@@ -573,7 +577,7 @@ class SettingsActivity : Activity() {
         expandableContentLayout.addView(bannerInputEt)
         expandableContentLayout.addView(saveTextBtn)
         expandableContentLayout.addView(resetTextBtn)
-        
+
         customTextCardLayout.addView(expandableContentLayout)
 
         val toggleExpansion = {
@@ -588,7 +592,7 @@ class SettingsActivity : Activity() {
         expandBtn.setOnClickListener { toggleExpansion() }
         customTextHeaderLayout.setOnClickListener { toggleExpansion() }
         customTextHeaderLayout.isClickable = true
-        
+
         advancedLayout.addView(customTextCardLayout)
 
         val textCardSpacer = View(this).apply { layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f)) }
@@ -1281,20 +1285,20 @@ class SettingsActivity : Activity() {
         }
     }
 
-    // --- HELPER to set system property via shell ---
+    // --- HELPER to set the Monet toggle via Settings.Global ---
     private fun setMonetProperty(enabled: Boolean) {
-    try {
-        val value = if (enabled) "1" else "0"
-        val success = runRootCommands(listOf("settings put global oneui_hook_monet $value"))
-        if (success) {
-            Log.d("OneUISettingsHook", "Set Settings.Global oneui_hook_monet = $value")
-        } else {
-            Log.e("OneUISettingsHook", "Failed to set Settings.Global")
+        try {
+            val value = if (enabled) "1" else "0"
+            val success = runRootCommands(listOf("settings put global oneui_hook_monet $value"))
+            if (success) {
+                Log.d("OneUISettingsHook", "Set Settings.Global oneui_hook_monet = $value")
+            } else {
+                Log.e("OneUISettingsHook", "Failed to set Settings.Global")
+            }
+        } catch (e: Exception) {
+            Log.e("OneUISettingsHook", "Exception setting Settings.Global", e)
         }
-    } catch (e: Exception) {
-        Log.e("OneUISettingsHook", "Exception setting Settings.Global", e)
     }
-}
 
     // --- CLASS HELPER FUNCTIONS ---
 
@@ -1486,7 +1490,7 @@ class SettingsActivity : Activity() {
                 dialog.dismiss()
                 onSuccess()
             } else {
-                Toast.makeText(this@SettingsActivity, "Incorrect Code", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SettingsActivity, getString(R.string.debug_incorrect_code), Toast.LENGTH_SHORT).show()
                 passwordInput.setText("")
             }
         }.apply {
@@ -1609,7 +1613,7 @@ class SettingsActivity : Activity() {
 
     private fun expandView(view: View, expandBtn: View) {
         val parent = view.parent as? View ?: return
-        
+
         val matchParentSpec = View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.EXACTLY)
         val wrapContentSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         view.measure(matchParentSpec, wrapContentSpec)
@@ -1739,17 +1743,17 @@ class SettingsActivity : Activity() {
 
     private fun createRippleBackground(normalColor: Int, rippleColor: Int, cornerRadiusDp: Float): Drawable {
         val radiusPx = dpToPx(cornerRadiusDp).toFloat()
-        
+
         val content = GradientDrawable().apply {
             setColor(normalColor)
             cornerRadius = radiusPx
         }
-        
+
         val mask = GradientDrawable().apply {
             setColor(Color.WHITE)
             cornerRadius = radiusPx
         }
-        
+
         return android.graphics.drawable.RippleDrawable(
             android.content.res.ColorStateList.valueOf(rippleColor),
             content,

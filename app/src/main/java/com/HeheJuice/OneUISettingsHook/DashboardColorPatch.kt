@@ -14,7 +14,6 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // ---- Get a valid Context ----
             val context = getModuleContext(classLoader)
             if (context == null) {
                 Log.e(TAG, "Failed to get module context – aborting.")
@@ -34,7 +33,7 @@ object DashboardColorPatch {
             val moduleResources = context.resources
             val resourcesClass = Resources::class.java
 
-            // ---- Hook all variants ----
+            // Hook all variants
             XposedHelpers.findAndHookMethod(
                 resourcesClass,
                 "getDrawable",
@@ -98,20 +97,22 @@ object DashboardColorPatch {
         }
     }
 
-    // ---- Helper to obtain a Context with multiple fallbacks ----
     private fun getModuleContext(classLoader: ClassLoader): Context? {
         try {
             val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", classLoader)
-
-            // Attempt 1: getSystemContext()
+            
+            // Attempt 1: get ActivityThread instance and then getSystemContext()
             try {
-                val sysCtx = XposedHelpers.callStaticMethod(activityThreadClass, "getSystemContext") as? Context
-                if (sysCtx != null) {
-                    Log.d(TAG, "Using getSystemContext()")
-                    return sysCtx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
+                val activityThread = XposedHelpers.callStaticMethod(activityThreadClass, "currentActivityThread")
+                if (activityThread != null) {
+                    val sysCtx = XposedHelpers.callMethod(activityThread, "getSystemContext") as? Context
+                    if (sysCtx != null) {
+                        Log.d(TAG, "Using ActivityThread.getSystemContext()")
+                        return sysCtx.createPackageContext(MODULE_PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY)
+                    }
                 }
             } catch (e: Throwable) {
-                Log.w(TAG, "getSystemContext() failed", e)
+                Log.w(TAG, "Failed to get context via currentActivityThread", e)
             }
 
             // Attempt 2: currentApplication()
@@ -124,8 +125,6 @@ object DashboardColorPatch {
             } catch (e: Throwable) {
                 Log.w(TAG, "currentApplication() failed", e)
             }
-
-            // Attempt 3: getPackageManager() and getApplicationInfo? Not needed here.
 
             Log.e(TAG, "All attempts to get context failed.")
             return null
@@ -145,7 +144,6 @@ object DashboardColorPatch {
             val res = param.thisObject as Resources
             val id = param.args[0] as Int
 
-            // Get resource info
             val packageName = try { res.getResourcePackageName(id) } catch (_: Throwable) { "unknown" }
             val entryName = try { res.getResourceEntryName(id) } catch (_: Throwable) { "unknown" }
 
@@ -154,7 +152,6 @@ object DashboardColorPatch {
 
             Log.v(TAG, "Settings drawable requested: $entryName (id=$id)")
 
-            // Look for a replacement with same name
             val moduleId = moduleResources.getIdentifier(entryName, "drawable", MODULE_PACKAGE_NAME)
             if (moduleId == 0) {
                 Log.v(TAG, "No replacement found for drawable: $entryName")

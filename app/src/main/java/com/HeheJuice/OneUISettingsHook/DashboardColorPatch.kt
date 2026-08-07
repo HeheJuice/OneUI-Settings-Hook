@@ -1,7 +1,6 @@
 package com.HeheJuice.OneUISettingsHook
 
 import android.content.res.Resources
-import android.os.SystemProperties
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -14,8 +13,9 @@ object DashboardColorPatch {
         try {
             Log.d(TAG, "=== DashboardColorPatch.applyPatch() START ===")
 
-            // Read the system property set by the module's SettingsActivity
-            val enabled = SystemProperties.getBoolean("persist.sys.oneui_hook.monet", false)
+            // Read system property using reflection
+            val propertyClass = XposedHelpers.findClass("android.os.SystemProperties", classLoader)
+            val enabled = XposedHelpers.callStaticMethod(propertyClass, "getBoolean", "persist.sys.oneui_hook.monet", false) as Boolean
             Log.d(TAG, "enable_monet_dashboard (from system property) = $enabled")
 
             if (!enabled) {

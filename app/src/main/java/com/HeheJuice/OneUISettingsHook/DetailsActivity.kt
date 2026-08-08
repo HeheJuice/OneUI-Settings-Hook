@@ -99,7 +99,7 @@ class DetailsActivity : Activity() {
         }
 
         val titleText = TextView(this).apply {
-            text = "OneUI Settings Hook"
+            text = getString(R.string.details_title)  // "OneUI Settings Hook"
             textSize = 28f
             setTextColor(Color.WHITE)
             setTypeface(customFont)
@@ -134,7 +134,7 @@ class DetailsActivity : Activity() {
         }
 
         val creditsTitle = TextView(this).apply {
-            text = "Credits"
+            text = getString(R.string.credits_title)  // "Credits"
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -142,16 +142,20 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        data class Credit(val name: String, val description: String, val username: String)
+        // Define credit entries using resource strings
+        data class Credit(val nameRes: Int, val descRes: Int, val username: String)
 
         val credits = listOf(
-            Credit("HeheJuice", "Developer", "HeheJuice"),
-            Credit("FifthSnow", "Designer of PUI Theme", "FifthSnow"),
-            Credit("ncatt", "VI Language Helps", "ncatt"),
-            Credit("LSPosed", "Method for Patching Android", "LSPosed")
+            Credit(R.string.credit_hehejuice_name, R.string.credit_hehejuice_desc, "HeheJuice"),
+            Credit(R.string.credit_fifthsnow_name, R.string.credit_fifthsnow_desc, "FifthSnow"),
+            Credit(R.string.credit_ncatt_name, R.string.credit_ncatt_desc, "ncatt"),
+            Credit(R.string.credit_lsposed_name, R.string.credit_lsposed_desc, "LSPosed")
         )
 
         for (credit in credits) {
+            val nameText = getString(credit.nameRes)
+            val descText = getString(credit.descRes)
+
             // Row container (horizontal)
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -165,7 +169,7 @@ class DetailsActivity : Activity() {
             }
 
             // Avatar (circular)
-            val avatarResId = resources.getIdentifier(credit.name.lowercase(), "drawable", packageName)
+            val avatarResId = resources.getIdentifier(nameText.lowercase(), "drawable", packageName)
             val avatar = ImageView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
                     marginEnd = dpToPx(16f)
@@ -199,7 +203,7 @@ class DetailsActivity : Activity() {
             }
 
             val nameView = TextView(this).apply {
-                text = credit.name
+                text = nameText
                 textSize = 17f
                 setTextColor(primaryTextColor)
                 setTypeface(null, Typeface.BOLD)
@@ -221,7 +225,7 @@ class DetailsActivity : Activity() {
             textContainer.addView(nameView)
 
             val descView = TextView(this).apply {
-                text = credit.description
+                text = descText
                 textSize = 14f
                 setTextColor(secondaryTextColor)
             }
@@ -258,7 +262,7 @@ class DetailsActivity : Activity() {
         }
 
         val topBarTitle = TextView(this).apply {
-            text = "Details"
+            text = getString(R.string.details_topbar_title)  // "Details"
             textSize = 16f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -302,7 +306,7 @@ class DetailsActivity : Activity() {
                 shape = GradientDrawable.OVAL
                 setColor(backBtnBgColor)
             }
-            contentDescription = "Back"
+            contentDescription = getString(R.string.back)
             isClickable = true
             isFocusable = true
             layoutParams = FrameLayout.LayoutParams(dpToPx(48f), dpToPx(48f), Gravity.START or Gravity.CENTER_VERTICAL)

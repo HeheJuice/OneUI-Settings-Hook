@@ -12,8 +12,8 @@ android {
         applicationId = "com.HeheJuice.OneUISettingsHook"
         minSdk = 35
         targetSdk = 36
-        versionCode = 26
-        versionName = "V.2.6"
+        versionCode = 27
+        versionName = "V.2.7 Debug"
     }
 
     signingConfigs {

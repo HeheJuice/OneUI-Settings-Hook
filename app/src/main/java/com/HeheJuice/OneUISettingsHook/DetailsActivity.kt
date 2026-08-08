@@ -142,7 +142,7 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // ----- Create a credit row with guaranteed layout -----
+        // ----- Simplified row builder (with debug colors) -----
         fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -152,9 +152,8 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // Set weight sum so the text container can expand
-                weightSum = 1f
-                setPadding(0, dpToPx(4f), 0, dpToPx(4f))
+                // Ensure the row has a background so we see it if it's empty
+                // setBackgroundColor(Color.parseColor("#AAFFFF00"))
 
                 // 1. Avatar (fixed size)
                 val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
@@ -183,22 +182,24 @@ class DetailsActivity : Activity() {
                 // 2. Text container (takes remaining space)
                 val textContainer = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    // Width = 0, weight = 1 -> fills the rest
                     layoutParams = LinearLayout.LayoutParams(
-                        0,
+                        0,  // width = 0, weight will expand
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         1f
                     )
-                    // (Optional) temporary background to see the container
+                    // Temporary debug background to see the container
                     // setBackgroundColor(Color.parseColor("#AAFF0000"))
                     gravity = Gravity.CENTER_VERTICAL
                 }
 
+                // Name (with debug background)
                 val nameView = TextView(context).apply {
                     text = name
                     textSize = 17f
                     setTextColor(primaryTextColor)
                     setTypeface(null, Typeface.BOLD)
+                    // Debug background – you should see a green rectangle if the text is present
+                    setBackgroundColor(Color.parseColor("#AA00FF00"))
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { onClick() }
@@ -220,10 +221,13 @@ class DetailsActivity : Activity() {
                 }
                 textContainer.addView(nameView)
 
+                // Description (with debug background)
                 val descView = TextView(context).apply {
                     text = description
                     textSize = 14f
                     setTextColor(secondaryTextColor)
+                    // Debug background – blue rectangle
+                    setBackgroundColor(Color.parseColor("#AA0000FF"))
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT

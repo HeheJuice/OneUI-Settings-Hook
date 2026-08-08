@@ -54,6 +54,7 @@ class SettingsActivity : Activity() {
         private const val STYLE_DEFAULT = 0
         private const val STYLE_MONET = 1
         private const val STYLE_ONEUI6 = 2
+        private const val STYLE_PUI = 3
     }
 
     private lateinit var themeSelectionRow: LinearLayout
@@ -160,7 +161,7 @@ class SettingsActivity : Activity() {
         headerCardLayout.addView(headerTitle)
         headerCardLayout.addView(headerSub)
 
-        // ----- NEW INFO PILL (opens DetailsActivity) -----
+        // Info Pill (opens DetailsActivity)
         val infoPill = TextView(this).apply {
             text = "Press here for details"
             textSize = 14f
@@ -287,7 +288,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // ----- Dashboard Style Card (3 options) -----
+        // ----- Dashboard Style Card (4 options) -----
         val dashboardStyleCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -309,12 +310,12 @@ class SettingsActivity : Activity() {
         themeSelectionRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            weightSum = 3f
+            weightSum = 4f
         }
 
         currentStyle = prefs.getInt("dashboard_style", STYLE_DEFAULT)
 
-        // Create the three options using the member function createStyleOption
+        // Create the four options
         val defaultOption = createStyleOption(
             getString(R.string.dashboard_option_default),
             R.drawable.icon_default,
@@ -322,10 +323,12 @@ class SettingsActivity : Activity() {
         )
         val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
         val oneui6Option = createStyleOption("OneUI 6 Monet", R.drawable.icon_oneui6, STYLE_ONEUI6)
+        val puiOption = createStyleOption("PUI", R.drawable.icon_pui, STYLE_PUI)
 
         themeSelectionRow.addView(defaultOption)
         themeSelectionRow.addView(monetOption)
         themeSelectionRow.addView(oneui6Option)
+        themeSelectionRow.addView(puiOption)
 
         dashboardStyleCardLayout.addView(dashboardTitle)
         dashboardStyleCardLayout.addView(themeSelectionRow)
@@ -1312,6 +1315,7 @@ class SettingsActivity : Activity() {
                 getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
                 "Monet" -> currentStyle == STYLE_MONET
                 "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
+                "PUI" -> currentStyle == STYLE_PUI
                 else -> false
             }
             radio.setImageDrawable(createRadioButtonDrawable(isSelected))

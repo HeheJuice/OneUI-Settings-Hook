@@ -4,6 +4,8 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.view.Window
+import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -12,14 +14,9 @@ import android.widget.TextView
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.content.Intent
 import android.util.TypedValue
-import android.view.Window
-import android.view.WindowInsets
 import android.os.Build
-import android.view.WindowInsetsController
-import android.view.WindowManager
-import android.graphics.drawable.Drawable
+import android.content.Intent
 
 class DetailsActivity : Activity() {
 
@@ -32,8 +29,6 @@ class DetailsActivity : Activity() {
                 android.content.res.Configuration.UI_MODE_NIGHT_YES
 
         val bgColor = if (isDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
-        val cardBgColor = if (isDark) Color.parseColor("#1C1C1E") else Color.parseColor("#FFFFFF")
-        val cardBorderColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
         val primaryTextColor = if (isDark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
         val secondaryTextColor = if (isDark) Color.parseColor("#8E8E93") else Color.parseColor("#6C6C70")
         val accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
@@ -56,75 +51,61 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // ----- Custom Card with Background Image -----
+        // ----- Banner Card (full width, rounded corners, no borders) -----
         val cardLayout = FrameLayout(this).apply {
-            // Use a rounded corner background for the card itself
+            // Rounded background (no stroke, no color – we just want the corner clipping)
+            // We'll use a transparent background with rounded corners to clip the image.
             background = GradientDrawable().apply {
-                setColor(cardBgColor)
+                setColor(Color.TRANSPARENT)
                 cornerRadius = dpToPx(28f).toFloat()
-                setStroke(dpToPx(1f), cardBorderColor)
+                setStroke(0, Color.TRANSPARENT) // no border
             }
-            // Padding inside the card
-            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
-            // Make the card wrap content vertically
+            clipToOutline = true  // clip children to rounded corners
+            // No padding – image should fill the card
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
 
-        // ---- Background Image (fit to card width, maintain aspect ratio) ----
+        // ---- Background Image (fills card) ----
         val backgroundImage = ImageView(this).apply {
-            // Try to load the drawable; fallback to a solid color if missing
-            val imageResId = resources.getIdentifier("HeheJuiceBanner", "drawable", packageName)
+            val imageResId = resources.getIdentifier("hehejuicebanner", "drawable", packageName)
             if (imageResId != 0) {
                 setImageResource(imageResId)
             } else {
-                // Fallback: use a colored background
+                // Fallback solid color
                 setBackgroundColor(accentColor)
             }
-            scaleType = ImageView.ScaleType.FIT_XY
-            // Ensure the image stays inside the card
+            scaleType = ImageView.ScaleType.CENTER_CROP  // fill width, crop height to fit
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                // Make it fill the card, but we want the card to wrap its content
-                // So we set a fixed height relative to the card? Better to let the image determine height.
-                // We'll use a typical banner height (e.g., 180dp) for consistency.
-                height = dpToPx(180f)
-            }
+                dpToPx(200f)  // fixed height – adjust as needed
+            )
         }
         cardLayout.addView(backgroundImage)
 
-        // ---- Text overlaid on the image ----
+        // ---- Text overlaid on the image (centered horizontally, slightly from top) ----
         val titleText = TextView(this).apply {
             text = "OneUI Settings Hook"
             textSize = 28f
-            setTextColor(Color.WHITE)  // White for contrast against image
+            setTextColor(Color.WHITE)
             setTypeface(null, Typeface.BOLD)
-            // Add a shadow for better readability
             setShadowLayer(8f, 0f, 4f, Color.BLACK)
-            // Position text at the top, with some padding
-            gravity = Gravity.TOP or Gravity.START
-            // Apply padding to keep it away from edges
-            setPadding(dpToPx(20f), dpToPx(24f), 0, 0)
+            gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+            // Add top margin to position it a bit from the top
+            setPadding(0, dpToPx(40f), 0, 0)  // adjust this to move text down
             layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.TOP or Gravity.START
-            }
+            )
         }
         cardLayout.addView(titleText)
 
-        // Future content can be added below the image, inside the same card
-        // For now, we just have the image and the title text.
-
         scrollContent.addView(cardLayout)
 
-        // You can add more cards or content below if needed.
-        // For example, a spacer and then another card for module info.
+        // You can add more content below the banner here
+        // For example, a spacer and a text card for additional info.
 
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
@@ -150,7 +131,7 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, dpToPx(48f), Gravity.CENTER)
         }
 
-        // Back button (same as SettingsActivity)
+        // Back button drawable
         val backArrowDrawable = object : android.graphics.drawable.Drawable() {
             private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor

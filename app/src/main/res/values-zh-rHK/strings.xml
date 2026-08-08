@@ -118,5 +118,5 @@
 <string name="update_latest">您已是最新版本 (%s)</string>
 <string name="update_server_error">檢查更新失敗 (伺服器錯誤)</string>
 <string name="update_connection_error">無法連線到GitHub</string>
-<string name="update_disabled_debug">除錯版本已停用</string>
+<string name="update_disabled_debug">Debug版本,已停用更新檢查</string>
 </resources>

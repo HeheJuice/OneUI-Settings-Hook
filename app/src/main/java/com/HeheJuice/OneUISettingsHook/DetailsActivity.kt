@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -18,6 +19,7 @@ import android.view.WindowInsets
 import android.os.Build
 import android.view.WindowInsetsController
 import android.view.WindowManager
+import android.graphics.drawable.Drawable
 
 class DetailsActivity : Activity() {
 
@@ -54,43 +56,80 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // ----- Details Card -----
-        val cardLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+        // ----- Custom Card with Background Image -----
+        val cardLayout = FrameLayout(this).apply {
+            // Use a rounded corner background for the card itself
             background = GradientDrawable().apply {
                 setColor(cardBgColor)
                 cornerRadius = dpToPx(28f).toFloat()
                 setStroke(dpToPx(1f), cardBorderColor)
             }
+            // Padding inside the card
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+            // Make the card wrap content vertically
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
 
-        val title = TextView(this).apply {
-            text = "Details"
-            textSize = 24f
-            setTextColor(primaryTextColor)
+        // ---- Background Image (fit to card width, maintain aspect ratio) ----
+        val backgroundImage = ImageView(this).apply {
+            // Try to load the drawable; fallback to a solid color if missing
+            val imageResId = resources.getIdentifier("HeheJuiceBanner", "drawable", packageName)
+            if (imageResId != 0) {
+                setImageResource(imageResId)
+            } else {
+                // Fallback: use a colored background
+                setBackgroundColor(accentColor)
+            }
+            scaleType = ImageView.ScaleType.FIT_XY
+            // Ensure the image stays inside the card
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                // Make it fill the card, but we want the card to wrap its content
+                // So we set a fixed height relative to the card? Better to let the image determine height.
+                // We'll use a typical banner height (e.g., 180dp) for consistency.
+                height = dpToPx(180f)
+            }
+        }
+        cardLayout.addView(backgroundImage)
+
+        // ---- Text overlaid on the image ----
+        val titleText = TextView(this).apply {
+            text = "OneUI Settings Hook"
+            textSize = 28f
+            setTextColor(Color.WHITE)  // White for contrast against image
             setTypeface(null, Typeface.BOLD)
+            // Add a shadow for better readability
+            setShadowLayer(8f, 0f, 4f, Color.BLACK)
+            // Position text at the top, with some padding
+            gravity = Gravity.TOP or Gravity.START
+            // Apply padding to keep it away from edges
+            setPadding(dpToPx(20f), dpToPx(24f), 0, 0)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.START
+            }
         }
-        cardLayout.addView(title)
+        cardLayout.addView(titleText)
 
-        val spacer = View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
-        }
-        cardLayout.addView(spacer)
-
-        val content = TextView(this).apply {
-            text = "This is the details page.\nYou can add more content here.\n\nModule information, credits, etc."
-            textSize = 16f
-            setTextColor(secondaryTextColor)
-            setLineSpacing(4f, 1.2f)
-        }
-        cardLayout.addView(content)
+        // Future content can be added below the image, inside the same card
+        // For now, we just have the image and the title text.
 
         scrollContent.addView(cardLayout)
+
+        // You can add more cards or content below if needed.
+        // For example, a spacer and then another card for module info.
+
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
 
-        // ---------- TOP BAR ----------
+        // ---------- TOP BAR (same as before) ----------
         val topBarLayout = FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
             setPadding(dpToPx(16f), statusBarHeight + dpToPx(12f), dpToPx(16f), dpToPx(12f))
@@ -147,7 +186,6 @@ class DetailsActivity : Activity() {
             isFocusable = true
             layoutParams = FrameLayout.LayoutParams(dpToPx(48f), dpToPx(48f), Gravity.START or Gravity.CENTER_VERTICAL)
             setOnClickListener { finish() }
-            // You can reuse the pressScaleTouchListener from SettingsActivity, but we'll define a simple one here
             setOnTouchListener { v, event ->
                 when (event.action) {
                     android.view.MotionEvent.ACTION_DOWN -> {
@@ -165,13 +203,11 @@ class DetailsActivity : Activity() {
         topBarLayout.addView(backBtn)
         rootFrameLayout.addView(topBarLayout)
 
-        // Scroll listener for title fade
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             val alpha = (scrollY / dpToPx(40f).toFloat()).coerceIn(0f, 1f)
             topBarTitle.alpha = alpha
         }
 
-        // Window insets for edge-to-edge
         rootFrameLayout.setOnApplyWindowInsetsListener { _, insets ->
             val topInset = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 insets.getInsets(WindowInsets.Type.statusBars()).top

@@ -111,4 +111,5 @@
 
 <string name="credit_lsposed_name">LSPosed</string>
 <string name="credit_lsposed_desc">本模組的實現方式</string>
+<string name="info_pill_text">檢查更新</string>
 </resources>

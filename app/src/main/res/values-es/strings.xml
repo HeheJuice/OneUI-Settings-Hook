@@ -100,4 +100,6 @@
 <string name="update_server_error">Error al buscar actualizaciones (error del servidor)</string>
 <string name="update_connection_error">No se pudo conectar a GitHub</string>
 <string name="update_disabled_debug">Deshabilitado en versión de depuración</string>
+<string name="details_topbar_title">Detalles</string>
+<string name="credits_title">Créditos</string>
 </resources>

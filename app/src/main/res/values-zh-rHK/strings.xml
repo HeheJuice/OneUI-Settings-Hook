@@ -95,8 +95,6 @@
 <string name="debug_incorrect_code">錯誤</string>
 <!-- Details Activity -->
 <string name="details_title">OneUI Settings Hook</string>
-<string name="details_topbar_title">Details</string>
-<string name="credits_title">Credits</string>
 <string name="back">Back</string>
 
 <!-- Credits -->

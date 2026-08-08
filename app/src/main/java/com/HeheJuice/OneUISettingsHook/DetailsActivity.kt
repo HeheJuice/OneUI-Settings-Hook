@@ -17,6 +17,7 @@ import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.os.Build
 import android.content.Intent
+import android.graphics.drawable.Drawable
 
 class DetailsActivity : Activity() {
 
@@ -53,15 +54,12 @@ class DetailsActivity : Activity() {
 
         // ----- Banner Card (full width, rounded corners, no borders) -----
         val cardLayout = FrameLayout(this).apply {
-            // Rounded background (no stroke, no color – we just want the corner clipping)
-            // We'll use a transparent background with rounded corners to clip the image.
             background = GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)
                 cornerRadius = dpToPx(28f).toFloat()
-                setStroke(0, Color.TRANSPARENT) // no border
+                setStroke(0, Color.TRANSPARENT)
             }
-            clipToOutline = true  // clip children to rounded corners
-            // No padding – image should fill the card
+            clipToOutline = true
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -74,10 +72,9 @@ class DetailsActivity : Activity() {
             if (imageResId != 0) {
                 setImageResource(imageResId)
             } else {
-                // Fallback solid color
                 setBackgroundColor(accentColor)
             }
-            scaleType = ImageView.ScaleType.CENTER_CROP  // fill width, crop height to fit
+            scaleType = ImageView.ScaleType.CENTER_CROP
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 dpToPx(200f)  // fixed height – adjust as needed
@@ -85,16 +82,24 @@ class DetailsActivity : Activity() {
         }
         cardLayout.addView(backgroundImage)
 
+        // ---- Load custom font from assets ----
+        val customFont = try {
+            Typeface.createFromAsset(assets, "SamsungSharpSans-Bold.ttf")
+        } catch (e: Exception) {
+            // Fallback to bold system font
+            Typeface.DEFAULT_BOLD
+        }
+
         // ---- Text overlaid on the image (centered horizontally, slightly from top) ----
         val titleText = TextView(this).apply {
             text = "OneUI Settings Hook"
             textSize = 28f
             setTextColor(Color.WHITE)
-            setTypeface(null, Typeface.BOLD)
+            setTypeface(customFont)  // Apply custom font
             setShadowLayer(8f, 0f, 4f, Color.BLACK)
             gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
-            // Add top margin to position it a bit from the top
-            setPadding(0, dpToPx(40f), 0, 0)  // adjust this to move text down
+            // Move text lower: increase top padding from 40dp to 60dp (adjust as needed)
+            setPadding(0, dpToPx(60f), 0, 0)
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
@@ -105,12 +110,11 @@ class DetailsActivity : Activity() {
         scrollContent.addView(cardLayout)
 
         // You can add more content below the banner here
-        // For example, a spacer and a text card for additional info.
 
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
 
-        // ---------- TOP BAR (same as before) ----------
+        // ---------- TOP BAR (unchanged) ----------
         val topBarLayout = FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
             setPadding(dpToPx(16f), statusBarHeight + dpToPx(12f), dpToPx(16f), dpToPx(12f))
@@ -131,7 +135,7 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, dpToPx(48f), Gravity.CENTER)
         }
 
-        // Back button drawable
+        // Back button (same as before)
         val backArrowDrawable = object : android.graphics.drawable.Drawable() {
             private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor

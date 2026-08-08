@@ -115,8 +115,9 @@
 <string name="credit_fifthsnow_desc">Designer of PUI Theme</string>
 
 <string name="credit_ncatt_name">ncatt</string>
-<string name="credit_ncatt_desc">VI Language Helps</string>
+<string name="credit_ncatt_desc">Vietnamese Language Helps</string>
 
 <string name="credit_lsposed_name">LSPosed</string>
 <string name="credit_lsposed_desc">Method for Patching Android</string>
+<string name="info_pill_text">Check for Updates</string>
 </resources>

@@ -93,4 +93,12 @@
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">ダッシュボードテーマが適用されました。設定が再起動されました。</string>
 <string name="debug_incorrect_code">コードが正しくありません</string>
+<string name="info_pill_text">アップデートを確認</string>
+<string name="update_checking">アップデートを確認中…</string>
+<string name="update_new_version">新しいバージョンが利用可能: %s</string>
+<string name="update_download">GitHubからダウンロード</string>
+<string name="update_latest">最新バージョンを使用しています (%s)</string>
+<string name="update_server_error">アップデートの確認に失敗しました (サーバーエラー)</string>
+<string name="update_connection_error">GitHubに接続できませんでした</string>
+<string name="update_disabled_debug">デバッグビルドでは無効</string>
 </resources>

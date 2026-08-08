@@ -18,8 +18,19 @@ import android.util.TypedValue
 import android.os.Build
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import org.json.JSONObject
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 class DetailsActivity : Activity() {
+
+    private lateinit var updateStatusView: TextView
+    private lateinit var updateActionView: TextView
+
+    companion object {
+        private const val TAG = "OneUISettingsHook"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -99,7 +110,7 @@ class DetailsActivity : Activity() {
         }
 
         val titleText = TextView(this).apply {
-            text = getString(R.string.details_title)  // "OneUI Settings Hook"
+            text = getString(R.string.details_title)
             textSize = 28f
             setTextColor(Color.WHITE)
             setTypeface(customFont)
@@ -114,13 +125,58 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(bannerCard)
 
-        val spacer = View(this).apply {
+        // ----- UPDATE CHECKER CARD -----
+        val updateCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(16f)
-            )
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(16f)
+            }
         }
-        scrollContent.addView(spacer)
+
+        updateStatusView = TextView(this).apply {
+            text = getString(R.string.update_checking)
+            textSize = 15f
+            setTextColor(secondaryTextColor)
+            gravity = Gravity.CENTER
+        }
+        updateCard.addView(updateStatusView)
+
+        updateActionView = TextView(this).apply {
+            text = ""
+            textSize = 15f
+            setTextColor(accentColor)
+            gravity = Gravity.CENTER
+            setTypeface(null, Typeface.BOLD)
+            isClickable = true
+            isFocusable = true
+            visibility = View.GONE
+            setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/releases")))
+            }
+            setOnTouchListener { v, event ->
+                when (event.action) {
+                    android.view.MotionEvent.ACTION_DOWN -> {
+                        v.animate().scaleX(0.96f).scaleY(0.96f).alpha(0.8f).setDuration(80).start()
+                    }
+                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                        v.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(150).start()
+                    }
+                }
+                false
+            }
+        }
+        updateCard.addView(updateActionView)
+
+        scrollContent.addView(updateCard)
 
         // ----- Credits Card -----
         val creditsCard = LinearLayout(this).apply {
@@ -131,10 +187,16 @@ class DetailsActivity : Activity() {
                 setStroke(dpToPx(1f), cardBorderColor)
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(16f)
+            }
         }
 
         val creditsTitle = TextView(this).apply {
-            text = getString(R.string.credits_title)  // "Credits"
+            text = getString(R.string.credits_title)
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -142,7 +204,6 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // Define credit entries using resource strings
         data class Credit(val nameRes: Int, val descRes: Int, val username: String)
 
         val credits = listOf(
@@ -156,7 +217,6 @@ class DetailsActivity : Activity() {
             val nameText = getString(credit.nameRes)
             val descText = getString(credit.descRes)
 
-            // Row container (horizontal)
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -168,7 +228,6 @@ class DetailsActivity : Activity() {
                 gravity = Gravity.CENTER_VERTICAL
             }
 
-            // Avatar (circular)
             val avatarResId = resources.getIdentifier(nameText.lowercase(), "drawable", packageName)
             val avatar = ImageView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
@@ -192,7 +251,6 @@ class DetailsActivity : Activity() {
             }
             row.addView(avatar)
 
-            // Text container (vertical, takes remaining space)
             val textContainer = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -232,10 +290,8 @@ class DetailsActivity : Activity() {
             textContainer.addView(descView)
 
             row.addView(textContainer)
-
             creditsCard.addView(row)
 
-            // Divider (except after last)
             if (credit != credits.last()) {
                 val divider = View(this).apply {
                     layoutParams = LinearLayout.LayoutParams(
@@ -262,7 +318,7 @@ class DetailsActivity : Activity() {
         }
 
         val topBarTitle = TextView(this).apply {
-            text = getString(R.string.details_topbar_title)  // "Details"
+            text = getString(R.string.details_topbar_title)
             textSize = 16f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -352,6 +408,15 @@ class DetailsActivity : Activity() {
         }
 
         setContentView(rootFrameLayout)
+
+        // ---- Update check with debug detection ----
+        val versionName = getVersionName()
+        if (versionName.contains("Debug", ignoreCase = true)) {
+            updateStatusView.text = getString(R.string.update_disabled_debug)
+            updateActionView.visibility = View.GONE
+        } else {
+            checkForUpdates()
+        }
     }
 
     private fun getStatusBarHeight(): Int {
@@ -374,5 +439,79 @@ class DetailsActivity : Activity() {
                 // ignore
             }
         }
+    }
+
+    private fun getVersionName(): String {
+        return try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
+        } catch (e: Exception) {
+            "1.0.0"
+        }
+    }
+
+    // ---------- Version comparator ----------
+    private fun compareVersions(v1: String, v2: String): Int {
+        val clean1 = v1.replace(Regex("[^0-9.]"), "")
+        val clean2 = v2.replace(Regex("[^0-9.]"), "")
+        val parts1 = clean1.split(".").map { it.toIntOrNull() ?: 0 }
+        val parts2 = clean2.split(".").map { it.toIntOrNull() ?: 0 }
+        val maxLen = maxOf(parts1.size, parts2.size)
+        for (i in 0 until maxLen) {
+            val p1 = if (i < parts1.size) parts1[i] else 0
+            val p2 = if (i < parts2.size) parts2[i] else 0
+            if (p1 != p2) return p1 - p2
+        }
+        return 0
+    }
+
+    // ---------- Update Checker ----------
+    private fun checkForUpdates() {
+        updateStatusView.text = getString(R.string.update_checking)
+        updateActionView.visibility = View.GONE
+
+        Thread {
+            try {
+                val url = URL("https://api.github.com/repos/HeheJuice/OneUI-Settings-Hook/releases/latest")
+                val connection = url.openConnection() as HttpsURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+
+                val responseCode = connection.responseCode
+                if (responseCode == HttpsURLConnection.HTTP_OK) {
+                    val inputStream = connection.inputStream
+                    val response = inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(response)
+                    val latestTag = json.getString("tag_name")
+                    val currentVersion = getVersionName()
+
+                    val latestVersion = latestTag.replace(Regex("^[^0-9]*"), "")
+                    val currentVer = currentVersion.replace(Regex("^[^0-9]*"), "")
+
+                    Log.d(TAG, "Latest version: $latestVersion, Current: $currentVer")
+
+                    val comparison = compareVersions(latestVersion, currentVer)
+                    runOnUiThread {
+                        if (comparison > 0) {
+                            updateStatusView.text = getString(R.string.update_new_version, latestVersion)
+                            updateActionView.text = getString(R.string.update_download)
+                            updateActionView.visibility = View.VISIBLE
+                        } else {
+                            updateStatusView.text = getString(R.string.update_latest, currentVer)
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        updateStatusView.text = getString(R.string.update_server_error)
+                    }
+                }
+                connection.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread {
+                    updateStatusView.text = getString(R.string.update_connection_error)
+                }
+            }
+        }.start()
     }
 }

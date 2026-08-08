@@ -92,4 +92,12 @@
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">Tema del panel aplicado. Configuración reiniciada.</string>
 <string name="debug_incorrect_code">Código incorrecto</string>
+<string name="info_pill_text">Buscar actualizaciones</string>
+<string name="update_checking">Buscando actualizaciones…</string>
+<string name="update_new_version">Nueva versión disponible: %s</string>
+<string name="update_download">Descargar desde GitHub</string>
+<string name="update_latest">Está usando la última versión (%s)</string>
+<string name="update_server_error">Error al buscar actualizaciones (error del servidor)</string>
+<string name="update_connection_error">No se pudo conectar a GitHub</string>
+<string name="update_disabled_debug">Deshabilitado en versión de depuración</string>
 </resources>

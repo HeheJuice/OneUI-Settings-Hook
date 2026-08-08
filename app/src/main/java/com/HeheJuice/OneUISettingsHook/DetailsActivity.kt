@@ -138,7 +138,6 @@ class DetailsActivity : Activity() {
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
-            // Move right with left padding
             setPadding(dpToPx(20f), 0, 0, dpToPx(16f))
         }
         creditsCard.addView(creditsTitle)
@@ -155,7 +154,7 @@ class DetailsActivity : Activity() {
                 }
                 setPadding(0, dpToPx(4f), 0, dpToPx(4f))
 
-                // Profile picture (circular)
+                // Avatar (48dp circle)
                 val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
                 val avatar = ImageView(context).apply {
                     layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
@@ -164,25 +163,22 @@ class DetailsActivity : Activity() {
                     if (avatarResId != 0) {
                         setImageResource(avatarResId)
                         scaleType = ImageView.ScaleType.CENTER_CROP
-                        // Make it circular
                         background = GradientDrawable().apply {
                             shape = GradientDrawable.OVAL
                             setColor(Color.TRANSPARENT)
                         }
-                        clipToOutline = true  // This clips the image to the oval shape
+                        clipToOutline = true
                     } else {
-                        // No image: just a colored circle
                         setImageDrawable(null)
                         background = GradientDrawable().apply {
                             shape = GradientDrawable.OVAL
                             setColor(accentColor)
                         }
-                        // No need to clip, it's already a circle
                     }
                 }
                 addView(avatar)
 
-                // Vertical layout for name and description
+                // Vertical container for name + description (takes remaining space)
                 val textContainer = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     layoutParams = LinearLayout.LayoutParams(
@@ -190,6 +186,7 @@ class DetailsActivity : Activity() {
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         1f
                     )
+                    gravity = Gravity.CENTER_VERTICAL
                 }
 
                 val nameView = TextView(context).apply {
@@ -231,7 +228,7 @@ class DetailsActivity : Activity() {
 
                 addView(textContainer)
 
-                // Divider line below the row
+                // Divider below the row
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -245,7 +242,6 @@ class DetailsActivity : Activity() {
             }
         }
 
-        // Add rows
         creditsCard.addView(createCreditRow(
             name = "HeheJuice",
             description = "Developer",

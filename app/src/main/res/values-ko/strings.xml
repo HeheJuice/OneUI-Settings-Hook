@@ -93,4 +93,5 @@
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">대시보드 테마가 적용되었습니다. 설정이 다시 시작되었습니다.</string>
 <string name="debug_incorrect_code">잘못된 코드</string>
+<string name="info_pill_text">업데이트 확인</string>
 </resources>

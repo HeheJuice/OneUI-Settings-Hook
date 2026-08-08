@@ -107,8 +107,9 @@
 <string name="credit_fifthsnow_desc">天伞樱 - PUI Theme设计</string>
 
 <string name="credit_ncatt_name">ncatt</string>
-<string name="credit_ncatt_desc">VI 语言翻译</string>
+<string name="credit_ncatt_desc">Vietnamese 语言翻译</string>
 
 <string name="credit_lsposed_name">LSPosed</string>
 <string name="credit_lsposed_desc">本模块的实现方式</string>
+<string name="info_pill_text">检查更新</string>
 </resources>

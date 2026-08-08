@@ -23,6 +23,10 @@
      - Tùy chỉnh văn bản trong Cài đặt Nâng cao của Module 
           - Bạn nên đọc kỹ phần "Tuyên bố từ chối trách nhiệm & Lưu ý sử dụng" trong Cài đặt Nâng cao của Module trước khi sử dụng 
      - Hình nền thẻ Thông tin phần mềm = Hình nền màn hình chính
+- Biểu tượng trang chủ có thể tùy chỉnh
+     - OneUI Monet
+     - OneUI 6 Monet
+     - PUI Theme
 - Tên sản phẩm có thể tùy chỉnh
 - Bảo vệ thông tin nhạy cảm 
      - Tự động ẩn các thông tin sau:
@@ -46,10 +50,10 @@
 
 ### ℹ️ Hướng dẫn sử dụng
 - Cài đặt file .APK và kích hoạt trong LSPosed
-- Buộc dừng (Force-Stop) ứng dụng Cài đặt
+- Cấp quyền Root cho ứng dụng 
+- Buộc dừng (Force-Stop) ứng dụng Cài đặt(LSPosed TRONG)
 - Mở lại ứng dụng Cài đặt
 - Thay đổi chưa được áp dụng? Hãy mở một "issue" (báo lỗi trên GitHub) kèm theo Chi tiết phần mềm thiết bị của bạn
 
 ### 🥰 Lời cảm ơn
-- [HeheJuice](https://github.com/HeheJuice), đã tạo ra toàn bộ Bản vá và Hook
-- Đội ngũ LSPosed vì phương pháp vá lỗi (patch method)
+- Bạn có thể xem nó trong ứng dụng sau khi cài đặt.

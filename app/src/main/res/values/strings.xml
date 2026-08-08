@@ -126,5 +126,5 @@
 <string name="update_latest">You are on the latest version (%s)</string>
 <string name="update_server_error">Failed to check updates (server error)</string>
 <string name="update_connection_error">Could not connect to GitHub</string>
-<string name="update_disabled_debug">DISABLED BY DEBUG</string>
+<string name="update_disabled_debug">Update Checker Disabled for Debug Version</string>
 </resources>

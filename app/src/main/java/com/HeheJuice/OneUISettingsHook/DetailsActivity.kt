@@ -16,8 +16,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.os.Build
-import android.content.Intent
-import android.graphics.drawable.Drawable
 
 class DetailsActivity : Activity() {
 
@@ -82,27 +80,34 @@ class DetailsActivity : Activity() {
         }
         cardLayout.addView(backgroundImage)
 
+        // ---- Dim overlay (semi-transparent black) ----
+        val dimOverlay = View(this).apply {
+            setBackgroundColor(Color.parseColor("#66000000"))  // ~40% opacity black
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        }
+        cardLayout.addView(dimOverlay)
+
         // ---- Load custom font from assets ----
         val customFont = try {
             Typeface.createFromAsset(assets, "SamsungSharpSans-Bold.ttf")
         } catch (e: Exception) {
-            // Fallback to bold system font
             Typeface.DEFAULT_BOLD
         }
 
-        // ---- Text overlaid on the image (centered horizontally, slightly from top) ----
+        // ---- Text overlaid (fully centered) ----
         val titleText = TextView(this).apply {
             text = "OneUI Settings Hook"
             textSize = 28f
             setTextColor(Color.WHITE)
-            setTypeface(customFont)  // Apply custom font
-            setShadowLayer(8f, 0f, 4f, Color.BLACK)
-            gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
-            // Move text lower: increase top padding from 40dp to 60dp (adjust as needed)
-            setPadding(0, dpToPx(60f), 0, 0)
+            setTypeface(customFont)
+            // No shadow
+            gravity = Gravity.CENTER
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+                FrameLayout.LayoutParams.MATCH_PARENT
             )
         }
         cardLayout.addView(titleText)

@@ -16,6 +16,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.os.Build
+import android.content.Intent
+import android.net.Uri
 
 class DetailsActivity : Activity() {
 
@@ -28,6 +30,8 @@ class DetailsActivity : Activity() {
                 android.content.res.Configuration.UI_MODE_NIGHT_YES
 
         val bgColor = if (isDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
+        val cardBgColor = if (isDark) Color.parseColor("#1C1C1E") else Color.parseColor("#FFFFFF")
+        val cardBorderColor = if (isDark) Color.parseColor("#2C2C2E") else Color.parseColor("#E5E5EA")
         val primaryTextColor = if (isDark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
         val secondaryTextColor = if (isDark) Color.parseColor("#8E8E93") else Color.parseColor("#6C6C70")
         val accentColor = if (isDark) Color.parseColor("#3E82F7") else Color.parseColor("#0066FF")
@@ -51,7 +55,7 @@ class DetailsActivity : Activity() {
         }
 
         // ----- Banner Card (full width, rounded corners, no borders) -----
-        val cardLayout = FrameLayout(this).apply {
+        val bannerCard = FrameLayout(this).apply {
             background = GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)
                 cornerRadius = dpToPx(28f).toFloat()
@@ -64,7 +68,7 @@ class DetailsActivity : Activity() {
             )
         }
 
-        // ---- Background Image (fills card) ----
+        // Background Image
         val backgroundImage = ImageView(this).apply {
             val imageResId = resources.getIdentifier("hehejuicebanner", "drawable", packageName)
             if (imageResId != 0) {
@@ -75,51 +79,167 @@ class DetailsActivity : Activity() {
             scaleType = ImageView.ScaleType.CENTER_CROP
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(200f)  // fixed height – adjust as needed
+                dpToPx(200f)
             )
         }
-        cardLayout.addView(backgroundImage)
+        bannerCard.addView(backgroundImage)
 
-        // ---- Dim overlay (semi-transparent black) ----
+        // Dim overlay
         val dimOverlay = View(this).apply {
-            setBackgroundColor(Color.parseColor("#66000000"))  // ~40% opacity black
+            setBackgroundColor(Color.parseColor("#66000000"))
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
         }
-        cardLayout.addView(dimOverlay)
+        bannerCard.addView(dimOverlay)
 
-        // ---- Load custom font from assets ----
+        // Load custom font
         val customFont = try {
             Typeface.createFromAsset(assets, "SamsungSharpSans-Bold.ttf")
         } catch (e: Exception) {
             Typeface.DEFAULT_BOLD
         }
 
-        // ---- Text overlaid (fully centered) ----
+        // Text (centered, moved 3dp up)
         val titleText = TextView(this).apply {
             text = "OneUI Settings Hook"
             textSize = 28f
             setTextColor(Color.WHITE)
             setTypeface(customFont)
-            // No shadow
             gravity = Gravity.CENTER
+            translationY = -dpToPx(3f)  // move up 3 pixels
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
         }
-        cardLayout.addView(titleText)
+        bannerCard.addView(titleText)
 
-        scrollContent.addView(cardLayout)
+        scrollContent.addView(bannerCard)
 
-        // You can add more content below the banner here
+        // Spacer between banner and credits
+        val spacer = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(16f)
+            )
+        }
+        scrollContent.addView(spacer)
+
+        // ----- Credits Card -----
+        val creditsCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+        }
+
+        // Card Title
+        val creditsTitle = TextView(this).apply {
+            text = "Credits"
+            textSize = 20f
+            setTextColor(primaryTextColor)
+            setTypeface(null, Typeface.BOLD)
+            setPadding(0, 0, 0, dpToPx(16f))
+        }
+        creditsCard.addView(creditsTitle)
+
+        // Helper to create a credit row
+        fun createCreditRow(label: String, value: String, onClick: () -> Unit): LinearLayout {
+            return LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dpToPx(12f)
+                }
+                // Left label
+                val labelView = TextView(context).apply {
+                    text = label
+                    textSize = 15f
+                    setTextColor(secondaryTextColor)
+                    layoutParams = LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1f
+                    )
+                }
+                addView(labelView)
+                // Right value (clickable)
+                val valueView = TextView(context).apply {
+                    text = value
+                    textSize = 15f
+                    setTextColor(accentColor)
+                    setTypeface(null, Typeface.BOLD)
+                    gravity = Gravity.END
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { onClick() }
+                    // add touch feedback
+                    setOnTouchListener { v, event ->
+                        when (event.action) {
+                            android.view.MotionEvent.ACTION_DOWN -> {
+                                v.animate().scaleX(0.96f).scaleY(0.96f).alpha(0.8f).setDuration(80).start()
+                            }
+                            android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                                v.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(150).start()
+                            }
+                        }
+                        false
+                    }
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
+                addView(valueView)
+                // Divider line below the row
+                val divider = View(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        dpToPx(1f)
+                    ).apply {
+                        topMargin = dpToPx(12f)
+                    }
+                    setBackgroundColor(cardBorderColor)
+                }
+                addView(divider)
+            }
+        }
+
+        // Add rows
+        creditsCard.addView(createCreditRow(
+            label = "Developer",
+            value = "HeheJuice  @HeheJuice",
+            onClick = { openTelegram("HeheJuice") }
+        ))
+        creditsCard.addView(createCreditRow(
+            label = "Designer of PUI Theme",
+            value = "FifthSnow  @FifthSnow",
+            onClick = { openTelegram("FifthSnow") }
+        ))
+        creditsCard.addView(createCreditRow(
+            label = "VI Language Helps",
+            value = "ncatt  @ncatt",
+            onClick = { openTelegram("ncatt") }
+        ))
+        creditsCard.addView(createCreditRow(
+            label = "Method for Patching Android",
+            value = "LSPosed  @LSPosed",
+            onClick = { openTelegram("LSPosed") }
+        ))
+
+        scrollContent.addView(creditsCard)
 
         scrollView.addView(scrollContent)
         rootFrameLayout.addView(scrollView)
 
-        // ---------- TOP BAR (unchanged) ----------
+        // ---------- TOP BAR ----------
         val topBarLayout = FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
             setPadding(dpToPx(16f), statusBarHeight + dpToPx(12f), dpToPx(16f), dpToPx(12f))
@@ -140,7 +260,7 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, dpToPx(48f), Gravity.CENTER)
         }
 
-        // Back button (same as before)
+        // Back button
         val backArrowDrawable = object : android.graphics.drawable.Drawable() {
             private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
@@ -226,4 +346,19 @@ class DetailsActivity : Activity() {
 
     private fun dpToPx(dp: Float): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
+
+    private fun openTelegram(username: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=$username"))
+            startActivity(intent)
+        } catch (e: Exception) {
+            // Fallback to web link
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/$username"))
+                startActivity(intent)
+            } catch (e2: Exception) {
+                // Do nothing
+            }
+        }
+    }
 }

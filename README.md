@@ -25,7 +25,7 @@
      - Customizable Text in Module Advanced Settings 
           - You should read the "Disclaimer & Usage Notice" Part in Module Advanced Settings before Using 
      - Software Info Card Background = Home Wall
-- Custom Dashboard Icon (Will be added in V.2.6)
+- Custom Dashboard Icon 
      - OneUI Monet
      - OneUI 6 Monet
      - PUI Theme

@@ -18,8 +18,16 @@ import android.util.TypedValue
 import android.os.Build
 import android.content.Intent
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import org.json.JSONObject
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 class DetailsActivity : Activity() {
+
+    private lateinit var updateStatusView: TextView
+    private lateinit var updateActionView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -99,7 +107,7 @@ class DetailsActivity : Activity() {
         }
 
         val titleText = TextView(this).apply {
-            text = getString(R.string.details_title)  // "OneUI Settings Hook"
+            text = getString(R.string.details_title)
             textSize = 28f
             setTextColor(Color.WHITE)
             setTypeface(customFont)
@@ -114,15 +122,61 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(bannerCard)
 
-        val spacer = View(this).apply {
+        // ----- UPDATE CHECKER CARD (between banner and credits) -----
+        val updateCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(cardBgColor)
+                cornerRadius = dpToPx(28f).toFloat()
+                setStroke(dpToPx(1f), cardBorderColor)
+            }
+            setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(16f)
-            )
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(16f)
+            }
         }
-        scrollContent.addView(spacer)
 
-        // ----- Credits Card -----
+        updateStatusView = TextView(this).apply {
+            text = "Checking for updates..."
+            textSize = 15f
+            setTextColor(secondaryTextColor)
+            gravity = Gravity.CENTER
+        }
+        updateCard.addView(updateStatusView)
+
+        updateActionView = TextView(this).apply {
+            text = ""
+            textSize = 15f
+            setTextColor(accentColor)
+            gravity = Gravity.CENTER
+            setTypeface(null, Typeface.BOLD)
+            isClickable = true
+            isFocusable = true
+            visibility = View.GONE
+            setOnClickListener {
+                // Open the release page
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/releases")))
+            }
+            setOnTouchListener { v, event ->
+                when (event.action) {
+                    android.view.MotionEvent.ACTION_DOWN -> {
+                        v.animate().scaleX(0.96f).scaleY(0.96f).alpha(0.8f).setDuration(80).start()
+                    }
+                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                        v.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(150).start()
+                    }
+                }
+                false
+            }
+        }
+        updateCard.addView(updateActionView)
+
+        scrollContent.addView(updateCard)
+
+        // ----- Credits Card (unchanged) -----
         val creditsCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -131,10 +185,16 @@ class DetailsActivity : Activity() {
                 setStroke(dpToPx(1f), cardBorderColor)
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(16f)
+            }
         }
 
         val creditsTitle = TextView(this).apply {
-            text = getString(R.string.credits_title)  // "Credits"
+            text = getString(R.string.credits_title)
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -142,7 +202,6 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // Define credit entries using resource strings
         data class Credit(val nameRes: Int, val descRes: Int, val username: String)
 
         val credits = listOf(
@@ -156,7 +215,6 @@ class DetailsActivity : Activity() {
             val nameText = getString(credit.nameRes)
             val descText = getString(credit.descRes)
 
-            // Row container (horizontal)
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -168,7 +226,6 @@ class DetailsActivity : Activity() {
                 gravity = Gravity.CENTER_VERTICAL
             }
 
-            // Avatar (circular)
             val avatarResId = resources.getIdentifier(nameText.lowercase(), "drawable", packageName)
             val avatar = ImageView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
@@ -192,7 +249,6 @@ class DetailsActivity : Activity() {
             }
             row.addView(avatar)
 
-            // Text container (vertical, takes remaining space)
             val textContainer = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -232,10 +288,8 @@ class DetailsActivity : Activity() {
             textContainer.addView(descView)
 
             row.addView(textContainer)
-
             creditsCard.addView(row)
 
-            // Divider (except after last)
             if (credit != credits.last()) {
                 val divider = View(this).apply {
                     layoutParams = LinearLayout.LayoutParams(
@@ -262,7 +316,7 @@ class DetailsActivity : Activity() {
         }
 
         val topBarTitle = TextView(this).apply {
-            text = getString(R.string.details_topbar_title)  // "Details"
+            text = getString(R.string.details_topbar_title)
             textSize = 16f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
@@ -352,6 +406,9 @@ class DetailsActivity : Activity() {
         }
 
         setContentView(rootFrameLayout)
+
+        // ---- Start update check ----
+        checkForUpdates()
     }
 
     private fun getStatusBarHeight(): Int {
@@ -374,5 +431,55 @@ class DetailsActivity : Activity() {
                 // ignore
             }
         }
+    }
+
+    // ---------- Update Checker ----------
+    private fun checkForUpdates() {
+        // Show checking status
+        updateStatusView.text = "Checking for updates..."
+        updateActionView.visibility = View.GONE
+
+        Thread {
+            try {
+                val url = URL("https://api.github.com/repos/HeheJuice/OneUI-Settings-Hook/releases/latest")
+                val connection = url.openConnection() as HttpsURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+
+                val responseCode = connection.responseCode
+                if (responseCode == HttpsURLConnection.HTTP_OK) {
+                    val inputStream = connection.inputStream
+                    val response = inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(response)
+                    val latestTag = json.getString("tag_name")  // e.g., "ReleaseV.2.6"
+                    val currentVersion = BuildConfig.VERSION_NAME // e.g., "2.5" or "2.6"
+
+                    // Parse version numbers from tags (strip "ReleaseV.")
+                    val latestVersion = latestTag.replace("ReleaseV.", "")
+                    val currentVer = currentVersion
+
+                    runOnUiThread {
+                        if (latestVersion > currentVer) {
+                            updateStatusView.text = "New version available: $latestVersion"
+                            updateActionView.text = "Download from GitHub"
+                            updateActionView.visibility = View.VISIBLE
+                        } else {
+                            updateStatusView.text = "You are on the latest version ($currentVer)"
+                        }
+                    }
+                } else {
+                    runOnUiThread {
+                        updateStatusView.text = "Failed to check updates (server error)"
+                    }
+                }
+                connection.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread {
+                    updateStatusView.text = "Could not connect to GitHub"
+                }
+            }
+        }.start()
     }
 }

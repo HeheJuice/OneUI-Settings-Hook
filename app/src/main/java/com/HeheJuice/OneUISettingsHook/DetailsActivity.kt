@@ -178,7 +178,7 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(updateCard)
 
-        // ----- Credits Card -----
+        // ----- CREDITS CARD -----
         val creditsCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -200,7 +200,8 @@ class DetailsActivity : Activity() {
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
-            setPadding(dpToPx(20f), 0, 0, dpToPx(16f))
+            // ***** ONLY CHANGE: left padding reduced to 0 *****
+            setPadding(dpToPx(0f), 0, 0, dpToPx(16f))
         }
         creditsCard.addView(creditsTitle)
 
@@ -409,7 +410,6 @@ class DetailsActivity : Activity() {
 
         setContentView(rootFrameLayout)
 
-        // ---- Update check with debug detection ----
         val versionName = getVersionName()
         if (versionName.contains("Debug", ignoreCase = true)) {
             updateStatusView.text = getString(R.string.update_disabled_debug)
@@ -449,7 +449,6 @@ class DetailsActivity : Activity() {
         }
     }
 
-    // ---------- Version comparator ----------
     private fun compareVersions(v1: String, v2: String): Int {
         val clean1 = v1.replace(Regex("[^0-9.]"), "")
         val clean2 = v2.replace(Regex("[^0-9.]"), "")
@@ -464,7 +463,6 @@ class DetailsActivity : Activity() {
         return 0
     }
 
-    // ---------- Update Checker ----------
     private fun checkForUpdates() {
         updateStatusView.text = getString(R.string.update_checking)
         updateActionView.visibility = View.GONE

@@ -113,4 +113,6 @@
 <string name="update_server_error">檢查更新失敗 (伺服器錯誤)</string>
 <string name="update_connection_error">無法連線到GitHub</string>
 <string name="update_disabled_debug">Debug版本,已停用更新檢查</string>
+<string name="details_topbar_title">詳情</string>
+<string name="credits_title">致謝</string>
 </resources>

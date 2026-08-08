@@ -54,7 +54,7 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // ----- Banner Card (full width, rounded corners, no borders) -----
+        // ----- Banner Card -----
         val bannerCard = FrameLayout(this).apply {
             background = GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)
@@ -68,7 +68,6 @@ class DetailsActivity : Activity() {
             )
         }
 
-        // Background Image
         val backgroundImage = ImageView(this).apply {
             val imageResId = resources.getIdentifier("hehejuicebanner", "drawable", packageName)
             if (imageResId != 0) {
@@ -84,7 +83,6 @@ class DetailsActivity : Activity() {
         }
         bannerCard.addView(backgroundImage)
 
-        // Dim overlay
         val dimOverlay = View(this).apply {
             setBackgroundColor(Color.parseColor("#66000000"))
             layoutParams = FrameLayout.LayoutParams(
@@ -94,21 +92,19 @@ class DetailsActivity : Activity() {
         }
         bannerCard.addView(dimOverlay)
 
-        // Load custom font
         val customFont = try {
             Typeface.createFromAsset(assets, "SamsungSharpSans-Bold.ttf")
         } catch (e: Exception) {
             Typeface.DEFAULT_BOLD
         }
 
-        // Text (centered, moved 3dp up)
         val titleText = TextView(this).apply {
             text = "OneUI Settings Hook"
             textSize = 28f
             setTextColor(Color.WHITE)
             setTypeface(customFont)
             gravity = Gravity.CENTER
-            translationY = -dpToPx(3f).toFloat()  // FIXED: convert Int to Float
+            translationY = -dpToPx(3f).toFloat()
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
@@ -118,7 +114,6 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(bannerCard)
 
-        // Spacer between banner and credits
         val spacer = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -138,7 +133,6 @@ class DetailsActivity : Activity() {
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
 
-        // Card Title
         val creditsTitle = TextView(this).apply {
             text = "Credits"
             textSize = 20f
@@ -148,8 +142,7 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // Helper to create a credit row
-        fun createCreditRow(label: String, value: String, onClick: () -> Unit): LinearLayout {
+        fun createCreditRow(label: String, username: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -158,7 +151,7 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // Left label
+                // Left: Description (label)
                 val labelView = TextView(context).apply {
                     text = label
                     textSize = 15f
@@ -170,9 +163,9 @@ class DetailsActivity : Activity() {
                     )
                 }
                 addView(labelView)
-                // Right value (clickable)
+                // Right: Name (without "@")
                 val valueView = TextView(context).apply {
-                    text = value
+                    text = username  // just the name, no "@"
                     textSize = 15f
                     setTextColor(accentColor)
                     setTypeface(null, Typeface.BOLD)
@@ -180,7 +173,6 @@ class DetailsActivity : Activity() {
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { onClick() }
-                    // add touch feedback
                     setOnTouchListener { v, event ->
                         when (event.action) {
                             android.view.MotionEvent.ACTION_DOWN -> {
@@ -198,7 +190,7 @@ class DetailsActivity : Activity() {
                     )
                 }
                 addView(valueView)
-                // Divider line below the row
+                // Divider
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -212,25 +204,24 @@ class DetailsActivity : Activity() {
             }
         }
 
-        // Add rows
         creditsCard.addView(createCreditRow(
             label = "Developer",
-            value = "HeheJuice  @HeheJuice",
+            username = "HeheJuice",
             onClick = { openTelegram("HeheJuice") }
         ))
         creditsCard.addView(createCreditRow(
             label = "Designer of PUI Theme",
-            value = "FifthSnow  @FifthSnow",
+            username = "FifthSnow",
             onClick = { openTelegram("FifthSnow") }
         ))
         creditsCard.addView(createCreditRow(
             label = "VI Language Helps",
-            value = "ncatt  @ncatt",
+            username = "ncatt",
             onClick = { openTelegram("ncatt") }
         ))
         creditsCard.addView(createCreditRow(
             label = "Method for Patching Android",
-            value = "LSPosed  @LSPosed",
+            username = "LSPosed",
             onClick = { openTelegram("LSPosed") }
         ))
 
@@ -260,7 +251,6 @@ class DetailsActivity : Activity() {
             layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, dpToPx(48f), Gravity.CENTER)
         }
 
-        // Back button
         val backArrowDrawable = object : android.graphics.drawable.Drawable() {
             private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
                 color = primaryTextColor
@@ -352,12 +342,11 @@ class DetailsActivity : Activity() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=$username"))
             startActivity(intent)
         } catch (e: Exception) {
-            // Fallback to web link
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/$username"))
                 startActivity(intent)
             } catch (e2: Exception) {
-                // Do nothing
+                // ignore
             }
         }
     }

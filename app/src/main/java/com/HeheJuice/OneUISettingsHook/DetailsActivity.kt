@@ -142,7 +142,6 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // Helper to create a credit row with circular profile picture
         fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -152,6 +151,8 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
+                // Set weightSum so the text container can take remaining space
+                weightSum = 1f
                 setPadding(0, dpToPx(4f), 0, dpToPx(4f))
 
                 // Avatar (48dp circle)
@@ -181,6 +182,7 @@ class DetailsActivity : Activity() {
                 // Vertical container for name + description (takes remaining space)
                 val textContainer = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
+                    // Width = 0, weight = 1 so it takes all remaining horizontal space
                     layoutParams = LinearLayout.LayoutParams(
                         0,
                         LinearLayout.LayoutParams.WRAP_CONTENT,

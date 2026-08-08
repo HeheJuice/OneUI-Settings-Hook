@@ -142,7 +142,6 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // ----- Simplified credit rows (guaranteed to show) -----
         data class Credit(val name: String, val description: String, val username: String)
 
         val credits = listOf(
@@ -153,18 +152,52 @@ class DetailsActivity : Activity() {
         )
 
         for (credit in credits) {
-            // Row container
+            // Row container (horizontal)
             val row = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
+                orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    topMargin = dpToPx(8f)
+                    topMargin = dpToPx(12f)
                 }
+                gravity = Gravity.CENTER_VERTICAL
             }
 
-            // Name (clickable)
+            // Avatar (circular)
+            val avatarResId = resources.getIdentifier(credit.name.lowercase(), "drawable", packageName)
+            val avatar = ImageView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
+                    marginEnd = dpToPx(16f)
+                }
+                if (avatarResId != 0) {
+                    setImageResource(avatarResId)
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.TRANSPARENT)
+                    }
+                    clipToOutline = true
+                } else {
+                    setImageDrawable(null)
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(accentColor)
+                    }
+                }
+            }
+            row.addView(avatar)
+
+            // Text container (vertical, takes remaining space)
+            val textContainer = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+            }
+
             val nameView = TextView(this).apply {
                 text = credit.name
                 textSize = 17f
@@ -185,15 +218,18 @@ class DetailsActivity : Activity() {
                     false
                 }
             }
-            row.addView(nameView)
+            textContainer.addView(nameView)
 
-            // Description
             val descView = TextView(this).apply {
                 text = credit.description
                 textSize = 14f
                 setTextColor(secondaryTextColor)
             }
-            row.addView(descView)
+            textContainer.addView(descView)
+
+            row.addView(textContainer)
+
+            creditsCard.addView(row)
 
             // Divider (except after last)
             if (credit != credits.last()) {
@@ -206,10 +242,8 @@ class DetailsActivity : Activity() {
                     }
                     setBackgroundColor(cardBorderColor)
                 }
-                row.addView(divider)
+                creditsCard.addView(divider)
             }
-
-            creditsCard.addView(row)
         }
 
         scrollContent.addView(creditsCard)

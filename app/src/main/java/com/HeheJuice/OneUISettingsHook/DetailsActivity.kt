@@ -142,49 +142,30 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // Helper to create a credit row
-        fun createCreditRow(label: String, username: String, onClick: () -> Unit): LinearLayout {
+        // Helper to create a credit row (vertical: name on top, description below)
+        fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
+                orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // Set weight sum so the label can take remaining space
-                weightSum = 1f
 
-                // Left: Description (label)
-                val labelView = TextView(context).apply {
-                    text = label
-                    textSize = 15f
-                    setTextColor(secondaryTextColor)
-                    // Width = 0, weight = 1 -> takes all available space
-                    layoutParams = LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        1f
-                    )
-                    maxLines = 1
-                    ellipsize = android.text.TextUtils.TruncateAt.END
-                }
-                addView(labelView)
-
-                // Right: Name (without "@")
-                val valueView = TextView(context).apply {
-                    text = username
-                    textSize = 15f
-                    setTextColor(accentColor)
+                // Name (clickable)
+                val nameView = TextView(context).apply {
+                    text = name
+                    textSize = 17f
+                    setTextColor(primaryTextColor)
                     setTypeface(null, Typeface.BOLD)
-                    gravity = Gravity.END
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { onClick() }
                     setOnTouchListener { v, event ->
                         when (event.action) {
                             android.view.MotionEvent.ACTION_DOWN -> {
-                                v.animate().scaleX(0.96f).scaleY(0.96f).alpha(0.8f).setDuration(80).start()
+                                v.animate().scaleX(0.98f).scaleY(0.98f).alpha(0.8f).setDuration(80).start()
                             }
                             android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
                                 v.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(150).start()
@@ -193,13 +174,25 @@ class DetailsActivity : Activity() {
                         false
                     }
                     layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     )
                 }
-                addView(valueView)
+                addView(nameView)
 
-                // Divider line below the row
+                // Description (below name)
+                val descView = TextView(context).apply {
+                    text = description
+                    textSize = 14f
+                    setTextColor(secondaryTextColor)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
+                addView(descView)
+
+                // Divider
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -213,25 +206,25 @@ class DetailsActivity : Activity() {
             }
         }
 
-        // Add rows – descriptions now visible
+        // Add rows: name + description
         creditsCard.addView(createCreditRow(
-            label = "Developer",
-            username = "HeheJuice",
+            name = "HeheJuice",
+            description = "Developer",
             onClick = { openTelegram("HeheJuice") }
         ))
         creditsCard.addView(createCreditRow(
-            label = "Designer of PUI Theme",
-            username = "FifthSnow",
+            name = "FifthSnow",
+            description = "Designer of PUI Theme",
             onClick = { openTelegram("FifthSnow") }
         ))
         creditsCard.addView(createCreditRow(
-            label = "VI Language Helps",
-            username = "ncatt",
+            name = "ncatt",
+            description = "VI Language Helps",
             onClick = { openTelegram("ncatt") }
         ))
         creditsCard.addView(createCreditRow(
-            label = "Method for Patching Android",
-            username = "LSPosed",
+            name = "LSPosed",
+            description = "Method for Patching Android",
             onClick = { openTelegram("LSPosed") }
         ))
 

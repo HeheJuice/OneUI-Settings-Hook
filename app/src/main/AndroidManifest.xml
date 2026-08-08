@@ -6,6 +6,7 @@
         package="com.HeheJuice.OneUISettingsHook"
         android:icon="@drawable/ic_hehe"
         android:label="@string/app_name">
+<uses-permission android:name="android.permission.INTERNET" />
         
         <meta-data
             android:name="xposedmodule"

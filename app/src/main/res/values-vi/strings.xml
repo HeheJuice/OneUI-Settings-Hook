@@ -63,4 +63,5 @@
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">Đã áp dụng chủ đề bảng điều khiển. Cài đặt đã khởi động lại.</string>
 <string name="debug_incorrect_code">Mã không đúng</string>
+<string name="info_pill_text">Kiểm tra cập nhật</string>
 </resources>

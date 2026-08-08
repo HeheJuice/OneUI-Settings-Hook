@@ -138,22 +138,60 @@ class DetailsActivity : Activity() {
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
-            setPadding(0, 0, 0, dpToPx(16f))
+            // Move right with left padding
+            setPadding(dpToPx(20f), 0, 0, dpToPx(16f))
         }
         creditsCard.addView(creditsTitle)
 
-        // Helper to create a credit row (vertical: name on top, description below)
+        // Helper to create a credit row with circular profile picture
         fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
+                orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
+                setPadding(0, dpToPx(4f), 0, dpToPx(4f))
 
-                // Name (clickable)
+                // Profile picture (circular)
+                val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
+                val avatar = ImageView(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
+                        marginEnd = dpToPx(16f)
+                    }
+                    if (avatarResId != 0) {
+                        setImageResource(avatarResId)
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                        // Make it circular
+                        background = GradientDrawable().apply {
+                            shape = GradientDrawable.OVAL
+                            setColor(Color.TRANSPARENT)
+                        }
+                        clipToOutline = true  // This clips the image to the oval shape
+                    } else {
+                        // No image: just a colored circle
+                        setImageDrawable(null)
+                        background = GradientDrawable().apply {
+                            shape = GradientDrawable.OVAL
+                            setColor(accentColor)
+                        }
+                        // No need to clip, it's already a circle
+                    }
+                }
+                addView(avatar)
+
+                // Vertical layout for name and description
+                val textContainer = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1f
+                    )
+                }
+
                 val nameView = TextView(context).apply {
                     text = name
                     textSize = 17f
@@ -178,9 +216,8 @@ class DetailsActivity : Activity() {
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     )
                 }
-                addView(nameView)
+                textContainer.addView(nameView)
 
-                // Description (below name)
                 val descView = TextView(context).apply {
                     text = description
                     textSize = 14f
@@ -190,9 +227,11 @@ class DetailsActivity : Activity() {
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     )
                 }
-                addView(descView)
+                textContainer.addView(descView)
 
-                // Divider
+                addView(textContainer)
+
+                // Divider line below the row
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -206,7 +245,7 @@ class DetailsActivity : Activity() {
             }
         }
 
-        // Add rows: name + description
+        // Add rows
         creditsCard.addView(createCreditRow(
             name = "HeheJuice",
             description = "Developer",

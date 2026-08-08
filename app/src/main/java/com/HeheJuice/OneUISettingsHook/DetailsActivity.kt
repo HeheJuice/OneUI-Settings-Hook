@@ -410,112 +410,60 @@ class DetailsActivity : Activity() {
         setContentView(rootFrameLayout)
 
         // ---- Update check with debug detection ----
-        val versionName = getVersionName()
-        if (versionName.contains("Debug", ignoreCase = true)) {
-            // Debug build – disable update check
-            updateStatusView.text = "DISABLED BY DEBUG"
-            updateActionView.visibility = View.GONE
-        } else {
-            // Normal build – check for updates
-            checkForUpdates()
-        }
-    }
+val versionName = getVersionName()
+if (versionName.contains("Debug", ignoreCase = true)) {
+    updateStatusView.text = getString(R.string.update_disabled_debug)
+    updateActionView.visibility = View.GONE
+} else {
+    checkForUpdates()
+}
 
-    private fun getStatusBarHeight(): Int {
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else dpToPx(36f)
-    }
+// ---------- Update Checker ----------
+private fun checkForUpdates() {
+    updateStatusView.text = getString(R.string.update_checking)
+    updateActionView.visibility = View.GONE
 
-    private fun dpToPx(dp: Float): Int =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
-
-    private fun openTelegram(username: String) {
+    Thread {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=$username"))
-            startActivity(intent)
-        } catch (e: Exception) {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/$username"))
-                startActivity(intent)
-            } catch (e2: Exception) {
-                // ignore
-            }
-        }
-    }
+            val url = URL("https://api.github.com/repos/HeheJuice/OneUI-Settings-Hook/releases/latest")
+            val connection = url.openConnection() as HttpsURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
 
-    private fun getVersionName(): String {
-        return try {
-            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
-        } catch (e: Exception) {
-            "1.0.0"
-        }
-    }
+            val responseCode = connection.responseCode
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                val inputStream = connection.inputStream
+                val response = inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(response)
+                val latestTag = json.getString("tag_name")
+                val currentVersion = getVersionName()
 
-    // ---------- Version comparator ----------
-    private fun compareVersions(v1: String, v2: String): Int {
-        // Remove non‑digit characters (e.g., "ReleaseV." prefix, "v" etc.)
-        val clean1 = v1.replace(Regex("[^0-9.]"), "")
-        val clean2 = v2.replace(Regex("[^0-9.]"), "")
-        val parts1 = clean1.split(".").map { it.toIntOrNull() ?: 0 }
-        val parts2 = clean2.split(".").map { it.toIntOrNull() ?: 0 }
-        val maxLen = maxOf(parts1.size, parts2.size)
-        for (i in 0 until maxLen) {
-            val p1 = if (i < parts1.size) parts1[i] else 0
-            val p2 = if (i < parts2.size) parts2[i] else 0
-            if (p1 != p2) return p1 - p2
-        }
-        return 0
-    }
+                val latestVersion = latestTag.replace(Regex("^[^0-9]*"), "")
+                val currentVer = currentVersion.replace(Regex("^[^0-9]*"), "")
 
-    // ---------- Update Checker ----------
-    private fun checkForUpdates() {
-        updateStatusView.text = "Checking for updates..."
-        updateActionView.visibility = View.GONE
-
-        Thread {
-            try {
-                val url = URL("https://api.github.com/repos/HeheJuice/OneUI-Settings-Hook/releases/latest")
-                val connection = url.openConnection() as HttpsURLConnection
-                connection.requestMethod = "GET"
-                connection.connectTimeout = 5000
-                connection.readTimeout = 5000
-
-                val responseCode = connection.responseCode
-                if (responseCode == HttpsURLConnection.HTTP_OK) {
-                    val inputStream = connection.inputStream
-                    val response = inputStream.bufferedReader().use { it.readText() }
-                    val json = JSONObject(response)
-                    val latestTag = json.getString("tag_name")  // e.g., "ReleaseV.2.5"
-                    val currentVersion = getVersionName()       // e.g., "V.2.3"
-
-                    // Extract version numbers (strip prefixes)
-                    val latestVersion = latestTag.replace(Regex("^[^0-9]*"), "") // removes leading non-digits
-                    val currentVer = currentVersion.replace(Regex("^[^0-9]*"), "")
-
-                    Log.d(TAG, "Latest version: $latestVersion, Current: $currentVer")
-
-                    val comparison = compareVersions(latestVersion, currentVer)
-                    runOnUiThread {
-                        if (comparison > 0) {
-                            updateStatusView.text = "New version available: $latestVersion"
-                            updateActionView.text = "Download from GitHub"
-                            updateActionView.visibility = View.VISIBLE
-                        } else {
-                            updateStatusView.text = "You are on the latest version ($currentVer)"
-                        }
-                    }
-                } else {
-                    runOnUiThread {
-                        updateStatusView.text = "Failed to check updates (server error)"
-                    }
-                }
-                connection.disconnect()
-            } catch (e: Exception) {
-                e.printStackTrace()
+                val comparison = compareVersions(latestVersion, currentVer)
                 runOnUiThread {
-                    updateStatusView.text = "Could not connect to GitHub"
+                    if (comparison > 0) {
+                        updateStatusView.text = getString(R.string.update_new_version, latestVersion)
+                        updateActionView.text = getString(R.string.update_download)
+                        updateActionView.visibility = View.VISIBLE
+                    } else {
+                        updateStatusView.text = getString(R.string.update_latest, currentVer)
+                    }
+                }
+            } else {
+                runOnUiThread {
+                    updateStatusView.text = getString(R.string.update_server_error)
                 }
             }
-        }.start()
-    }
+            connection.disconnect()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            runOnUiThread {
+                updateStatusView.text = getString(R.string.update_connection_error)
+            }
+        }
+    }.start()
+}
 }

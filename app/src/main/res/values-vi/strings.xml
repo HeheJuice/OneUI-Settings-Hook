@@ -71,4 +71,6 @@
 <string name="update_server_error">Kiểm tra cập nhật thất bại (lỗi máy chủ)</string>
 <string name="update_connection_error">Không thể kết nối với GitHub</string>
 <string name="update_disabled_debug">Đã tắt ở bản gỡ lỗi</string>
+<string name="details_topbar_title">Chi tiết</string>
+<string name="credits_title">Ghi nhận</string>
 </resources>

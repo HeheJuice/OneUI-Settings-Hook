@@ -114,7 +114,6 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(bannerCard)
 
-        // Spacer below banner
         val spacer = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -143,7 +142,21 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // ----- Row builder with solid debug backgrounds -----
+        // ----- DIRECT TEST ROW (visible red background) -----
+        val testRow = TextView(this).apply {
+            text = "TEST ROW – This should be visible"
+            setBackgroundColor(Color.RED)
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        creditsCard.addView(testRow)
+
+        // ----- Row builder (unchanged, but we'll add it after the test) -----
         fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -153,10 +166,9 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // SOLID RED background for the row
+                // Solid red row
                 setBackgroundColor(Color.parseColor("#FFFF0000"))
 
-                // Avatar (48dp)
                 val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
                 val avatar = ImageView(context).apply {
                     layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
@@ -180,16 +192,14 @@ class DetailsActivity : Activity() {
                 }
                 addView(avatar)
 
-                // Text container – fixed height 48dp, takes remaining width
                 val textContainer = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     layoutParams = LinearLayout.LayoutParams(
-                        0,          // width = 0, weight will expand
-                        dpToPx(48f), // fixed height
+                        0,
+                        dpToPx(48f),
                         1f
                     )
-                    // SOLID GREEN background for container
-                    setBackgroundColor(Color.parseColor("#FF00FF00"))
+                    setBackgroundColor(Color.parseColor("#FF00FF00")) // green
                     gravity = Gravity.CENTER_VERTICAL
                 }
 
@@ -218,7 +228,6 @@ class DetailsActivity : Activity() {
 
                 addView(textContainer)
 
-                // Divider
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -232,7 +241,7 @@ class DetailsActivity : Activity() {
             }
         }
 
-        // Add rows
+        // Add the regular rows (they will appear below the test row)
         creditsCard.addView(createCreditRow(
             name = "HeheJuice",
             description = "Developer",

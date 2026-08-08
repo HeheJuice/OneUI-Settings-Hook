@@ -18,8 +18,6 @@ import android.util.TypedValue
 import android.os.Build
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import org.json.JSONObject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
@@ -122,7 +120,7 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(bannerCard)
 
-        // ----- UPDATE CHECKER CARD (between banner and credits) -----
+        // ----- UPDATE CHECKER CARD -----
         val updateCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -175,7 +173,7 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(updateCard)
 
-        // ----- Credits Card (unchanged) -----
+        // ----- Credits Card -----
         val creditsCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -407,7 +405,7 @@ class DetailsActivity : Activity() {
         setContentView(rootFrameLayout)
 
         // ---- Update check with debug detection ----
-        val versionName = BuildConfig.VERSION_NAME ?: ""
+        val versionName = getVersionName()
         if (versionName.contains("Debug", ignoreCase = true)) {
             // Debug build – disable update check
             updateStatusView.text = "DISABLED BY DEBUG"
@@ -440,6 +438,14 @@ class DetailsActivity : Activity() {
         }
     }
 
+    private fun getVersionName(): String {
+        return try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.0"
+        } catch (e: Exception) {
+            "1.0.0"
+        }
+    }
+
     // ---------- Update Checker ----------
     private fun checkForUpdates() {
         updateStatusView.text = "Checking for updates..."
@@ -459,7 +465,7 @@ class DetailsActivity : Activity() {
                     val response = inputStream.bufferedReader().use { it.readText() }
                     val json = JSONObject(response)
                     val latestTag = json.getString("tag_name")
-                    val currentVersion = BuildConfig.VERSION_NAME ?: ""
+                    val currentVersion = getVersionName()
 
                     val latestVersion = latestTag.replace("ReleaseV.", "")
                     val currentVer = currentVersion

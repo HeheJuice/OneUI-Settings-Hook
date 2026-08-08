@@ -314,6 +314,11 @@ class SettingsActivity : Activity() {
             visibility = View.GONE
         }
 
+        // === Spacer to increase gap between title and content ===
+        aboutExpandableContent.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(12f))
+        })
+
         // Original content from card2Layout
         val makerBtn = createAnimatedButton(getString(R.string.btn_developer), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice")))
@@ -948,6 +953,11 @@ class SettingsActivity : Activity() {
             visibility = View.GONE
         }
 
+        // === Spacer to increase gap between title and content ===
+        updateExpandableContent.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(12f))
+        })
+
         // Original content from disable update card
         val updateBtnRowLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -1393,6 +1403,7 @@ class SettingsActivity : Activity() {
         setContentView(rootFrameLayout)
         applyEntranceAnimations(listOf(headerCardLayout, card1Layout, aboutCardLayout))
     }
+
     // ---------- HELPER: Create a style option card ----------
     private fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
         val isSelected = currentStyle == styleValue

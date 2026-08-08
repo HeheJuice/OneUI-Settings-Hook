@@ -29,12 +29,12 @@
     android:theme="@android:style/Theme.DeviceDefault.DayNight">
     <intent-filter>
         <action android:name="android.intent.action.MAIN" />
+        <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
+    </intent-filter>
+</activity>
 <activity
     android:name=".DetailsActivity"
     android:exported="false"
     android:theme="@android:style/Theme.DeviceDefault.DayNight" />
-        <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
-    </intent-filter>
-</activity>
     </application>
 </manifest>

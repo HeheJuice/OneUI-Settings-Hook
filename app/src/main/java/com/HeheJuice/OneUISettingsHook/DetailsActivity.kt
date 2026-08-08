@@ -142,7 +142,7 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // ----- Simplified row builder (with debug colors) -----
+        // ----- Row with fixed height for text container (guaranteed to show) -----
         fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -152,10 +152,10 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // Ensure the row has a background so we see it if it's empty
+                // Debug background for the whole row
                 // setBackgroundColor(Color.parseColor("#AAFFFF00"))
 
-                // 1. Avatar (fixed size)
+                // Avatar (fixed)
                 val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
                 val avatar = ImageView(context).apply {
                     layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
@@ -179,27 +179,27 @@ class DetailsActivity : Activity() {
                 }
                 addView(avatar)
 
-                // 2. Text container (takes remaining space)
+                // Text container – fixed height to guarantee visibility
                 val textContainer = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
+                    // Give it a fixed height (48dp) and let it take remaining width
                     layoutParams = LinearLayout.LayoutParams(
                         0,  // width = 0, weight will expand
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        dpToPx(48f),  // fixed height to ensure visibility
                         1f
                     )
-                    // Temporary debug background to see the container
+                    // Debug background to see container
                     // setBackgroundColor(Color.parseColor("#AAFF0000"))
                     gravity = Gravity.CENTER_VERTICAL
                 }
 
-                // Name (with debug background)
                 val nameView = TextView(context).apply {
                     text = name
                     textSize = 17f
                     setTextColor(primaryTextColor)
                     setTypeface(null, Typeface.BOLD)
-                    // Debug background – you should see a green rectangle if the text is present
-                    setBackgroundColor(Color.parseColor("#AA00FF00"))
+                    // Debug background
+                    // setBackgroundColor(Color.parseColor("#AA00FF00"))
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { onClick() }
@@ -221,13 +221,12 @@ class DetailsActivity : Activity() {
                 }
                 textContainer.addView(nameView)
 
-                // Description (with debug background)
                 val descView = TextView(context).apply {
                     text = description
                     textSize = 14f
                     setTextColor(secondaryTextColor)
-                    // Debug background – blue rectangle
-                    setBackgroundColor(Color.parseColor("#AA0000FF"))
+                    // Debug background
+                    // setBackgroundColor(Color.parseColor("#AA0000FF"))
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
@@ -237,7 +236,7 @@ class DetailsActivity : Activity() {
 
                 addView(textContainer)
 
-                // Divider below the row
+                // Divider
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,

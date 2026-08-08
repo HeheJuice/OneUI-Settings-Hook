@@ -106,4 +106,11 @@
 <string name="credit_lsposed_name">LSPosed</string>
 <string name="credit_lsposed_desc">本模組的實現方式</string>
 <string name="info_pill_text">檢查更新</string>
+<string name="update_checking">正在檢查更新…</string>
+<string name="update_new_version">新版本可用: %s</string>
+<string name="update_download">從GitHub下載</string>
+<string name="update_latest">您已是最新版本 (%s)</string>
+<string name="update_server_error">檢查更新失敗 (伺服器錯誤)</string>
+<string name="update_connection_error">無法連線到GitHub</string>
+<string name="update_disabled_debug">除錯版本已停用</string>
 </resources>

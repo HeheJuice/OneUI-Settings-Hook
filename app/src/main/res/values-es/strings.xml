@@ -92,4 +92,5 @@
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">Tema del panel aplicado. Configuración reiniciada.</string>
 <string name="debug_incorrect_code">Código incorrecto</string>
+<string name="info_pill_text">Buscar actualizaciones</string>
 </resources>

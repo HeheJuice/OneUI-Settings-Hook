@@ -18,6 +18,7 @@ import android.util.TypedValue
 import android.os.Build
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import org.json.JSONObject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
@@ -26,6 +27,10 @@ class DetailsActivity : Activity() {
 
     private lateinit var updateStatusView: TextView
     private lateinit var updateActionView: TextView
+
+    companion object {
+        private const val TAG = "OneUISettingsHook"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -173,7 +178,7 @@ class DetailsActivity : Activity() {
 
         scrollContent.addView(updateCard)
 
-        // ----- Credits Card -----
+        // ----- Credits Card (unchanged) -----
         val creditsCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -446,6 +451,22 @@ class DetailsActivity : Activity() {
         }
     }
 
+    // ---------- Version comparator ----------
+    private fun compareVersions(v1: String, v2: String): Int {
+        // Remove non‑digit characters (e.g., "ReleaseV." prefix, "v" etc.)
+        val clean1 = v1.replace(Regex("[^0-9.]"), "")
+        val clean2 = v2.replace(Regex("[^0-9.]"), "")
+        val parts1 = clean1.split(".").map { it.toIntOrNull() ?: 0 }
+        val parts2 = clean2.split(".").map { it.toIntOrNull() ?: 0 }
+        val maxLen = maxOf(parts1.size, parts2.size)
+        for (i in 0 until maxLen) {
+            val p1 = if (i < parts1.size) parts1[i] else 0
+            val p2 = if (i < parts2.size) parts2[i] else 0
+            if (p1 != p2) return p1 - p2
+        }
+        return 0
+    }
+
     // ---------- Update Checker ----------
     private fun checkForUpdates() {
         updateStatusView.text = "Checking for updates..."
@@ -464,14 +485,18 @@ class DetailsActivity : Activity() {
                     val inputStream = connection.inputStream
                     val response = inputStream.bufferedReader().use { it.readText() }
                     val json = JSONObject(response)
-                    val latestTag = json.getString("tag_name")
-                    val currentVersion = getVersionName()
+                    val latestTag = json.getString("tag_name")  // e.g., "ReleaseV.2.5"
+                    val currentVersion = getVersionName()       // e.g., "V.2.3"
 
-                    val latestVersion = latestTag.replace("ReleaseV.", "")
-                    val currentVer = currentVersion
+                    // Extract version numbers (strip prefixes)
+                    val latestVersion = latestTag.replace(Regex("^[^0-9]*"), "") // removes leading non-digits
+                    val currentVer = currentVersion.replace(Regex("^[^0-9]*"), "")
 
+                    Log.d(TAG, "Latest version: $latestVersion, Current: $currentVer")
+
+                    val comparison = compareVersions(latestVersion, currentVer)
                     runOnUiThread {
-                        if (latestVersion > currentVer) {
+                        if (comparison > 0) {
                             updateStatusView.text = "New version available: $latestVersion"
                             updateActionView.text = "Download from GitHub"
                             updateActionView.visibility = View.VISIBLE

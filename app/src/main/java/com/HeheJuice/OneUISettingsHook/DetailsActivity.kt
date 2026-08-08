@@ -151,11 +151,15 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
+                // IMPORTANT: set weightSum to distribute space
+                weightSum = 1f
+
                 // Left: Description (label)
                 val labelView = TextView(context).apply {
                     text = label
                     textSize = 15f
                     setTextColor(secondaryTextColor)
+                    // Width = 0, weight = 1 so it takes all remaining space
                     layoutParams = LinearLayout.LayoutParams(
                         0,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -163,9 +167,10 @@ class DetailsActivity : Activity() {
                     )
                 }
                 addView(labelView)
+
                 // Right: Name (without "@")
                 val valueView = TextView(context).apply {
-                    text = username  // just the name, no "@"
+                    text = username
                     textSize = 15f
                     setTextColor(accentColor)
                     setTypeface(null, Typeface.BOLD)
@@ -190,6 +195,7 @@ class DetailsActivity : Activity() {
                     )
                 }
                 addView(valueView)
+
                 // Divider
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(

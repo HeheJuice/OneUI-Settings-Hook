@@ -142,6 +142,7 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
+        // ----- Create a credit row with guaranteed layout -----
         fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -151,11 +152,11 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // Set weightSum so the text container can take remaining space
+                // Set weight sum so the text container can expand
                 weightSum = 1f
                 setPadding(0, dpToPx(4f), 0, dpToPx(4f))
 
-                // Avatar (48dp circle)
+                // 1. Avatar (fixed size)
                 val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
                 val avatar = ImageView(context).apply {
                     layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
@@ -179,15 +180,17 @@ class DetailsActivity : Activity() {
                 }
                 addView(avatar)
 
-                // Vertical container for name + description (takes remaining space)
+                // 2. Text container (takes remaining space)
                 val textContainer = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    // Width = 0, weight = 1 so it takes all remaining horizontal space
+                    // Width = 0, weight = 1 -> fills the rest
                     layoutParams = LinearLayout.LayoutParams(
                         0,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         1f
                     )
+                    // (Optional) temporary background to see the container
+                    // setBackgroundColor(Color.parseColor("#AAFF0000"))
                     gravity = Gravity.CENTER_VERTICAL
                 }
 

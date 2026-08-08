@@ -157,7 +157,6 @@ class DetailsActivity : Activity() {
             isFocusable = true
             visibility = View.GONE
             setOnClickListener {
-                // Open the release page
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice/OneUI-Settings-Hook/releases")))
             }
             setOnTouchListener { v, event ->
@@ -407,8 +406,16 @@ class DetailsActivity : Activity() {
 
         setContentView(rootFrameLayout)
 
-        // ---- Start update check ----
-        checkForUpdates()
+        // ---- Update check with debug detection ----
+        val versionName = BuildConfig.VERSION_NAME ?: ""
+        if (versionName.contains("Debug", ignoreCase = true)) {
+            // Debug build – disable update check
+            updateStatusView.text = "DISABLED BY DEBUG"
+            updateActionView.visibility = View.GONE
+        } else {
+            // Normal build – check for updates
+            checkForUpdates()
+        }
     }
 
     private fun getStatusBarHeight(): Int {
@@ -435,7 +442,6 @@ class DetailsActivity : Activity() {
 
     // ---------- Update Checker ----------
     private fun checkForUpdates() {
-        // Show checking status
         updateStatusView.text = "Checking for updates..."
         updateActionView.visibility = View.GONE
 
@@ -452,10 +458,9 @@ class DetailsActivity : Activity() {
                     val inputStream = connection.inputStream
                     val response = inputStream.bufferedReader().use { it.readText() }
                     val json = JSONObject(response)
-                    val latestTag = json.getString("tag_name")  // e.g., "ReleaseV.2.6"
-                    val currentVersion = BuildConfig.VERSION_NAME // e.g., "2.5" or "2.6"
+                    val latestTag = json.getString("tag_name")
+                    val currentVersion = BuildConfig.VERSION_NAME ?: ""
 
-                    // Parse version numbers from tags (strip "ReleaseV.")
                     val latestVersion = latestTag.replace("ReleaseV.", "")
                     val currentVer = currentVersion
 

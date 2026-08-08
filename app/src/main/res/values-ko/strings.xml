@@ -101,4 +101,6 @@
 <string name="update_server_error">업데이트 확인 실패 (서버 오류)</string>
 <string name="update_connection_error">GitHub에 연결할 수 없습니다</string>
 <string name="update_disabled_debug">디버그 빌드에서는 비활성화됨</string>
+<string name="details_topbar_title">세부 정보</string>
+<string name="credits_title">크레딧</string>
 </resources>

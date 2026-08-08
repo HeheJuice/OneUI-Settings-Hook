@@ -95,8 +95,6 @@
 <string name="debug_incorrect_code">錯誤</string>
 <!-- Details Activity -->
 <string name="details_title">OneUI Settings Hook</string>
-<string name="details_topbar_title">Details</string>
-<string name="credits_title">Credits</string>
 <string name="back">Back</string>
 
 <!-- Credits -->
@@ -118,5 +116,7 @@
 <string name="update_latest">您已是最新版本 (%s)</string>
 <string name="update_server_error">檢查更新失敗 (伺服器錯誤)</string>
 <string name="update_connection_error">無法連線到GitHub</string>
-<string name="update_disabled_debug">除錯版本已停用</string>
+<string name="update_disabled_debug">Debug版本,已停用更新檢查</string>
+<string name="details_topbar_title">詳情</string>
+<string name="credits_title">鳴謝</string>
 </resources>

@@ -17,7 +17,7 @@
 - OneUI-Settings-Hook 
 - Patches apply for Settings Apps from OneUI 7 +
      - Tested on OneUI 7 ~ 9
-- LSPosed and Root Required
+- LSPosed Latest Official and Root Required
 
 ### 😶‍🌫️ Features 
 - ‼️ Redesign Software Info Page
@@ -25,6 +25,10 @@
      - Customizable Text in Module Advanced Settings 
           - You should read the "Disclaimer & Usage Notice" Part in Module Advanced Settings before Using 
      - Software Info Card Background = Home Wall
+- Custom Dashboard Icon
+     - OneUI Monet
+     - OneUI 6 Monet
+     - PUI Theme
 - Customizable Product Name
 - Sensitive Information Protection 
      - Auto-Hide the following 
@@ -47,10 +51,10 @@
 
 ### ℹ️ How to use?
 - Install the .APK and activate in LSPosed
-- Open the module Settings and Force-Stop Settings App
+- Give the app root permission 
+- Open the module Settings (In LSPosed) and Force-Stop Settings App
 - Re-Open Settings App
 - Not applying ? Open a issue with your Software Details 
 
 ### 🥰 Credits
-- [HeheJuice](https://github.com/HeheJuice),for making the whole Patch and Hook
-- LSPosed Team for the patch method
+- In the App

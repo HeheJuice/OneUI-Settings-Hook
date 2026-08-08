@@ -101,4 +101,6 @@
 <string name="update_server_error">アップデートの確認に失敗しました (サーバーエラー)</string>
 <string name="update_connection_error">GitHubに接続できませんでした</string>
 <string name="update_disabled_debug">デバッグビルドでは無効</string>
+<string name="details_topbar_title">詳細</string>
+<string name="credits_title">クレジット</string>
 </resources>

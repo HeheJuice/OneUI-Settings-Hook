@@ -161,7 +161,7 @@ class SettingsActivity : Activity() {
         headerCardLayout.addView(headerTitle)
         headerCardLayout.addView(headerSub)
 
-        // Info Pill (opens DetailsActivity)
+        // Info Pill (Check for Updates)
         val infoPill = TextView(this).apply {
             text = getString(R.string.info_pill_text)
             textSize = 14f
@@ -195,7 +195,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
         })
 
-        // Card 1 – Module Actions
+        // Card 1 – Module Actions (always visible)
         val card1Layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -235,8 +235,8 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
         })
 
-        // Card 2 – About
-        val card2Layout = LinearLayout(this).apply {
+        // ---------- EXPANDABLE "ABOUT MODULE" CARD ----------
+        val aboutCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
                 setColor(cardBgColor)
@@ -245,12 +245,81 @@ class SettingsActivity : Activity() {
             }
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
+
+        // Header: About Module
+        val aboutHeaderLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val aboutTitleContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
         val aboutTitle = TextView(this).apply {
             text = getString(R.string.card_about_title)
-            textSize = 18f
+            textSize = 20f
             setTextColor(primaryTextColor)
-            setPadding(0, 0, 0, dpToPx(18f))
+            setTypeface(null, Typeface.BOLD)
         }
+        aboutTitleContainer.addView(aboutTitle)
+        aboutHeaderLayout.addView(aboutTitleContainer)
+
+        val aboutExpandIconDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2.5f).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val size = dpToPx(6f).toFloat()
+                val path = Path().apply {
+                    moveTo(cx - size, cy - size / 3f)
+                    lineTo(cx, cy + size / 1.5f)
+                    lineTo(cx + size, cy - size / 3f)
+                }
+                canvas.drawPath(path, paint)
+            }
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
+        }
+
+        val aboutExpandBtn = ImageView(this).apply {
+            setImageDrawable(aboutExpandIconDrawable)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(inputBgColor)
+            }
+            isClickable = true
+            isFocusable = true
+            setPadding(dpToPx(8f), dpToPx(8f), dpToPx(8f), dpToPx(8f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(36f), dpToPx(36f)).apply {
+                marginStart = dpToPx(12f)
+            }
+        }
+
+        aboutHeaderLayout.addView(aboutExpandBtn)
+        aboutCardLayout.addView(aboutHeaderLayout)
+
+        val aboutExpandableContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            visibility = View.GONE
+        }
+
+        // === Spacer to increase gap between title and content ===
+        aboutExpandableContent.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(12f))
+        })
+
+        // Original content from card2Layout
         val makerBtn = createAnimatedButton(getString(R.string.btn_developer), primaryTextColor, secondaryBtnColor, buttonHeightPx) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HeheJuice")))
         }
@@ -276,10 +345,29 @@ class SettingsActivity : Activity() {
         }
         tgRowLayout.addView(tgChannelBtn)
         tgRowLayout.addView(tgChatBtn)
-        card2Layout.addView(aboutTitle)
-        card2Layout.addView(makerBtn)
-        card2Layout.addView(tgRowLayout)
-        moduleInfoLayout.addView(card2Layout)
+
+        aboutExpandableContent.addView(makerBtn)
+        aboutExpandableContent.addView(tgRowLayout)
+
+        aboutCardLayout.addView(aboutExpandableContent)
+
+        moduleInfoLayout.addView(aboutCardLayout)
+
+        moduleInfoLayout.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
+        })
+
+        val toggleAboutExpansion = {
+            val isExpanded = aboutExpandableContent.visibility == View.VISIBLE
+            if (isExpanded) {
+                collapseView(aboutExpandableContent, aboutExpandBtn)
+            } else {
+                expandView(aboutExpandableContent, aboutExpandBtn)
+            }
+        }
+        aboutExpandBtn.setOnClickListener { toggleAboutExpansion() }
+        aboutHeaderLayout.setOnClickListener { toggleAboutExpansion() }
+        aboutHeaderLayout.isClickable = true
 
         // ---------- PAGE 2: ADVANCED ----------
         val advancedLayout = LinearLayout(this).apply {
@@ -315,7 +403,6 @@ class SettingsActivity : Activity() {
 
         currentStyle = prefs.getInt("dashboard_style", STYLE_DEFAULT)
 
-        // Create the four options
         val defaultOption = createStyleOption(
             getString(R.string.dashboard_option_default),
             R.drawable.icon_default,
@@ -419,12 +506,13 @@ class SettingsActivity : Activity() {
         customTextHeaderLayout.addView(expandBtn)
         customTextCardLayout.addView(customTextHeaderLayout)
 
-        val expandableContentLayout = LinearLayout(this).apply {
+        val customTextExpandableContent = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             visibility = View.GONE
         }
 
+        // Disclaimer and input for custom banner
         val disclaimerCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -517,24 +605,24 @@ class SettingsActivity : Activity() {
             }.start()
         }.apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dpToPx(10f) }
 
-        expandableContentLayout.addView(disclaimerCardLayout)
-        expandableContentLayout.addView(bannerInputEt)
-        expandableContentLayout.addView(saveTextBtn)
-        expandableContentLayout.addView(resetTextBtn)
+        customTextExpandableContent.addView(disclaimerCardLayout)
+        customTextExpandableContent.addView(bannerInputEt)
+        customTextExpandableContent.addView(saveTextBtn)
+        customTextExpandableContent.addView(resetTextBtn)
 
-        customTextCardLayout.addView(expandableContentLayout)
+        customTextCardLayout.addView(customTextExpandableContent)
 
-        val toggleExpansion = {
-            val isExpanded = expandableContentLayout.visibility == View.VISIBLE
+        val toggleCustomExpansion = {
+            val isExpanded = customTextExpandableContent.visibility == View.VISIBLE
             if (isExpanded) {
-                collapseView(expandableContentLayout, expandBtn)
+                collapseView(customTextExpandableContent, expandBtn)
             } else {
-                expandView(expandableContentLayout, expandBtn)
+                expandView(customTextExpandableContent, expandBtn)
             }
         }
 
-        expandBtn.setOnClickListener { toggleExpansion() }
-        customTextHeaderLayout.setOnClickListener { toggleExpansion() }
+        expandBtn.setOnClickListener { toggleCustomExpansion() }
+        customTextHeaderLayout.setOnClickListener { toggleCustomExpansion() }
         customTextHeaderLayout.isClickable = true
 
         advancedLayout.addView(customTextCardLayout)
@@ -630,6 +718,7 @@ class SettingsActivity : Activity() {
             visibility = View.GONE
         }
 
+        // Product name disclaimer and input (same as before)
         val productNameDisclaimerCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -785,7 +874,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
         })
 
-        // ----- DISABLE SOFTWARE UPDATE CARD -----
+        // ----- EXPANDABLE "DISABLE SOFTWARE UPDATE" CARD -----
         val disableUpdateCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -796,14 +885,80 @@ class SettingsActivity : Activity() {
             setPadding(dpToPx(20f), dpToPx(24f), dpToPx(20f), dpToPx(24f))
         }
 
+        val updateHeaderLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+
+        val updateTitleContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
         val updateCardTitle = TextView(this).apply {
             text = getString(R.string.disable_software_update_title)
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
-            setPadding(0, 0, 0, dpToPx(16f))
         }
 
+        updateTitleContainer.addView(updateCardTitle)
+        updateHeaderLayout.addView(updateTitleContainer)
+
+        val updateExpandIconDrawable = object : Drawable() {
+            private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = primaryTextColor
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2.5f).toFloat()
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val size = dpToPx(6f).toFloat()
+                val path = Path().apply {
+                    moveTo(cx - size, cy - size / 3f)
+                    lineTo(cx, cy + size / 1.5f)
+                    lineTo(cx + size, cy - size / 3f)
+                }
+                canvas.drawPath(path, paint)
+            }
+            override fun setAlpha(alpha: Int) { paint.alpha = alpha }
+            override fun setColorFilter(cf: ColorFilter?) { paint.colorFilter = cf }
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
+        }
+
+        val updateExpandBtn = ImageView(this).apply {
+            setImageDrawable(updateExpandIconDrawable)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(inputBgColor)
+            }
+            isClickable = true
+            isFocusable = true
+            setPadding(dpToPx(8f), dpToPx(8f), dpToPx(8f), dpToPx(8f))
+            layoutParams = LinearLayout.LayoutParams(dpToPx(36f), dpToPx(36f)).apply {
+                marginStart = dpToPx(12f)
+            }
+        }
+
+        updateHeaderLayout.addView(updateExpandBtn)
+        disableUpdateCardLayout.addView(updateHeaderLayout)
+
+        val updateExpandableContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            visibility = View.GONE
+        }
+
+        // === Spacer to increase gap between title and content ===
+        updateExpandableContent.addView(View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(12f))
+        })
+
+        // Original content from disable update card
         val updateBtnRowLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, buttonHeightPx)
@@ -864,16 +1019,29 @@ class SettingsActivity : Activity() {
         updateBtnRowLayout.addView(enableUpdateBtn)
         updateBtnRowLayout.addView(disableUpdateBtn)
 
-        disableUpdateCardLayout.addView(updateCardTitle)
-        disableUpdateCardLayout.addView(updateBtnRowLayout)
+        updateExpandableContent.addView(updateBtnRowLayout)
+
+        disableUpdateCardLayout.addView(updateExpandableContent)
 
         advancedLayout.addView(disableUpdateCardLayout)
+
+        val toggleUpdateExpansion = {
+            val isExpanded = updateExpandableContent.visibility == View.VISIBLE
+            if (isExpanded) {
+                collapseView(updateExpandableContent, updateExpandBtn)
+            } else {
+                expandView(updateExpandableContent, updateExpandBtn)
+            }
+        }
+        updateExpandBtn.setOnClickListener { toggleUpdateExpansion() }
+        updateHeaderLayout.setOnClickListener { toggleUpdateExpansion() }
+        updateHeaderLayout.isClickable = true
 
         advancedLayout.addView(View(this).apply {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(16f))
         })
 
-        // ----- FORCE STOP SETTINGS CARD -----
+        // ----- FORCE STOP SETTINGS CARD (always visible) -----
         val forceStopCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -1038,7 +1206,7 @@ class SettingsActivity : Activity() {
                 if (isModuleTab) {
                     moduleInfoLayout.visibility = View.VISIBLE
                     advancedLayout.visibility = View.GONE
-                    applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
+                    applyEntranceAnimations(listOf(headerCardLayout, card1Layout, aboutCardLayout))
                 } else {
                     moduleInfoLayout.visibility = View.GONE
                     advancedLayout.visibility = View.VISIBLE
@@ -1233,7 +1401,7 @@ class SettingsActivity : Activity() {
         }
 
         setContentView(rootFrameLayout)
-        applyEntranceAnimations(listOf(headerCardLayout, card1Layout, card2Layout))
+        applyEntranceAnimations(listOf(headerCardLayout, card1Layout, aboutCardLayout))
     }
 
     // ---------- HELPER: Create a style option card ----------

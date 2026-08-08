@@ -142,93 +142,62 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
-        // ----- DIRECT TEST ROW (visible red background) -----
-        val testRow = TextView(this).apply {
-            text = "TEST ROW – This should be visible"
-            setBackgroundColor(Color.RED)
-            setTextColor(Color.WHITE)
-            textSize = 16f
-            setPadding(dpToPx(16f), dpToPx(16f), dpToPx(16f), dpToPx(16f))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        creditsCard.addView(testRow)
+        // ----- Simplified credit rows (guaranteed to show) -----
+        data class Credit(val name: String, val description: String, val username: String)
 
-        // ----- Row builder (unchanged, but we'll add it after the test) -----
-        fun createCreditRow(name: String, description: String, onClick: () -> Unit): LinearLayout {
-            return LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
+        val credits = listOf(
+            Credit("HeheJuice", "Developer", "HeheJuice"),
+            Credit("FifthSnow", "Designer of PUI Theme", "FifthSnow"),
+            Credit("ncatt", "VI Language Helps", "ncatt"),
+            Credit("LSPosed", "Method for Patching Android", "LSPosed")
+        )
+
+        for (credit in credits) {
+            // Row container
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    topMargin = dpToPx(12f)
+                    topMargin = dpToPx(8f)
                 }
-                // Solid red row
-                setBackgroundColor(Color.parseColor("#FFFF0000"))
+            }
 
-                val avatarResId = resources.getIdentifier(name.lowercase(), "drawable", packageName)
-                val avatar = ImageView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(dpToPx(48f), dpToPx(48f)).apply {
-                        marginEnd = dpToPx(16f)
-                    }
-                    if (avatarResId != 0) {
-                        setImageResource(avatarResId)
-                        scaleType = ImageView.ScaleType.CENTER_CROP
-                        background = GradientDrawable().apply {
-                            shape = GradientDrawable.OVAL
-                            setColor(Color.TRANSPARENT)
+            // Name (clickable)
+            val nameView = TextView(this).apply {
+                text = credit.name
+                textSize = 17f
+                setTextColor(primaryTextColor)
+                setTypeface(null, Typeface.BOLD)
+                isClickable = true
+                isFocusable = true
+                setOnClickListener { openTelegram(credit.username) }
+                setOnTouchListener { v, event ->
+                    when (event.action) {
+                        android.view.MotionEvent.ACTION_DOWN -> {
+                            v.animate().scaleX(0.98f).scaleY(0.98f).alpha(0.8f).setDuration(80).start()
                         }
-                        clipToOutline = true
-                    } else {
-                        setImageDrawable(null)
-                        background = GradientDrawable().apply {
-                            shape = GradientDrawable.OVAL
-                            setColor(accentColor)
+                        android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                            v.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(150).start()
                         }
                     }
+                    false
                 }
-                addView(avatar)
+            }
+            row.addView(nameView)
 
-                val textContainer = LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    layoutParams = LinearLayout.LayoutParams(
-                        0,
-                        dpToPx(48f),
-                        1f
-                    )
-                    setBackgroundColor(Color.parseColor("#FF00FF00")) // green
-                    gravity = Gravity.CENTER_VERTICAL
-                }
+            // Description
+            val descView = TextView(this).apply {
+                text = credit.description
+                textSize = 14f
+                setTextColor(secondaryTextColor)
+            }
+            row.addView(descView)
 
-                val nameView = TextView(context).apply {
-                    text = name
-                    textSize = 17f
-                    setTextColor(Color.BLACK)
-                    setTypeface(null, Typeface.BOLD)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                }
-                textContainer.addView(nameView)
-
-                val descView = TextView(context).apply {
-                    text = description
-                    textSize = 14f
-                    setTextColor(Color.BLACK)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                }
-                textContainer.addView(descView)
-
-                addView(textContainer)
-
-                val divider = View(context).apply {
+            // Divider (except after last)
+            if (credit != credits.last()) {
+                val divider = View(this).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         dpToPx(1f)
@@ -237,31 +206,11 @@ class DetailsActivity : Activity() {
                     }
                     setBackgroundColor(cardBorderColor)
                 }
-                addView(divider)
+                row.addView(divider)
             }
-        }
 
-        // Add the regular rows (they will appear below the test row)
-        creditsCard.addView(createCreditRow(
-            name = "HeheJuice",
-            description = "Developer",
-            onClick = { openTelegram("HeheJuice") }
-        ))
-        creditsCard.addView(createCreditRow(
-            name = "FifthSnow",
-            description = "Designer of PUI Theme",
-            onClick = { openTelegram("FifthSnow") }
-        ))
-        creditsCard.addView(createCreditRow(
-            name = "ncatt",
-            description = "VI Language Helps",
-            onClick = { openTelegram("ncatt") }
-        ))
-        creditsCard.addView(createCreditRow(
-            name = "LSPosed",
-            description = "Method for Patching Android",
-            onClick = { openTelegram("LSPosed") }
-        ))
+            creditsCard.addView(row)
+        }
 
         scrollContent.addView(creditsCard)
 

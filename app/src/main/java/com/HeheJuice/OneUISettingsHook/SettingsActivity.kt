@@ -177,7 +177,7 @@ class SettingsActivity : Activity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 topMargin = dpToPx(12f)
-                gravity = Gravity.CENTER_HORIZONTAL
+                gravity = Gravity.START
             }
             isClickable = true
             isFocusable = true

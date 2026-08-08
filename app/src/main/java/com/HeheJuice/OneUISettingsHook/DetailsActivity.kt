@@ -108,7 +108,7 @@ class DetailsActivity : Activity() {
             setTextColor(Color.WHITE)
             setTypeface(customFont)
             gravity = Gravity.CENTER
-            translationY = -dpToPx(3f)  // move up 3 pixels
+            translationY = -dpToPx(3f).toFloat()  // FIXED: convert Int to Float
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT

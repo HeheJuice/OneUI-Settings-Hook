@@ -142,6 +142,7 @@ class DetailsActivity : Activity() {
         }
         creditsCard.addView(creditsTitle)
 
+        // Helper to create a credit row
         fun createCreditRow(label: String, username: String, onClick: () -> Unit): LinearLayout {
             return LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -151,7 +152,7 @@ class DetailsActivity : Activity() {
                 ).apply {
                     topMargin = dpToPx(12f)
                 }
-                // IMPORTANT: set weightSum to distribute space
+                // Set weight sum so the label can take remaining space
                 weightSum = 1f
 
                 // Left: Description (label)
@@ -159,12 +160,14 @@ class DetailsActivity : Activity() {
                     text = label
                     textSize = 15f
                     setTextColor(secondaryTextColor)
-                    // Width = 0, weight = 1 so it takes all remaining space
+                    // Width = 0, weight = 1 -> takes all available space
                     layoutParams = LinearLayout.LayoutParams(
                         0,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         1f
                     )
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
                 }
                 addView(labelView)
 
@@ -196,7 +199,7 @@ class DetailsActivity : Activity() {
                 }
                 addView(valueView)
 
-                // Divider
+                // Divider line below the row
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -210,6 +213,7 @@ class DetailsActivity : Activity() {
             }
         }
 
+        // Add rows – descriptions now visible
         creditsCard.addView(createCreditRow(
             label = "Developer",
             username = "HeheJuice",

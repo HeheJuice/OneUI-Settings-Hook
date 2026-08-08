@@ -163,7 +163,7 @@ class SettingsActivity : Activity() {
 
         // Info Pill (opens DetailsActivity)
         val infoPill = TextView(this).apply {
-            text = "Press here for details"
+            text = getString(R.string.info_pill_text)
             textSize = 14f
             setTextColor(Color.WHITE)
             setTypeface(null, Typeface.BOLD)

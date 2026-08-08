@@ -118,5 +118,5 @@
 <string name="update_latest">您已是最新版本 (%s)</string>
 <string name="update_server_error">检查更新失败 (服务器错误)</string>
 <string name="update_connection_error">无法连接到GitHub</string>
-<string name="update_disabled_debug">调试版本已禁用</string>
+<string name="update_disabled_debug">调试版本,已禁用更新检查</string>
 </resources>

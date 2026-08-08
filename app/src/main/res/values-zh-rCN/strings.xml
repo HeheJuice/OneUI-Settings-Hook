@@ -93,4 +93,22 @@
 <string name="dashboard_option_monet">Monet</string>
 <string name="msg_dashboard_theme_applied">已应用仪表板主题。设置已重启。</string>
 <string name="debug_incorrect_code">错误</string>
+<!-- Details Activity -->
+<string name="details_title">OneUI Settings Hook</string>
+<string name="details_topbar_title">Details</string>
+<string name="credits_title">Credits</string>
+<string name="back">Back</string>
+
+<!-- Credits -->
+<string name="credit_hehejuice_name">HeheJuice</string>
+<string name="credit_hehejuice_desc">本模块开发者</string>
+
+<string name="credit_fifthsnow_name">FifthSnow</string>
+<string name="credit_fifthsnow_desc">天伞樱 - PUI Theme设计</string>
+
+<string name="credit_ncatt_name">ncatt</string>
+<string name="credit_ncatt_desc">VI 语言翻译</string>
+
+<string name="credit_lsposed_name">LSPosed</string>
+<string name="credit_lsposed_desc">本模块的实现方式</string>
 </resources>

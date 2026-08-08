@@ -15,6 +15,7 @@ object DashboardColorPatch {
     private const val STYLE_DEFAULT = 0
     private const val STYLE_MONET = 1
     private const val STYLE_ONEUI6 = 2
+    private const val STYLE_PUI = 3
 
     fun applyPatch(classLoader: ClassLoader) {
         try {
@@ -50,6 +51,7 @@ object DashboardColorPatch {
             val suffix = when (style) {
                 STYLE_MONET -> "_monet"
                 STYLE_ONEUI6 -> "_oneui6"
+                STYLE_PUI -> "_pui"
                 else -> "" // fallback
             }
             Log.d(TAG, "Using suffix: $suffix")

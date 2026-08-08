@@ -32,5 +32,9 @@
         <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
     </intent-filter>
 </activity>
+<activity
+    android:name=".DetailsActivity"
+    android:exported="false"
+    android:theme="@android:style/Theme.DeviceDefault.DayNight" />
     </application>
 </manifest>

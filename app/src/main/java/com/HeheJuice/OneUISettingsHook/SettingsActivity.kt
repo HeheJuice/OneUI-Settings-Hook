@@ -54,6 +54,7 @@ class SettingsActivity : Activity() {
         private const val STYLE_DEFAULT = 0
         private const val STYLE_MONET = 1
         private const val STYLE_ONEUI6 = 2
+        private const val STYLE_PUI = 3
     }
 
     private lateinit var themeSelectionRow: LinearLayout
@@ -159,6 +160,35 @@ class SettingsActivity : Activity() {
         }
         headerCardLayout.addView(headerTitle)
         headerCardLayout.addView(headerSub)
+
+        // Info Pill (opens DetailsActivity)
+        val infoPill = TextView(this).apply {
+            text = "Press here for details"
+            textSize = 14f
+            setTextColor(Color.WHITE)
+            setTypeface(null, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            setPadding(dpToPx(16f), dpToPx(8f), dpToPx(16f), dpToPx(8f))
+            background = GradientDrawable().apply {
+                cornerRadius = dpToPx(100f).toFloat()
+                setColor(accentColor)
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(12f)
+                gravity = Gravity.START
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                startActivity(Intent(this@SettingsActivity, DetailsActivity::class.java))
+            }
+            setOnTouchListener(pressScaleTouchListener)
+        }
+        headerCardLayout.addView(infoPill)
+
         moduleInfoLayout.addView(headerCardLayout)
 
         moduleInfoLayout.addView(View(this).apply {
@@ -258,7 +288,7 @@ class SettingsActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
 
-        // ----- Dashboard Style Card (3 options) -----
+        // ----- Dashboard Style Card (4 options) -----
         val dashboardStyleCardLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -280,12 +310,12 @@ class SettingsActivity : Activity() {
         themeSelectionRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            weightSum = 3f
+            weightSum = 4f
         }
 
         currentStyle = prefs.getInt("dashboard_style", STYLE_DEFAULT)
 
-        // Create the three options using the member function createStyleOption
+        // Create the four options
         val defaultOption = createStyleOption(
             getString(R.string.dashboard_option_default),
             R.drawable.icon_default,
@@ -293,10 +323,12 @@ class SettingsActivity : Activity() {
         )
         val monetOption = createStyleOption("Monet", R.drawable.icon_monet, STYLE_MONET)
         val oneui6Option = createStyleOption("OneUI 6 Monet", R.drawable.icon_oneui6, STYLE_ONEUI6)
+        val puiOption = createStyleOption("PUI", R.drawable.icon_pui, STYLE_PUI)
 
         themeSelectionRow.addView(defaultOption)
         themeSelectionRow.addView(monetOption)
         themeSelectionRow.addView(oneui6Option)
+        themeSelectionRow.addView(puiOption)
 
         dashboardStyleCardLayout.addView(dashboardTitle)
         dashboardStyleCardLayout.addView(themeSelectionRow)
@@ -1206,72 +1238,72 @@ class SettingsActivity : Activity() {
 
     // ---------- HELPER: Create a style option card ----------
     private fun createStyleOption(label: String, iconResId: Int, styleValue: Int): LinearLayout {
-    val isSelected = currentStyle == styleValue
-    return LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        gravity = Gravity.CENTER_HORIZONTAL
-        layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
-            marginStart = dpToPx(6f)
-            marginEnd = dpToPx(6f)
-        }
-        background = GradientDrawable().apply {
-            setColor(inputBgColor)
-            cornerRadius = dpToPx(16f).toFloat()
-        }
-        setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
-        isClickable = true
-        isFocusable = true
-        setOnTouchListener(pressScaleTouchListener)
-
-        weightSum = 3f
-
-        val icon = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(45f), dpToPx(40f)).apply {
-                gravity = Gravity.CENTER
-                weight = 1f
+        val isSelected = currentStyle == styleValue
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(0, dpToPx(170f), 1f).apply {
+                marginStart = dpToPx(6f)
+                marginEnd = dpToPx(6f)
             }
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            setImageResource(iconResId)
-        }
-        addView(icon)
-
-        val labelView = TextView(context).apply {
-            text = label
-            textSize = 12f
-            setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-            maxLines = 2
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        }
-        addView(labelView)
-
-        // Radio button – smaller size
-        val radio = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(18f), dpToPx(18f)).apply {  // was 20f
-                gravity = Gravity.CENTER
-                weight = 1f
+            background = GradientDrawable().apply {
+                setColor(inputBgColor)
+                cornerRadius = dpToPx(16f).toFloat()
             }
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            setImageDrawable(createRadioButtonDrawable(isSelected))
-        }
-        addView(radio)
+            setPadding(dpToPx(12f), dpToPx(12f), dpToPx(12f), dpToPx(12f))
+            isClickable = true
+            isFocusable = true
+            setOnTouchListener(pressScaleTouchListener)
 
-        setOnClickListener {
-            if (currentStyle != styleValue) {
-                currentStyle = styleValue
-                updateStyleUI()
-                saveStyle(styleValue)
-                applyStyle()
+            weightSum = 3f
+
+            val icon = ImageView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(dpToPx(45f), dpToPx(40f)).apply {
+                    gravity = Gravity.CENTER
+                    weight = 1f
+                }
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setImageResource(iconResId)
+            }
+            addView(icon)
+
+            val labelView = TextView(context).apply {
+                text = label
+                textSize = 12f
+                setTextColor(if (isSelected) primaryTextColor else secondaryTextColor)
+                setTypeface(null, Typeface.BOLD)
+                gravity = Gravity.CENTER
+                textAlignment = View.TEXT_ALIGNMENT_CENTER
+                maxLines = 2
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    0,
+                    1f
+                )
+            }
+            addView(labelView)
+
+            val radio = ImageView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(dpToPx(18f), dpToPx(18f)).apply {
+                    gravity = Gravity.CENTER
+                    weight = 1f
+                }
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setImageDrawable(createRadioButtonDrawable(isSelected))
+            }
+            addView(radio)
+
+            setOnClickListener {
+                if (currentStyle != styleValue) {
+                    currentStyle = styleValue
+                    updateStyleUI()
+                    saveStyle(styleValue)
+                    applyStyle()
+                }
             }
         }
     }
-}
+
     // ---------- UPDATE STYLE UI ----------
     private fun updateStyleUI() {
         for (i in 0 until themeSelectionRow.childCount) {
@@ -1283,6 +1315,7 @@ class SettingsActivity : Activity() {
                 getString(R.string.dashboard_option_default) -> currentStyle == STYLE_DEFAULT
                 "Monet" -> currentStyle == STYLE_MONET
                 "OneUI 6 Monet" -> currentStyle == STYLE_ONEUI6
+                "PUI" -> currentStyle == STYLE_PUI
                 else -> false
             }
             radio.setImageDrawable(createRadioButtonDrawable(isSelected))
@@ -1292,30 +1325,30 @@ class SettingsActivity : Activity() {
 
     // ---------- RADIO BUTTON DRAWABLE ----------
     private fun createRadioButtonDrawable(isSelected: Boolean): Drawable {
-    return object : Drawable() {
-        private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = dpToPx(2f).toFloat()   // slightly thinner stroke
-            color = if (isSelected) accentColor else secondaryTextColor
-        }
-        private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            color = accentColor
-        }
-        override fun draw(canvas: Canvas) {
-            val cx = bounds.exactCenterX()
-            val cy = bounds.exactCenterY()
-            val radius = dpToPx(8f).toFloat()    // smaller radius (was 10f)
-            canvas.drawCircle(cx, cy, radius, strokePaint)
-            if (isSelected) {
-                canvas.drawCircle(cx, cy, radius - dpToPx(3f).toFloat(), fillPaint)
+        return object : Drawable() {
+            private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.STROKE
+                strokeWidth = dpToPx(2f).toFloat()
+                color = if (isSelected) accentColor else secondaryTextColor
             }
+            private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.FILL
+                color = accentColor
+            }
+            override fun draw(canvas: Canvas) {
+                val cx = bounds.exactCenterX()
+                val cy = bounds.exactCenterY()
+                val radius = dpToPx(8f).toFloat()
+                canvas.drawCircle(cx, cy, radius, strokePaint)
+                if (isSelected) {
+                    canvas.drawCircle(cx, cy, radius - dpToPx(3f).toFloat(), fillPaint)
+                }
+            }
+            override fun setAlpha(alpha: Int) {}
+            override fun setColorFilter(cf: ColorFilter?) {}
+            @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
         }
-        override fun setAlpha(alpha: Int) {}
-        override fun setColorFilter(cf: ColorFilter?) {}
-        @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
     }
-}
 
     // ---------- SAVE AND APPLY STYLE ----------
     private fun saveStyle(style: Int) {

@@ -23,7 +23,7 @@
      - Tùy chỉnh văn bản trong Cài đặt Nâng cao của Module 
           - Bạn nên đọc kỹ phần "Tuyên bố từ chối trách nhiệm & Lưu ý sử dụng" trong Cài đặt Nâng cao của Module trước khi sử dụng 
      - Hình nền thẻ Thông tin phần mềm = Hình nền màn hình chính
-- Biểu tượng trang chủ có thể tùy chỉnh (Will be added in V.2.6)
+- Biểu tượng trang chủ có thể tùy chỉnh 
      - OneUI Monet
      - OneUI 6 Monet
      - PUI Theme

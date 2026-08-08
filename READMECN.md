@@ -49,6 +49,7 @@
 <img loading="lazy" src="Banner/SS3.jpg" width="82" />
 <img loading="lazy" src="Banner/SS4.jpg" width="82" />
 <img loading="lazy" src="Banner/SS5.jpg" width="82" />
+<img loading="lazy" src="Banner/SS6.jpg" width="82" />
 </div>
 
 ### ℹ️ 使用方法

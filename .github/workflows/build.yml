@@ -1,13 +1,6 @@
 name: Build OneUI-Settings-Hook Module
 
 on:
-  push:
-    branches: [ "main" ]
-    paths-ignore:
-      - 'README.md'
-      - '**.md'
-      - '**.kt'
-      - '**.xml'
   workflow_dispatch:
 
 jobs:
@@ -33,11 +26,9 @@ jobs:
         gradle-version: '8.9'  # <--- Add this line
 
 
-    # Safely injects your persistent identity key into the compiler tree
-    #- name: Prepare Keystore
-      #run: |
-        #echo "${{ secrets.SIGNING_KEY }}" | base64 -d --ignore-garbage > app/debug.keystore
-
+    - name: Prepare Keystore
+      run: |
+        echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/debug.keystore
 
     - name: Compile Debug APK
       run: gradle assembleDebug

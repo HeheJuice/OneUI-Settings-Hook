@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.HeheJuice.OneUISettingsHook"
-        minSdk = 35
+        minSdk = 28
         targetSdk = 36
         versionCode = 26
         versionName = "V.2.6"

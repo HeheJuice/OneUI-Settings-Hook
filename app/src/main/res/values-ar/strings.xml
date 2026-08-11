@@ -1,0 +1,130 @@
+<resources>
+    <!-- App & General -->
+    <string name="app_name">OneUI Settings Hook</string>
+    <string name="header_subtitle">إعدادات ومعلومات الوحدة</string>
+    <string name="btn_back">رجوع</string>
+    <string name="oneui_version_format">OneUI %s</string>
+    <string name="oneui_default">OneUI</string>
+    <string name="about_your_galaxy">حول جهاز Galaxy الخاص بك</string>
+    <string name="software_details">تفاصيل البرنامج</string>
+    <string name="module_version">الإصدار %1$s</string>
+    
+    <!-- Links & Socials -->
+    <string name="btn_mit_license">عرض ترخيص MIT</string>
+    <string name="btn_star_repo">أعجبك المشروع؟ ادعمنا بنجمة</string>
+    <string name="btn_github_repo">عرض مستودع GitHub</string>
+    <string name="btn_report_bugs">الإبلاغ عن مشكلة</string>
+    <string name="card_about_title">حول الوحدة</string>
+    <string name="btn_developer">المطور: HeheJuice</string>
+    <string name="btn_tg_channel">قناة تيليجرام</string>
+    <string name="btn_tg_chat">محادثة تيليجرام</string>
+    <string name="module_info_category">معلومات الوحدة</string>
+    <string name="module_maker_title">صانع الوحدة</string>
+    <string name="module_github_title">مستودع GitHub</string>
+    <string name="module_summary">تعديل إعدادات OneUI</string>
+
+    <!-- Navigation & Tabs -->
+    <string name="tab_advanced">متقدم</string>
+    <string name="advanced_controls">أدوات متقدمة</string>
+    <string name="advanced_subtitle">أدوات نظام لتطبيق التعديلات أو إعادة تشغيل الإعدادات.</string>
+    <string name="btn_force_stop_settings">إيقاف تطبيق الإعدادات بالقوة</string>
+
+    <!-- System Messages & Permissions -->
+    <string name="msg_root_permission_required">يرجى منح صلاحية الروت</string>
+    <string name="msg_settings_force_stopped">تم إيقاف تطبيق الإعدادات بالقوة</string>
+
+    <!-- Device Image Tweaks -->
+    <string name="card_device_image_title">استبدال صورة الجهاز</string>
+    <string name="card_device_image_sub">اختر أو أزل صورة جهاز مخصصة (بصيغة .png)</string>
+    <string name="btn_select_image">اختيار صورة</string>
+    <string name="btn_remove_image">إزالة الصورة</string>
+    <string name="msg_image_replaced">تم استبدال صورة الجهاز بنجاح</string>
+    <string name="msg_image_removed">تم إزالة صورة الجهاز بنجاح</string>
+    <string name="msg_image_failed">فشل في معالجة الصورة</string>
+
+    <!-- Custom Banner Tweaks -->
+    <string name="custom_banner_title">نص العنوان المخصص</string>
+    <string name="custom_banner_subtitle">تعيين نص عنوان مخصص في بطاقة معلومات البرنامج (مثال: OneUI 8، OneUI 9، أو عنوان مخصص).</string>
+    <string name="custom_banner_hint">مثال: OneUI 9.0</string>
+    <string name="btn_save_banner_text">حفظ نص العنوان</string>
+    <string name="btn_reset_default">إعادة الضبط الافتراضي</string>
+    <string name="msg_banner_text_saved">تم الحفظ! أوقف تطبيق الإعدادات بالقوة لتطبيق التغييرات.</string>
+    <string name="msg_banner_text_reset">تمت إعادة الضبط الافتراضي! أوقف تطبيق الإعدادات بالقوة لتطبيق التغييرات.</string>
+    <string name="msg_banner_text_applied">تم التطبيق وإعادة تشغيل تطبيق الإعدادات تلقائيًا</string>
+    <string name="msg_banner_text_reset_restarted">تمت إعادة الضبط وإعادة تشغيل تطبيق الإعدادات تلقائيًا</string>
+
+    <!-- Dialogs & Notices -->
+    <string name="disclaimer_title">إخلاء مسؤولية وإشعار استخدام</string>
+    <string name="disclaimer_content">توفر هذه الوحدة واجهة تقنية اختيارية فقط. يجب على المستخدمين الإقرار بوضوح بأن أي كلمات أو نصوص مخصصة يتم عرضها هي من كتابتهم الخاصة بالكامل ولا تصدر عن هذه الوحدة أو مطورها (HeheJuice). المطور غير مسؤول عن أي سوء استخدام أو لغة غير لائقة أو محتوى يُشارك على وسائل التواصل الاجتماعي.</string>
+    <string name="notice_title">تنبيه</string>
+    <string name="notice_message">يجب التأكد من قراءة "إخلاء المسؤولية وإشعار الاستخدام" والموافقة عليه.</string>
+    <string name="btn_leave">مغادرة</string>
+    <string name="btn_continue">متابعة</string>
+
+    <!-- Update App Controls -->
+    <string name="disable_software_update_title">تعطيل تطبيق تحديث البرنامج</string>
+    <string name="btn_enable_update">تفعيل</string>
+    <string name="btn_disable_update">تعطيل</string>
+    <string name="msg_software_update_enabled">تم تفعيل تطبيق تحديث البرنامج</string>
+    <string name="msg_software_update_disabled">تم تعطيل تطبيق تحديث البرنامج</string>
+    <string name="msg_app_not_found">التطبيق غير موجود</string>
+
+    <!-- Product Name Controls -->
+    <string name="custom_product_name_title">اسم المنتج المخصص</string>
+    <string name="custom_product_name_subtitle">تعديل اسم الجهاز الافتراضي في النظام</string>
+    <string name="custom_product_name_hint">أدخل اسم المنتج…</string>
+    <string name="btn_save_product_name">حفظ اسم المنتج</string>
+    <string name="msg_product_name_applied">تم تطبيق اسم المنتج!</string>
+    <string name="msg_product_name_reset">تمت إعادة اسم المنتج إلى الوضع الافتراضي!</string>
+
+    <!-- Lab Feature Strings -->
+    <string name="lab_title">المختبر</string>
+    <string name="lab_subtitle">ميزات وتعديلات تجريبية</string>
+    <string name="btn_open_lab">دخول المختبر</string>
+    <string name="lab_warning_title">حالة اختبار</string>
+    <string name="lab_warning_message">هذه الميزات في مرحلة الاختبار وقد تكون غير مستقرة.</string>
+    <string name="tab_main">الرئيسية</string>
+    <string name="btn_save">حفظ</string>
+    <string name="msg_applied">تم التطبيق بنجاح!</string>
+    <string name="msg_reset_success">تمت إعادة الضبط الافتراضي!</string>
+    <string name="disable_ota_title">تعطيل تحديثات النظام</string>
+    <string name="disable_ota_subtitle">تعطيل خدمات تحديث OneUI الرسمية</string>
+    <string name="btn_disable_ota">تعطيل التحديثات</string>
+    <string name="msg_ota_disabled">تم تعطيل تحديثات النظام!</string>
+    <string name="force_stop_title">إيقاف تطبيق الإعدادات بالقوة</string>
+    <string name="force_stop_subtitle">إعادة تشغيل تطبيق الإعدادات لتطبيق التغييرات</string>
+    <string name="btn_force_stop">إيقاف بالقوة</string>
+    <string name="msg_settings_stopped">تم إيقاف تطبيق الإعدادات!</string>
+<string name="un1ca_notice">نظرًا لأن المطور يستخدم UN1CA (فيرموير OneUI غير رسمي)، فإن هذه الميزة غير مُختبرة على OneUI الرسمي. لا تتردد في استخدام زر "الإبلاغ عن مشكلة" إذا كانت الميزة لا تعمل بشكل صحيح.</string>
+<string name="dashboard_theme_title">سمة لوحة التحكم</string>
+<string name="dashboard_option_default">افتراضي</string>
+<string name="dashboard_option_monet">Monet</string>
+<string name="msg_dashboard_theme_applied">تم تطبيق سمة لوحة التحكم. تمت إعادة تشغيل الإعدادات.</string>
+<string name="debug_incorrect_code">رمز غير صحيح</string>
+<!-- Details Activity -->
+<string name="details_title">OneUI Settings Hook</string>
+<string name="details_topbar_title">التفاصيل</string>
+<string name="credits_title">شكر وتقدير</string>
+<string name="back">رجوع</string>
+
+<!-- Credits -->
+<string name="credit_hehejuice_name">HeheJuice</string>
+<string name="credit_hehejuice_desc">مطور OneUI Settings Hook</string>
+
+<string name="credit_fifthsnow_name">FifthSnow</string>
+<string name="credit_fifthsnow_desc">مصمم سمة PUI</string>
+
+<string name="credit_ncatt_name">ncatt</string>
+<string name="credit_ncatt_desc">المساعدة في الترجمة الفيتنامية</string>
+
+<string name="credit_lsposed_name">LSPosed</string>
+<string name="credit_lsposed_desc">طريقة تعديل نظام أندرويد</string>
+<string name="info_pill_text">التحقق من التحديثات</string>
+<string name="update_checking">جارٍ التحقق من التحديثات…</string>
+<string name="update_new_version">يتوفر إصدار جديد: %s</string>
+<string name="update_download">التنزيل من GitHub</string>
+<string name="update_latest">أنت تستخدم أحدث إصدار (%s)</string>
+<string name="update_server_error">فشل التحقق من التحديثات (خطأ في الخادم)</string>
+<string name="update_connection_error">تعذّر الاتصال بـ GitHub</string>
+<string name="update_disabled_debug">تم تعطيل مدقق التحديثات لإصدار التصحيح</string>
+</resources>

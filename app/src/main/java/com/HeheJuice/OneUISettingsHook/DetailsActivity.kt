@@ -200,7 +200,6 @@ class DetailsActivity : Activity() {
             textSize = 20f
             setTextColor(primaryTextColor)
             setTypeface(null, Typeface.BOLD)
-            // ***** ONLY CHANGE: left padding reduced to 0 *****
             setPadding(dpToPx(0f), 0, 0, dpToPx(16f))
         }
         creditsCard.addView(creditsTitle)
@@ -211,6 +210,7 @@ class DetailsActivity : Activity() {
             Credit(R.string.credit_hehejuice_name, R.string.credit_hehejuice_desc, "HeheJuice"),
             Credit(R.string.credit_fifthsnow_name, R.string.credit_fifthsnow_desc, "FifthSnow"),
             Credit(R.string.credit_ncatt_name, R.string.credit_ncatt_desc, "ncatt"),
+            Credit(R.string.credit_abbaas_name, R.string.credit_abbaas_desc, "ABSKA2"),
             Credit(R.string.credit_lsposed_name, R.string.credit_lsposed_desc, "LSPosed")
         )
 

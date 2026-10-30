@@ -1,0 +1,116 @@
+================================================================================
+                    Intelligent Widget — NOTICE File
+================================================================================
+
+This product includes software developed by third parties. The following
+is a list of those components, their copyright holders, and the licenses
+under which they are used.
+
+This NOTICE file is provided in accordance with Section 4(d) of the
+Apache License, Version 2.0.
+
+--------------------------------------------------------------------------------
+COMPONENT: AndroidX Libraries
+--------------------------------------------------------------------------------
+
+  Copyright 2018 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Components include:
+      - androidx.core:core-ktx
+      - androidx.appcompat:appcompat
+      - androidx.recyclerview:recyclerview
+      - androidx.constraintlayout:constraintlayout
+
+--------------------------------------------------------------------------------
+COMPONENT: Material Components for Android
+--------------------------------------------------------------------------------
+
+  Copyright 2015 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Source: https://github.com/material-components/material-components-android
+
+--------------------------------------------------------------------------------
+COMPONENT: Material Design Icons
+--------------------------------------------------------------------------------
+
+  Copyright 2014 Google LLC
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Certain font-based icon variants are licensed under the SIL Open Font
+  License, Version 1.1.
+
+  Source: https://github.com/google/material-design-icons
+
+--------------------------------------------------------------------------------
+COMPONENT: Material Color Utilities
+--------------------------------------------------------------------------------
+
+  Copyright 2021 Google LLC
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Source: https://github.com/material-foundation/material-color-utilities
+
+--------------------------------------------------------------------------------
+COMPONENT: MaterialKolor
+--------------------------------------------------------------------------------
+
+  Copyright 2023 Jordon de Hoog
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Source: https://github.com/jordond/materialkolor
+
+--------------------------------------------------------------------------------
+COMPONENT: Kotlin Standard Library
+--------------------------------------------------------------------------------
+
+  Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language
+  contributors.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Source: https://github.com/JetBrains/kotlin
+
+--------------------------------------------------------------------------------
+FULL TEXT OF THE APACHE LICENSE 2.0
+--------------------------------------------------------------------------------
+
+  The full text of the Apache License, Version 2.0 is available at:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  A copy is also included in the LICENSE file distributed with this product.
+
+================================================================================
+                              END OF NOTICE
+================================================================================

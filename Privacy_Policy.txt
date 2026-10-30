@@ -1,0 +1,332 @@
+================================================================================
+                              PRIVACY POLICY
+                         OneUI Settings Hook
+================================================================================
+Effective Date: October 21, 2026
+Applies to: The OneUI Settings Hook Xposed module and companion app
+Package: com.HeheJuice.OneUISettingsHook
+================================================================================
+
+[ 1. OVERVIEW ]
+================================================================================
+
+OneUI Settings Hook is a local-first Xposed module and companion Android app
+that modifies Samsung Settings and related system UI behavior.
+
+This Privacy Policy explains what data the project processes, why it processes
+it, and how you remain in control.
+
+The project does NOT:
+  - Create user accounts
+  - Operate a backend server
+  - Use analytics, advertising, or tracking SDKs
+  - Sell or share personal data
+  - Upload your Settings content or device identifiers
+
+Most processing happens entirely on your device. Internet access is used only
+for optional update checking, APK downloads, GitHub avatar loading, and GitHub
+repository description loading.
+
+================================================================================
+
+[ 2. SCOPE OF THE MODULE ]
+================================================================================
+
+The Xposed module may run inside:
+
+  - com.android.settings
+    Samsung Settings
+
+  - com.samsung.android.da.daagent
+    Samsung Dual Messenger Agent
+
+Within those processes, the module performs local UI and behavior
+modifications, including:
+
+  - Injecting a custom wallpaper banner into the Software Information screen
+  - Reading and applying a custom device name
+  - Replacing dashboard drawables based on a selected style
+  - Masking sensitive information such as IMEI, serial number, or phone number
+    in Settings text views
+  - Unlocking extra battery information
+  - Bypassing certain font validity checks
+  - Refreshing the Dual Messenger whitelist
+  - Reading local system properties and global settings
+
+These operations are performed locally. The module does not transmit Settings
+content, device identifiers, package lists, wallpaper data, or user preferences
+to any server.
+
+================================================================================
+
+[ 3. DATA PROCESSED LOCALLY ]
+================================================================================
+
+3.1 Module Preferences
+--------------------------------------------------------------------------------
+
+The companion app stores module preferences in:
+
+  mod_settings SharedPreferences
+
+This may include:
+
+  - Custom banner text
+  - Custom product/device name
+  - Dashboard theme style
+
+To allow the hooked Settings process to read these preferences, the app may mark
+the mod_settings preference file as world-readable.
+
+This file may contain text you enter. DO NOT enter sensitive personal
+information into custom banner or device name fields.
+
+3.2 App Preferences
+--------------------------------------------------------------------------------
+
+The app stores onboarding and app-level state in:
+
+  app_prefs
+
+This may include whether the welcome flow has been completed and the last
+welcome version.
+
+Developer test builds may also use:
+
+  tangent_prefs
+
+This stores local test-tool state only.
+
+3.3 Android Global Settings
+--------------------------------------------------------------------------------
+
+When you apply certain features, the app may write or read Android global
+settings such as:
+
+  - oneui_hook_dashboard_style
+  - oneui_hook_sensitive_info_hider
+  - custom_oneui_banner
+  - default_device_name
+
+These values are used by the module inside Settings to apply your chosen
+configuration. They remain on your device unless you reset them.
+
+3.4 System Properties
+--------------------------------------------------------------------------------
+
+The module may read local system properties such as:
+
+  - persist.sys.device_name
+  - ro.build.version.oneui
+
+These are used to determine the custom device name or One UI version label.
+They are not transmitted.
+
+3.5 Sensitive Information Masking
+--------------------------------------------------------------------------------
+
+The Sensitive Info Patch hooks TextView.setText inside Samsung Settings.
+
+It evaluates displayed text locally to heuristically detect IMEI numbers,
+serial numbers, and phone numbers. When masking is enabled, it replaces the
+displayed value with:
+
+  ********
+
+Tapping the text may reveal the original value temporarily.
+
+The original value is kept only in memory as an instance field on the affected
+TextView for tap-to-reveal behavior. It is NOT persisted and is NOT transmitted.
+
+The feature can be disabled from the companion app.
+
+3.6 Dual Messenger Whitelist Patch
+--------------------------------------------------------------------------------
+
+Inside com.samsung.android.da.daagent, the module may query installed launcher
+activities and inspect application flags/metadata to build a local Dual
+Messenger whitelist.
+
+This list is used only inside the Dual Messenger Agent process and is not
+transmitted.
+
+3.7 Banner and Wallpaper
+--------------------------------------------------------------------------------
+
+The Software Information banner feature may load your current wallpaper via
+WallpaperManager to render the banner.
+
+The wallpaper is processed locally and is not uploaded.
+
+3.8 Cached Files
+--------------------------------------------------------------------------------
+
+The app may store local cache files, including:
+
+  - cacheDir/app-release.apk
+    Downloaded update package
+
+  - GitHub avatar images in cacheDir
+
+  - repo_descriptions.json
+    Cached GitHub repository descriptions
+
+These files are used only for update installation, credits display, and
+release/description loading. They can be removed by clearing app data or cache.
+
+================================================================================
+
+[ 4. NETWORK ACCESS ]
+================================================================================
+
+The app requests the INTERNET permission.
+
+Network access is used only for:
+
+  - Checking the latest GitHub release for OneUI Settings Hook
+  - Downloading update APK packages
+  - Loading public GitHub avatars for the credits screen
+  - Fetching public GitHub repository descriptions for linked projects
+  - Opening external links when you tap them
+
+Network requests are made to GitHub domains such as:
+
+  - api.github.com
+  - github.com
+
+As with any HTTPS request, GitHub may receive standard connection information
+such as your IP address and user agent, subject to GitHub's own privacy policy.
+
+The app does NOT transmit:
+
+  - Your media metadata
+  - Your Settings screen content
+  - IMEI, serial number, or phone number
+  - Your custom banner or device name
+  - Your Dual Messenger whitelist
+  - Your wallpaper
+  - Your package list
+  - Your system properties
+  - Your app preferences
+
+Update checking also verifies the app's own signature locally using SHA-256.
+If the signature does not match the official certificate, update checking is
+disabled and a warning is shown.
+
+================================================================================
+
+[ 5. PERMISSIONS ]
+================================================================================
+
+The app's manifest requests:
+
+  - INTERNET
+    For optional update checks, APK downloads, GitHub avatars, and repository
+    descriptions.
+
+  - VIBRATE
+    For haptic feedback.
+
+  - REQUEST_INSTALL_PACKAGES
+    For installing downloaded APK updates via the system installer.
+
+The app also uses a FileProvider to share the downloaded APK with the system
+package installer. Installation always requires your explicit confirmation and
+may require enabling "Install unknown apps."
+
+The app does not request location, contacts, camera, microphone, SMS, call logs,
+photos, notification listener, Bluetooth, or broad storage permissions.
+
+================================================================================
+
+[ 6. ROOT ACCESS AND SYSTEM CHANGES ]
+================================================================================
+
+Some features use root commands via su when you explicitly trigger them.
+
+These may include:
+
+  - settings put / settings delete
+    For banner text, device name, dashboard style, or sensitive-info toggle.
+
+  - setprop persist.sys.device_name
+    For custom device name.
+
+  - am force-stop com.android.settings
+    To refresh Settings.
+
+  - pm disable / pm enable com.wssyncmldm
+    For the software update app.
+
+The app does not obtain root by itself. These commands run only if your device
+is rooted and you grant root access.
+
+Root commands modify system settings and may persist after uninstalling the app.
+
+The app provides reset options for custom banner text and device name where
+available. You can also reset related global settings manually.
+
+================================================================================
+
+[ 7. DATA SHARING AND THIRD PARTIES ]
+================================================================================
+
+The project does NOT:
+
+  - Sell personal data
+  - Share personal data with advertisers
+  - Use analytics or crash-reporting SDKs
+  - Use behavioral tracking
+  - Display ads
+  - Create user profiles
+  - Upload preferences to a server
+
+Third-party libraries used by the app, such as AndroidX, Material Components,
+Material Color Utilities, and the Xposed API, run locally.
+
+External links to GitHub, Telegram, or other services are opened only when you
+tap them. Those services handle the request under their own privacy policies.
+
+================================================================================
+
+[ 8. DATA RETENTION AND DELETION ]
+================================================================================
+
+You can remove local data by:
+
+  - Clearing the app's data or cache
+  - Uninstalling the app
+  - Resetting custom banner/device name settings from the app
+  - Disabling or uninstalling the Xposed module
+  - Revoking root access or Internet access
+  - Manually resetting Android global settings or system properties changed by
+    root commands
+
+Clearing app data or uninstalling the app removes stored preferences and cached
+files.
+
+However, values written to Android global settings, system properties, or
+disabled package states via root commands may remain until you reset or change
+them.
+
+================================================================================
+
+[ 9. CHANGES TO THIS POLICY ]
+================================================================================
+
+This Privacy Policy may be updated to reflect code changes or new features.
+
+Updated versions should be published alongside the project.
+
+================================================================================
+
+[ 10. CONTACT ]
+================================================================================
+
+For privacy questions or concerns, please open an issue at:
+
+  https://github.com/HeheJuice/OneUI-Settings-Hook/issues
+
+================================================================================
+                              END OF POLICY
+================================================================================

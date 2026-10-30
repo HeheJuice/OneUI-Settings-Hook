@@ -2,6 +2,11 @@
 
 ---
 
+> 本項目已全面轉為閉源。若您認為應用必須開源，建議您離開本頁，以免產生不適。開發者並無義務將自身應用開源。
+
+---
+
+
 <div align="center">
 
 <img src="res/Logo.png" width="128" height="128" alt="Logo" />

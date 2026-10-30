@@ -2,6 +2,10 @@
 
 ---
 
+> This project has fully transitioned to closed source. If you believe applications must be open source, please leave this page to avoid any discomfort—developers are under no obligation to open-source their apps.
+
+---
+
 <div align="center">
 
 <img src="res/Logo.png" width="128" height="128" alt="Logo" />
